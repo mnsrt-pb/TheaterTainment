@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register a New Account
+{% endblock %}
+
+{% block main %}
+    <h3>REGISTER A NEW ACCOUNT</h3>
+    <div class="border container cont-1 rounded shadow">
+
+        <form action="/register" method="post">
+            <h5>Account Information</h5>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">Username</label>
+                <input class="form-control" name="username" type="text">
+            </div>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">Password</label>
+                <input class="form-control" name="password" type="password">
+            </div>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">Confirm Password</label>
+                <input class="form-control name="confirm" type="password">
+            </div><br>
+
+            <h5>Personal Information</h5>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">First Name</label>
+                <input class="form-control" name="fname" type="text">
+            </div>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">Last Name</label>
+                <input class="form-control" name="lname" type="text">
+            </div>
+            <div class="mb-3 left-align">
+                <label class="form-label font-sm  mx-auto w-auto">Phone</label>
+                <input class="form-control" name="phone" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="123-456-7890">
+            </div>
+
+            <button class="btn btn-primary" type="submit">Register</button>
+        </form>
+
+    </div>
+{% endblock %}

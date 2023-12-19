@@ -1,0 +1,44 @@
+{% extends "e-layout.html" %}
+
+{% block title %}
+    Register a New Account
+{% endblock %}
+
+{% block main %}
+    <div class="border container cont-1 rounded shadow">
+
+        <form action="/a-register" method="post">
+            <h5>Create Account</h5>
+
+            <div class="color-a font-sm left-align mt-4">&emsp;Password Requirements:</div>
+            <ul class="color-a font-sm left-align">
+                <li>An alphabetic character</li>
+                <li>An uppercase character</li>
+                <li>A lowercase character</li>
+                <li>A numeric character</li>
+                <li>A special character</li>
+                <li>A minimum of 8 characters</li>
+            </ul>
+
+            <div class="left-align mb-3">
+                <label class="form-label font-sm mx-auto w-auto">Username</label>
+                <input class="form-control" name="username" type="text">
+            </div>
+            <div class="left-align mb-3">
+                <label class="form-label font-sm mx-auto w-auto">Password</label>
+                <input class="form-control" name="password" type="password">
+            </div>
+            <div class="left-align mb-3">
+                <label class="form-label font-sm mx-auto w-auto">Confirm Password</label>
+                <input class="form-control name="confirm" type="password">
+            </div>
+            <div class="left-align mb-3">
+                <label class="font-sm mx-auto w-auto">Employee Key</label>
+                <input class="form-control" name="a-key" type="text">
+            </div>
+
+            <button class="btn btn-primary" type="submit">Register</button>
+        </form>
+
+    </div>
+{% endblock %}

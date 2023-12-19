@@ -1,0 +1,21 @@
+.cont-1 
+{
+    /* border: 1px solid black; */
+    border-radius: 25px;
+    margin-top: 3vh;
+    padding: 20px;
+    width: 70vw;
+}
+
+.font-bold { font-weight: bold; }
+.font-sm { font-size: .9em; }
+
+.left-align { text-align: left; }
+
+@media screen and (min-width: 750px)
+{
+    .cont-1 
+    {
+        width: 35vw;
+    }
+}

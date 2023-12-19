@@ -1,0 +1,26 @@
+{% extends "e-layout.html" %}
+
+{% block title %}
+    Sign In
+{% endblock %}
+
+{% block main %}
+    <div class="border container cont-1 rounded shadow">
+
+        <form action="/a-login" method="post">
+            <h5>Sign In</h5>
+            
+            <div class="mb-3 left-align">
+                <label class="font-bold form-label font-sm mx-auto w-auto">Username</label>
+                <input class="form-control" name="username" type="text">
+            </div>
+            <div class="mb-3 left-align">
+                <label class="font-bold form-label font-sm mx-auto w-auto">Password</label>
+                <input class="form-control" name="password" type="password">
+            </div>
+
+            <button class="btn btn-primary" type="submit">Log In</button>
+        </form>
+
+    </div>
+{% endblock %}
