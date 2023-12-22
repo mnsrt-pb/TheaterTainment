@@ -3,17 +3,38 @@
   color: #6c757d;
 }
 
+/* Navbar Start */
 /* Colors for brand */
 nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover {
   color: rgba(128, 31, 79, 0.55);
 }
 
-nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link {
+nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h3.color-dark, .color-dark.h3 {
   color: #801f4f;
+}
+
+a.nav-link.dropdown-toggle.show, a.dropdown-item:hover {
+  color: rgba(128, 31, 79, 0.9);
+}
+
+a.dropdown-item {
+  color: rgba(128, 31, 79, 0.55);
+}
+
+/* Navbar end*/
+small .green, .small .green {
+  background-color: #146c43;
+  color: #fff;
+}
+
+small .red, .small .red {
+  background-color: #b02a37;
+  color: #fff;
 }
 
 /* override variables */
 /* merge variables */
+/* Customize navbar colors */
 /* import bootstrap */
 /*!
  * Bootstrap  v5.3.2 (https://getbootstrap.com/)
@@ -4361,7 +4382,7 @@ textarea.form-control-lg {
   --bs-card-cap-padding-x: 1rem;
   --bs-card-cap-bg: rgba(var(--bs-body-color-rgb), 0.03);
   --bs-card-cap-color: ;
-  --bs-card-height: ;
+  --bs-card-height: 100%;
   --bs-card-color: ;
   --bs-card-bg: var(--bs-body-bg);
   --bs-card-img-overlay-padding: 1rem;

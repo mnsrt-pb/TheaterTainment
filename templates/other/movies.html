@@ -1,0 +1,78 @@
+{% extends ext %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h3 class="color-dark">{{ title }}</h3>
+    <div class="border container cont-2 rounded shadow mb-5">
+        <h5 class="">Sort By</h5>
+        <select class="form-select" id="sortby">
+            <option value=0 selected>Popular</option>
+            {% if session['user_type'] == 'staff' %}
+                <option value=1>Descending Date</option>
+            {% else %}
+                <option value=1>Most Recent</option>
+            {% endif %}
+            <option value=2>Alphabetical Order</option>
+        </select>
+    </div>
+
+        {% for i in range (info | length) %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="info{{i}}">
+
+        {% for movie in info[i] %}
+            <div class="col">
+                <div class="card">
+                    <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
+                    <div class="card-body">
+                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie['title']}}">
+                            <h6 class="card-title text-truncate">{{movie['title']}}</h6><br>
+                        </span>
+                        
+                        {% if movie['status'] == 'released' %}
+                            <p class="card-text"><small>Coming Soon<br>
+                        {% else %}
+                            <p class="card-text"><small>Now Playing<br>
+                        {% endif %}
+
+                        <b>Release Date:</b> {{movie['release_date']}}<br>
+                    
+                        {% if movie['adult'] %}
+                            <b>Rated:</b> R<br>
+                        {% else %}
+                            <b>Rated:</b> PG<br>
+                        {% endif %}
+                        <b>Popularity:</b> {{movie['popularity']}}
+
+                        </small></p></br>
+                        
+                        <p class="card-text"><small class="text-body-secondary">
+                            {% for genre in movie['genres'] %}
+                                    {{genre}},
+                            {% endfor %}
+                        </small></p>
+                    </div>
+
+                    <small class="text-body-secondary">
+                        {% if movie['active'] %}
+                            <div class="card-footer green">
+                                Active
+                            </div>
+                        {% else %}
+                            <div class="card-footer red">
+                                Inactive
+                            </div>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+    {% endfor %}       
+</div>
+{% endblock %}
+

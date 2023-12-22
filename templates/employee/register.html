@@ -1,4 +1,4 @@
-{% extends "e-layout.html" %}
+{% extends "employee/layout.html" %}
 
 {% block title %}
     Register a New Account
@@ -7,7 +7,7 @@
 {% block main %}
     <div class="border container cont-1 rounded shadow">
 
-        <form action="/a-register" method="post">
+        <form action="/e-register" method="post">
             <h5>Create Account</h5>
 
             <div class="color-a font-sm left-align mt-4">&emsp;Password Requirements:</div>
@@ -22,19 +22,19 @@
 
             <div class="left-align mb-3">
                 <label class="form-label font-sm mx-auto w-auto">Username</label>
-                <input class="form-control" name="username" type="text">
+                <input autocomplete="off" autofocus class="form-control" name="username" type="text">
             </div>
             <div class="left-align mb-3">
                 <label class="form-label font-sm mx-auto w-auto">Password</label>
-                <input class="form-control" name="password" type="password">
+                <input autocomplete="off" autofocus class="form-control" name="password" type="password">
             </div>
             <div class="left-align mb-3">
                 <label class="form-label font-sm mx-auto w-auto">Confirm Password</label>
-                <input class="form-control name="confirm" type="password">
+                <input autocomplete="off" autofocus class="form-control" name="confirmation" type="password">
             </div>
             <div class="left-align mb-3">
                 <label class="font-sm mx-auto w-auto">Employee Key</label>
-                <input class="form-control" name="a-key" type="text">
+                <input autocomplete="off" autofocus class="form-control" name="e-key" type="text">
             </div>
 
             <button class="btn btn-primary" type="submit">Register</button>

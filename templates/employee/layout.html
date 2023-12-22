@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang="en" class="h-100">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <!-- contians bootstrap -->
+        <link href="../../static/css/styles.css" rel="stylesheet">
+        <script src="../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+        <link href="../../static/css/main.css" rel="stylesheet">
+        <script src="../../static/javascript/main.js" rel="stylesheet"></script>
+
+        <title> Employee | {% block title %}{% endblock %}</title>
+
+    </head>
+
+    <!-- <body class=""> -->
+    <body class="d-flex flex-column h-100 pt-5">
+
+        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/"><span class="color-dark">EMPLOYEE</span></a>
+                <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar">
+                    {% if session["user_id"] %}
+                        <ul class="navbar-nav me-auto mt-2">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Movies
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/all-movies">All Movies</a></li>
+                                    <li><a class="dropdown-item" href="/now-playing">Now Playing</a></li>
+                                    <li><a class="dropdown-item" href="/coming-soon">Coming Soon</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/add-movie">Add Movie</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Showtimes
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/all-showtimes">All Showtimes</a></li>
+                                    <li><a class="dropdown-item" href="/past-showtimes">Past Showtimes</a></li>
+                                    <li><a class="dropdown-item" href="/showtimes-now">Showtimes Now</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/add-showtime">Add showtime</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Auditoriums
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/auditoriums">Auditoriums</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/add-auditorium">Add Auditorium</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/tickets">Tickets</a></li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                        </ul>
+                    {% else %}
+                        <ul class="navbar-nav me-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="/e-login">Sign In</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/e-register">Create Account</a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        {% if get_flashed_messages() and link and failure %}
+            <header>
+                <div class="alert alert-danger mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} Try <a href="/e-login" class="alert-link">logging</a> in.
+                </div>
+            </header>
+        {% elif get_flashed_messages() and failure %}
+            <header>
+                <div class="alert alert-danger mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} 
+                </div>
+            </header>
+        {% elif get_flashed_messages() %}
+            <header>
+                <div class="alert alert-success mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} 
+                </div>
+            </header>
+        {% endif %}
+
+        
+        <main class="container container-fluid py-5 text-center flex-shrink-0">
+            <div class="container">
+                {% block main %}{% endblock %}
+            </div>
+        </main>
+
+        <footer class="footer mt-auto py-3 my-1">
+            <div class="container">
+                <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+                {% if not session["user_id"]%}
+                    <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
+                    <li class="nav-item"><a href="/movies" class="nav-link px-2 text-muted">Movies</a></li>
+                    <li class="nav-item"><a href="/showtimes" class="nav-link px-2 text-muted">Showtimes</a></li>
+                    <li class="nav-item"><a href="/e-login" class="nav-link px-2 text-muted">Employee</a></li>
+                {% endif %}
+                </ul>
+                <p class="text-center text-muted">&copy; 2023 THEATERTAINMENT</p>
+            </div>
+        </footer>
+
+    </body>
+
+</html>
