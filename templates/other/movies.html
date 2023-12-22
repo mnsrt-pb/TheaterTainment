@@ -20,8 +20,8 @@
         </select>
     </div>
 
-        {% for i in range (info | length) %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="info{{i}}">
+    {% for i in range (info | length) %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="info{{i}}">
 
         {% for movie in info[i] %}
             <div class="col">

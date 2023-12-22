@@ -2,6 +2,7 @@ import csv
 import datetime
 import hashlib 
 import requests
+import urllib.parse
 # import pytz
 
 from flask import redirect, render_template, session
@@ -128,12 +129,13 @@ def movie_info(movies, coming_soon=False):
         temp['genres'] = g
         data.append(temp)
         i += 1
-        print(datetime.datetime.strptime(temp['release_date'], '%b %d, %Y') - datetime.datetime.now())
+
     info.append(sorted(data, key=lambda x: x['popularity'], reverse=True))
     info.append(sorted(data, key=lambda x: (datetime.datetime.now() - datetime.datetime.strptime(x['release_date'], '%b %d, %Y'))))
     info.append(data)
     return info
 
+    
 
 def staff_login_required(f):
     '''
@@ -153,7 +155,7 @@ def staff_login_required(f):
     return decorated_function
 
 
-# User should be able to add upcoming movies
+
 def upcoming():
     '''Find upcoming movies'''
     # Movie release date must be later than current date

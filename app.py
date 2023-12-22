@@ -35,8 +35,16 @@ def add_starting_data():
 @staff_login_required
 def add_movie():
     '''Add movie to theater database'''
+    if request.method == 'POST':
+        title = request.form.get('title')
+        
+         # Ensure title was submitted
+        if not title:
+            return render_template('employee/add-movie.html', t_feedback='is-invalid', form=True)
 
-    return apology('TODO', 'employee/layout.html', 403)
+        return render_template('employee/add-movie.html', search_result=True)
+    else:
+        return render_template('employee/add-movie.html', form=True)
 
 
 @app.route('/add-auditorium', methods=['GET', 'POST'])

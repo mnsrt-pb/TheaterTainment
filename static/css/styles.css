@@ -5,7 +5,7 @@
 
 /* Navbar Start */
 /* Colors for brand */
-nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover {
+nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, .color-light.h5 {
   color: rgba(128, 31, 79, 0.55);
 }
 

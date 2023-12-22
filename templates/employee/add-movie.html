@@ -1,0 +1,27 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Add Movie
+{% endblock %}
+
+{% block main %}
+    {% if form %}
+        <h3 class="color-dark">Add Movie</h3>
+        <div class="border container cont-1 rounded shadow">
+            <h5 class="color-light">Search Movie</h5>
+
+            <form action="/add-movie" method="POST" class="needs-confirmation" novalidate>
+                <div class="form-floating mb-3">
+                    <input autocomplete="off" autofocus class="form-control {{t_feedback}}" name="title" placeholder="Title" type="text" required>
+                    <label>Title</label>
+                    <div class="invalid-feedback">
+                        Please provide a title.
+                    </div>
+                </div>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        {% elif search_result %}
+
+        {% endif %}
+    </div>
+{% endblock %}

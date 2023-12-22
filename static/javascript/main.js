@@ -3,6 +3,7 @@
 let titles = [];
 
 document.addEventListener('DOMContentLoaded', function(e) {
+    // Fixing tooltips START
     var tooltips = document.getElementsByClassName('my-tooltip');
     for (let i = 0, len = tooltips.length; i < len; i++){
         titles.push(tooltips[i].getAttribute('title'));
@@ -10,11 +11,16 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
     fixTooltips();
     window.addEventListener("resize", fixTooltips);
+    // Fixing tooltips END
+
+    check_invalid();
 
     movies_sortby();
-   document.getElementById('sortby').addEventListener("change", movies_sortby)
+    document.getElementById('sortby').addEventListener("change", movies_sortby)
 });
 
+
+// Shows toottips only for movies whose titles were ellipsed
 function fixTooltips()
 {
     function checkEllipsis(el){
@@ -52,6 +58,7 @@ function fixTooltips()
     }
 }
 
+// Display movies accordingly
 function movies_sortby(){
     var min = 0
     var max = 2
@@ -74,4 +81,25 @@ function movies_sortby(){
 
         }
     }
+}
+
+// Disabling form submissions if there are invalid fields
+function check_invalid() {
+    'use strict'
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+        }, false)
+    })
 }
