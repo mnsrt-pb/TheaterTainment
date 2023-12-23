@@ -5,7 +5,6 @@ import hashlib
 import requests
 import tmdbsimple as tmdb
 import urllib.parse
-# import pytz
 
 from flask import redirect, render_template, session
 from functools import wraps
@@ -43,7 +42,7 @@ def check_password_hash(pwhash, password):
 
 
 def database_movies(movies, coming_soon=False):
-    '''Return movie info as a list of dictionaries. Every movie is a dictionary with movies's data '''
+    '''Return movie info as a list of movie dictionaries.'''
     
     data = []
 
@@ -52,8 +51,13 @@ def database_movies(movies, coming_soon=False):
 
         temp = {k:v for k,v in m.info().items() if k in ['title', 'status', 'poster_path', 'popularity']}
         temp['active'] = movie['active']
-        temp['release_date'] = display_date(m.info()['release_date'])
-        if coming_soon:
+
+        try:
+            temp['release_date'] = display_date(m.info()['release_date'])
+        except:
+            temp['release_date'] = 'N/A'
+
+        if coming_soon and temp['release_date'] != 'N/A':
             if datetime.datetime.strptime(temp['release_date'], '%b %d, %Y') < datetime.datetime.now():
                 continue
         
@@ -71,14 +75,33 @@ def database_movies(movies, coming_soon=False):
     return sort_by(data)
 
 
+def search_movie(title, year, db):
+    '''Return query results as a list of movie dictionaries.'''
+    
+    result = tmdb.Search().movie(query=title, year=year)['results']
+    
+    data = []
+    for movie in result:
+        temp = {k:v for k,v in movie.items() if k in ['title', 'poster_path', 'release_date', 'id']}
+        try:
+            temp['release_date'] = display_date(temp['release_date'])
+        except:
+            temp['release_date'] = 'N/A'
+        data.append(temp)
+
+    return data
+
+
 def date():
     '''Return current date'''
-    # now = datetime.datetime.now(pytz.timezone('US/Eastern'))
+    
     now = datetime.datetime.now()
-    return now.strftime('%Y-%m-%d %H:%M:%S')
+    return now.strftime('%b %d, %Y %H:%M:%S')
 
 
 def display_date(date_str):
+    '''Convert string to date object'''
+
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     return date_obj.strftime('%b %d, %Y')
 
@@ -86,6 +109,12 @@ def display_date(date_str):
 def generate_password_hash(password):
     hash = hashlib.md5(password.encode())
     return hash.hexdigest()
+
+
+def get_title(tmdb_id):
+    '''Given a movie's tmdb id return its title'''
+
+    return tmdb.Movies(tmdb_id).info()['title']
 
 
 def member_login_required(f):
@@ -108,9 +137,18 @@ def member_login_required(f):
 
 def sort_by(data):
     '''Sort movies by popularity, release date, and in alphabetical order'''
+
+    def sort_dates(movies):
+        '''Sort dates when N/A could be included'''
+
+        na = list(filter(lambda x: x['release_date'] == 'N/A', movies))
+        to_sort = list(filter(lambda x: x['release_date'] != 'N/A', movies))
+
+        return sorted(to_sort, key=lambda x: (datetime.datetime.now() - datetime.datetime.strptime(x['release_date'], '%b %d, %Y'))) + na
+    
     info = []
     info.append(sorted(data, key=lambda x: x['popularity'], reverse=True))
-    info.append(sorted(data, key=lambda x: (datetime.datetime.now() - datetime.datetime.strptime(x['release_date'], '%b %d, %Y'))))
+    info.append(sort_dates(data))
     info.append(data)
     return info
 

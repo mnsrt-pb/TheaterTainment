@@ -15,13 +15,27 @@ CREATE TABLE staff (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
     username TEXT NOT NULL, 
     hash TEXT NOT NULL );
-*/
+
 DROP TABLE movies;
 CREATE TABLE movies (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
     tmdb_id INTEGER UNIQUE NOT NULL,
     title TEXT NOT NULL,
     active BOOLEAN NOT NULL);
+*/
+
+DROP TABLE staff_changes;
+CREATE TABLE staff_changes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    staff_id INTEGER NOT NULL,
+    change TEXT NOT NULL CHECK (change == 'added' OR change == 'removed' OR change == 'updated'),
+    table_name TEXT NOT NULL,
+    data_id INTEGER NOT NULL,
+    date_time DATETIME NOT NULL,
+    FOREIGN KEY(staff_id) REFERENCES staff(id)
+);
+
+
 /*
 DROP TABLE auditoriums;
 CREATE TABLE auditoriums (

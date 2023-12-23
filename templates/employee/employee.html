@@ -5,5 +5,28 @@
 {% endblock %}
 
 {% block main %}
-    <h5>Changes you have made to the database.</h5>
+    <h5 class="color-dark mb-4">Changes you have made to the database.</h5>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class=>#</th>
+                <th class="text-start">Table</th>
+                <th class="text-start">Item</th>
+                <th class="text-end">Change</th>
+                <th class="text-end">Date-Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in changes %}
+            <tr>
+                <th>{{loop.index}}</th>
+                <td class="text-start">{{c['table_name']}}</td>
+                <td class="text-start">{{c['item']}}</td>
+                <td class="text-end">{{c['change']}}</td>
+                <td class="text-end">{{c['date_time']}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
