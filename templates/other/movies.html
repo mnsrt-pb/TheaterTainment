@@ -40,10 +40,8 @@
 
                         <b>Release Date:</b> {{movie['release_date']}}<br>
                     
-                        {% if movie['adult'] %}
-                            <b>Rated:</b> R<br>
-                        {% else %}
-                            <b>Rated:</b> PG<br>
+                        {% if movie['rating'] %}
+                            <b>Rated:</b> {{movie['rating']}}<br>
                         {% endif %}
                         <b>Popularity:</b> {{movie['popularity']}}
 

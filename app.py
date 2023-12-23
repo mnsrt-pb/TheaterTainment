@@ -2,9 +2,9 @@ from cs50 import SQL
 from datetime import datetime 
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
-# from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, member_login_required, staff_login_required, validate_password, check_password_hash, generate_password_hash, movie_info
+from helpers import apology, member_login_required, staff_login_required, validate_password, check_password_hash, generate_password_hash, database_movies
+
 
 # Configure application
 app = Flask(__name__)
@@ -44,6 +44,9 @@ def add_movie():
 
         return render_template('employee/add-movie.html', search_result=True)
     else:
+        movies = db.execute('SELECT * FROM movies ORDER BY title;')
+        database_movies(movies)
+
         return render_template('employee/add-movie.html', form=True)
 
 
@@ -79,7 +82,7 @@ def all_movies():
 
     # Query database for all movies
     movies = db.execute('SELECT * FROM movies ORDER BY title;')
-    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movie_info(movies))
+    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=database_movies(movies))
 
 
 @app.route('/all-showtimes')
@@ -109,7 +112,7 @@ def coming_soon():
         return apology('TODO', 'member/layout.html', 403)
     
     elif session['user_type'] == 'staff':
-        return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=movie_info(movies, True))
+        return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=database_movies(movies, True))
 
         return apology('TODO', 'employee/layout.html', 403)
     
@@ -327,7 +330,7 @@ def now_playing():
         # Query database for movies that are now playing
         movies = db.execute('SELECT * FROM movies WHERE active = TRUE ORDER BY title')
 
-        return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movie_info(movies))
+        return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=database_movies(movies))
     
     else:
         return apology('TODO', 'member/layout.html', 403)
