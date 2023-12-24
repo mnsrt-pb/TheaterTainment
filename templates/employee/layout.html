@@ -40,7 +40,6 @@
                                     <li><a class="dropdown-item" href="/coming-soon">Coming Soon</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="/add-movie">Add Movie</a></li>
-                                    <li><a class="dropdown-item" href="/activate-inactivate">Activate/Inactivate</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -55,16 +54,7 @@
                                     <li><a class="dropdown-item" href="/add-showtime">Add showtime</a></li>
                                 </ul>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                  Auditoriums
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="/auditoriums">Auditoriums</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/add-auditorium">Add Auditorium</a></li>
-                                </ul>
-                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/auditoriums">Auditoriums</a></li>
                             <li class="nav-item"><a class="nav-link" href="/tickets">Tickets</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
@@ -104,7 +94,6 @@
             </header>
         {% endif %}
 
-        
         <main class="container container-fluid py-5 text-center flex-shrink-0">
             <div class="container">
                 {% block main %}{% endblock %}
@@ -115,14 +104,12 @@
             <div class="container">
                 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
                     {% if not session["user_id"]%}
-                    <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
-                    <li class="nav-item"><a href="/movies" class="nav-link px-2 text-muted">Movies</a></li>
-                    <li class="nav-item"><a href="/showtimes" class="nav-link px-2 text-muted">Showtimes</a></li>
+                        <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
+                        <li class="nav-item"><a href="/movies" class="nav-link px-2 text-muted">Movies</a></li>
+                        <li class="nav-item"><a href="/showtimes" class="nav-link px-2 text-muted">Showtimes</a></li>
                     {% else %}
-                    <li class="nav-item"><a href="/add-movie" class="nav-link px-2 text-muted">Add Movie</a></li>   
-                    <li class="nav-item"><a href="/activate-inactivate" class="nav-link px-2 text-muted">Activate/Inactivate</a></li>   
-                    <li class="nav-item"><a href="/add-showtime" class="nav-link px-2 text-muted">Add Showtime</a></li>   
-                    <li class="nav-item"><a href="/add-auditorium" class="nav-link px-2 text-muted">Add Auditorium</a></li>   
+                        <li class="nav-item"><a href="/add-movie" class="nav-link px-2 text-muted">Add Movie</a></li>   
+                        <li class="nav-item"><a href="/add-showtime" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% endif %}
                 </ul>
 
