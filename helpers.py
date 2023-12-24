@@ -1,12 +1,15 @@
 import csv
+import config
 import datetime
 import hashlib 
 import requests
+import tmdbsimple as tmdb
 import urllib.parse
-# import pytz
 
 from flask import redirect, render_template, session
 from functools import wraps
+
+tmdb.API_KEY = config.api_key
 
 
 def apology(message, extends, code=400):
@@ -38,14 +41,67 @@ def check_password_hash(pwhash, password):
     return pwhash == generate_password_hash(password)
 
 
+def database_movies(movies, coming_soon=False):
+    '''Return movie info as a list of movie dictionaries.'''
+    
+    data = []
+
+    for movie in movies:
+        m = tmdb.Movies(movie['tmdb_id'])
+
+        temp = {k:v for k,v in m.info().items() if k in ['title', 'status', 'poster_path', 'popularity']}
+        temp['active'] = movie['active']
+
+        try:
+            temp['release_date'] = display_date(m.info()['release_date'])
+        except:
+            temp['release_date'] = 'N/A'
+
+        if coming_soon and temp['release_date'] != 'N/A':
+            if datetime.datetime.strptime(temp['release_date'], '%b %d, %Y') < datetime.datetime.now():
+                continue
+        
+        g = []
+        for genre in m.info()['genres']:
+            g.append(genre['name'])
+        temp['genres'] = g
+
+        for item in m.release_dates()['results']:
+            if item['iso_3166_1'] == 'US':
+                temp['rating'] = item["release_dates"][0]['certification']
+                break
+
+        data.append(temp)
+    return sort_by(data)
+
+
+def search_movie(title, year, db):
+    '''Return query results as a list of movie dictionaries.'''
+    
+    result = tmdb.Search().movie(query=title, year=year)['results']
+    
+    data = []
+    for movie in result:
+        temp = {k:v for k,v in movie.items() if k in ['id', 'popularity', 'poster_path', 'release_date', 'title']}
+        try:
+            temp['release_date'] = display_date(temp['release_date'])
+        except:
+            temp['release_date'] = 'N/A'
+        data.append(temp)
+
+    return data
+
+
 def date():
     '''Return current date'''
-    # now = datetime.datetime.now(pytz.timezone('US/Eastern'))
+    
     now = datetime.datetime.now()
-    return now.strftime('%Y-%m-%d %H:%M:%S')
+    return now.strftime('%b %d, %Y %H:%M:%S')
 
 
 def display_date(date_str):
+    '''Convert string to date object'''
+
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     return date_obj.strftime('%b %d, %Y')
 
@@ -55,37 +111,10 @@ def generate_password_hash(password):
     return hash.hexdigest()
 
 
-def get_movie_info(movie_id):
-    '''Given a movie id, find the movie's info'''
+def get_title(tmdb_id):
+    '''Given a movie's tmdb id return its title'''
 
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=en-US"
-
-    headers = {
-        "accept": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MzU5Mzc1NDhjMDNlMDJjMGExNjg4ZGQyMjg3MjgxMSIsInN1YiI6IjY1ODM4NTVkZmJlMzZmNGFhZDdmMzVkYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._Wa_5xjrCSE08JXWIe6t8-etYZm0xRNvnYr7C5Y5GuE"
-    }   
-
-    response = requests.get(url, headers=headers).json()
-    return response
-
-
-def now_playing():
-    '''Find movies that are now playing'''
-
-    url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1'
-    
-    headers = {
-        'accept': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MzU5Mzc1NDhjMDNlMDJjMGExNjg4ZGQyMjg3MjgxMSIsInN1YiI6IjY1ODM4NTVkZmJlMzZmNGFhZDdmMzVkYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._Wa_5xjrCSE08JXWIe6t8-etYZm0xRNvnYr7C5Y5GuE'
-    }
-
-    response = requests.get(url, headers=headers).json()['results']
-
-    movie_ids = []
-    for movie in response:
-        movie_ids.append((movie['id'], movie['title']))
-
-    return movie_ids
+    return tmdb.Movies(tmdb_id).info()['title']
 
 
 def member_login_required(f):
@@ -106,36 +135,23 @@ def member_login_required(f):
     return decorated_function
 
 
-def movie_info(movies, coming_soon=False):
-    '''Return movie info as a list of dictionaries. Every movie is a dictionary.'''
-    data, info, i = [], [], 0
+def sort_by(data):
+    '''Sort movies by popularity, release date, and in alphabetical order'''
 
-    for movie in movies:
-        temp = {}
-        tmdb_info =  get_movie_info(movie['tmdb_id'])
-        temp['title'] = movie['title']
-        temp['active'] = movie['active']
-        temp['release_date'] = display_date(tmdb_info['release_date'])
-        if coming_soon:
-            if datetime.datetime.strptime(temp['release_date'], '%b %d, %Y') < datetime.datetime.now():
-                continue
-        temp['status'] = tmdb_info['status']
-        temp['poster_path'] = tmdb_info['poster_path']
-        temp['adult'] = tmdb_info['adult']
-        temp['popularity'] = tmdb_info['popularity']
-        g = []
-        for genre in tmdb_info['genres']:
-            g.append(genre['name'])
-        temp['genres'] = g
-        data.append(temp)
-        i += 1
+    def sort_dates(movies):
+        '''Sort dates when N/A could be included'''
 
+        na = list(filter(lambda x: x['release_date'] == 'N/A', movies))
+        to_sort = list(filter(lambda x: x['release_date'] != 'N/A', movies))
+
+        return sorted(to_sort, key=lambda x: (datetime.datetime.now() - datetime.datetime.strptime(x['release_date'], '%b %d, %Y'))) + na
+    
+    info = []
     info.append(sorted(data, key=lambda x: x['popularity'], reverse=True))
-    info.append(sorted(data, key=lambda x: (datetime.datetime.now() - datetime.datetime.strptime(x['release_date'], '%b %d, %Y'))))
+    info.append(sort_dates(data))
     info.append(data)
     return info
 
-    
 
 def staff_login_required(f):
     '''
@@ -153,7 +169,6 @@ def staff_login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
-
 
 
 def upcoming():

@@ -8,7 +8,7 @@
 <div class="container">
     <h3 class="color-dark">{{ title }}</h3>
     <div class="border container cont-2 rounded shadow mb-5">
-        <h5 class="">Sort By</h5>
+        <h5 class="color-light">Sort By</h5>
         <select class="form-select" id="sortby">
             <option value=0 selected>Popular</option>
             {% if session['user_type'] == 'staff' %}
@@ -32,21 +32,14 @@
                             <h6 class="card-title text-truncate">{{movie['title']}}</h6><br>
                         </span>
                         
-                        {% if movie['status'] == 'released' %}
-                            <p class="card-text"><small>Coming Soon<br>
-                        {% else %}
-                            <p class="card-text"><small>Now Playing<br>
-                        {% endif %}
-
-                        <b>Release Date:</b> {{movie['release_date']}}<br>
-                    
-                        {% if movie['adult'] %}
-                            <b>Rated:</b> R<br>
-                        {% else %}
-                            <b>Rated:</b> PG<br>
-                        {% endif %}
-                        <b>Popularity:</b> {{movie['popularity']}}
-
+                        <p class="card-text"><small>
+                            <b>{{movie['status']}}</b><br>
+                            <b>Release Date:</b> {{movie['release_date']}}<br>
+                        
+                            {% if movie['rating'] %}
+                                <b>Rated:</b> {{movie['rating']}}<br>
+                            {% endif %}
+                            <b>Popularity:</b> {{movie['popularity']}}
                         </small></p></br>
                         
                         <p class="card-text"><small class="text-body-secondary">

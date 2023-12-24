@@ -40,6 +40,7 @@
                                     <li><a class="dropdown-item" href="/coming-soon">Coming Soon</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="/add-movie">Add Movie</a></li>
+                                    <li><a class="dropdown-item" href="/activate-inactivate">Activate/Inactivate</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -113,17 +114,22 @@
         <footer class="footer mt-auto py-3 my-1">
             <div class="container">
                 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-                {% if not session["user_id"]%}
+                    {% if not session["user_id"]%}
                     <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
                     <li class="nav-item"><a href="/movies" class="nav-link px-2 text-muted">Movies</a></li>
                     <li class="nav-item"><a href="/showtimes" class="nav-link px-2 text-muted">Showtimes</a></li>
-                    <li class="nav-item"><a href="/e-login" class="nav-link px-2 text-muted">Employee</a></li>
-                {% endif %}
+                    {% else %}
+                    <li class="nav-item"><a href="/add-movie" class="nav-link px-2 text-muted">Add Movie</a></li>   
+                    <li class="nav-item"><a href="/activate-inactivate" class="nav-link px-2 text-muted">Activate/Inactivate</a></li>   
+                    <li class="nav-item"><a href="/add-showtime" class="nav-link px-2 text-muted">Add Showtime</a></li>   
+                    <li class="nav-item"><a href="/add-auditorium" class="nav-link px-2 text-muted">Add Auditorium</a></li>   
+                    {% endif %}
                 </ul>
+
                 <p class="text-center text-muted">&copy; 2023 THEATERTAINMENT</p>
             </div>
         </footer>
-
-    </body>
-
+        
+    </body>    
 </html>
+    

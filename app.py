@@ -1,10 +1,10 @@
 from cs50 import SQL
 from datetime import datetime 
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
-# from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, member_login_required, staff_login_required, validate_password, check_password_hash, generate_password_hash, movie_info
+from helpers import apology, member_login_required, staff_login_required, validate_password, date, check_password_hash, generate_password_hash, database_movies, search_movie, get_title
+
 
 # Configure application
 app = Flask(__name__)
@@ -21,28 +21,49 @@ db = SQL('sqlite:///database/theater.db')
 employee_key = 'ASDF123!!45'
 
 
-# This should only be executed once to get our movies table started
-def add_starting_data():
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 787699, 'Wonka', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 572802, 'Aquaman and the Lost Kingdom', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 695721, 'The Hunger Games: The Ballad of Songbirds & Snakes', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 901362, 'Trolls Band Together', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 507089, 'Five Nights at Freddy\'s', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 940551, 'Migration', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 748783, 'The Garfield Movie', False)
+@app.route('/activate-inactivate')
+@staff_login_required
+def act_deact():
+    '''Activate/inactivate a movie'''
+
+    return apology('TODO', 'employee/layout.html', 403)
+
 
 @app.route('/add-movie', methods=['GET', 'POST'])
 @staff_login_required
 def add_movie():
     '''Add movie to theater database'''
     if request.method == 'POST':
-        title = request.form.get('title')
+        title, year, m_id = request.form.get('title'), request.form.get('year'), request.form.get('m-id')
         
-         # Ensure title was submitted
-        if not title:
-            return render_template('employee/add-movie.html', t_feedback='is-invalid', form=True)
+        if not m_id:
+            # Ensure title was submitted
+            if not title:
+                return render_template('employee/add-movie.html', t_feedback='is-invalid', y_feedback='is-valid', form=True)
 
-        return render_template('employee/add-movie.html', search_result=True)
+            # Query database for all movies
+            movies = db.execute('SELECT tmdb_id FROM movies')
+
+            return render_template('employee/add-movie.html', search_result=True, result=search_movie(title, year, movies))
+        else:
+            # Ensure movie is not in our database
+            if db.execute('SELECT * FROM movies WHERE tmdb_id = ?', m_id):
+                flash('Movie is already in our database')
+                session['failure'] = True
+                return redirect(url_for("all_movies"))
+            
+            # Insert a new movie to dabase
+            db.execute('INSERT INTO movies (tmdb_id, title, active, deleted) values (?, ?, ?, ?);', m_id, get_title(m_id), False, False)
+
+            # Query databse for movie's row id
+            data_id = db.execute('SELECT id FROM movies WHERE tmdb_id = ?', m_id)[0]['id']
+            
+            # Insert a new change to database
+            db.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'added', 'movies', data_id, date())
+            
+            session['failure'] = False
+            flash('Movie was added to our database')
+            return redirect(url_for("all_movies"))
     else:
         return render_template('employee/add-movie.html', form=True)
 
@@ -79,7 +100,7 @@ def all_movies():
 
     # Query database for all movies
     movies = db.execute('SELECT * FROM movies ORDER BY title;')
-    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movie_info(movies))
+    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=database_movies(movies), failure=session.get('failure'))
 
 
 @app.route('/all-showtimes')
@@ -109,7 +130,7 @@ def coming_soon():
         return apology('TODO', 'member/layout.html', 403)
     
     elif session['user_type'] == 'staff':
-        return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=movie_info(movies, True))
+        return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=database_movies(movies, True))
 
         return apology('TODO', 'employee/layout.html', 403)
     
@@ -126,6 +147,7 @@ def employee_login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == 'POST':
+
         # Ensure username was submitted
         if not request.form.get('username'):
             flash('The Username field is required.')
@@ -137,9 +159,7 @@ def employee_login():
             return render_template('employee/login.html', failure=True)
 
         # Query database for username
-        rows = db.execute(
-            'SELECT * FROM staff WHERE username = ?', request.form.get('username')
-        )
+        rows = db.execute('SELECT * FROM staff WHERE username = ?', request.form.get('username'))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get('password')):
@@ -242,8 +262,16 @@ def index():
     if session.get('user_id') is None:
         return apology('TODO', 'member/layout.html', 403)
     elif session['user_type'] == 'staff':
-        employee = db.execute('SELECT * FROM staff WHERE id = ?;', session['user_id'])[0]
-        return render_template('employee/employee.html', username = employee['username'])
+        rows = db.execute('SELECT * FROM staff_changes WHERE staff_id = ? ORDER BY date_time DESC;', session['user_id'])
+        
+        changes = []
+        for c in rows:
+            if c['change'] == 'added':
+                temp = {k:v for k,v in c.items() if k in ['change', 'table_name', 'date_time']}
+                temp['item'] = db.execute('SELECT title FROM movies WHERE id = ?;', c['data_id'])[0]['title']
+                changes.append(temp)
+
+        return render_template('employee/employee.html', changes=changes)
     else: # session['user_type'] == 'member'
         return apology('TODO', 'member/layout.html', 403)
 
@@ -262,7 +290,6 @@ def logout():
 @app.route('/m-login', methods=['GET', 'POST'])
 def member_login():
     '''Log user in'''
-
 
     # Forget any user_id
     session.clear()
@@ -290,7 +317,8 @@ def member_login():
 
         # Remember which user has logged in
         session['user_id'] = rows[0]['id']
-        session['user_type'] == 'member'
+        session['user_type'] = 'member'
+        session['failure'] = False
 
         # Redirect user to home page
         return redirect('/')
@@ -327,7 +355,7 @@ def now_playing():
         # Query database for movies that are now playing
         movies = db.execute('SELECT * FROM movies WHERE active = TRUE ORDER BY title')
 
-        return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movie_info(movies))
+        return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=database_movies(movies))
     
     else:
         return apology('TODO', 'member/layout.html', 403)

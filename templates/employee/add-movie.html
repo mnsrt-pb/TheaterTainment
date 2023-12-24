@@ -8,9 +8,9 @@
     {% if form %}
         <h3 class="color-dark">Add Movie</h3>
         <div class="border container cont-1 rounded shadow">
-            <h5 class="color-light">Search Movie</h5>
+            <h5 class="color-light mb-4">Search Movie</h5>
 
-            <form action="/add-movie" method="POST" class="needs-confirmation" novalidate>
+            <form action="/add-movie" method="POST" class="needs-validation" novalidate>
                 <div class="form-floating mb-3">
                     <input autocomplete="off" autofocus class="form-control {{t_feedback}}" name="title" placeholder="Title" type="text" required>
                     <label>Title</label>
@@ -18,10 +18,43 @@
                         Please provide a title.
                     </div>
                 </div>
+                <div class="form-floating mb-3">
+                    <input autocomplete="off" autofocus class="form-control {{y_feedback}}" name="year" placeholder="Release Year" type="text">
+                    <label>Release Year</label>
+                </div>
                 <button class="btn btn-primary" type="submit">Search</button>
             </form>
-        {% elif search_result %}
+        </div>
 
-        {% endif %}
-    </div>
+    {% elif search_result %}
+        <h3 class="color-dark mb-5">Search Results</h3>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+            
+            {% for movie in result %}
+            <div class="col">
+                <div class="card">
+                    {% if movie['poster_path'] %}
+                        <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie['title']}}">
+                            <h6 class="card-title text-truncate">{{movie['title']}}</h6><br>
+                        </span>
+
+                        <p class="card-text"><small>
+                            <b>Release Date:</b><br> {{movie['release_date']}}<br>
+                            <b>Popularity:</b> {{movie['popularity']}}
+                        </small></p>
+
+                        <form action="/add-movie" method="POST">
+                            <input type="hidden" name="m-id" value="{{movie['id']}}">
+                            <button class="btn btn-primary" type="submit">Add Movie</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    {% endif %}
 {% endblock %}
