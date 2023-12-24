@@ -21,15 +21,13 @@ db = SQL('sqlite:///database/theater.db')
 employee_key = 'ASDF123!!45'
 
 
-# This should only be executed once to get our movies table started
-def add_starting_data():
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 787699, 'Wonka', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 572802, 'Aquaman and the Lost Kingdom', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 695721, 'The Hunger Games: The Ballad of Songbirds & Snakes', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 901362, 'Trolls Band Together', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 507089, 'Five Nights at Freddy\'s', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 940551, 'Migration', True)
-    db.execute('INSERT INTO movies (tmdb_id, title, active) VALUES (?, ?, ?);', 748783, 'The Garfield Movie', False)
+@app.route('/activate-inactivate')
+@staff_login_required
+def act_deact():
+    '''Activate/inactivate a movie'''
+
+    return apology('TODO', 'employee/layout.html', 403)
+
 
 @app.route('/add-movie', methods=['GET', 'POST'])
 @staff_login_required
@@ -55,7 +53,7 @@ def add_movie():
                 return redirect(url_for("all_movies"))
             
             # Insert a new movie to dabase
-            db.execute('INSERT INTO movies (tmdb_id, title, active) values (?, ?, ?);', m_id, get_title(m_id), False)
+            db.execute('INSERT INTO movies (tmdb_id, title, active, deleted) values (?, ?, ?, ?);', m_id, get_title(m_id), False, False)
 
             # Query databse for movie's row id
             data_id = db.execute('SELECT id FROM movies WHERE tmdb_id = ?', m_id)[0]['id']
@@ -264,7 +262,7 @@ def index():
     if session.get('user_id') is None:
         return apology('TODO', 'member/layout.html', 403)
     elif session['user_type'] == 'staff':
-        rows = db.execute('SELECT * FROM staff_changes WHERE staff_id = ?;', session['user_id'])
+        rows = db.execute('SELECT * FROM staff_changes WHERE staff_id = ? ORDER BY date_time DESC;', session['user_id'])
         
         changes = []
         for c in rows:

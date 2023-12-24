@@ -8,13 +8,13 @@ $card-height: 100%;
 
 /* Navbar Start */
   /* Colors for brand */
-  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, h3.color-light
+  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, h3.color-light, a.color-light
   {
     // color: #a27880;
     color: rgba($pink-700, .55);
   }
 
-  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h5.color-dark, h3.color-dark
+  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h5.color-dark, h3.color-dark, a.nav-link:hover
   {
     // color: #590d22;
     color: $pink-700;

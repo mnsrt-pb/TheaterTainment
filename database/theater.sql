@@ -16,19 +16,29 @@ CREATE TABLE staff (
     username TEXT NOT NULL, 
     hash TEXT NOT NULL );
 
+*/
+
 DROP TABLE movies;
 CREATE TABLE movies (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
     tmdb_id INTEGER UNIQUE NOT NULL,
     title TEXT NOT NULL,
-    active BOOLEAN NOT NULL);
-*/
+    active BOOLEAN NOT NULL,
+    deleted BOOLEAN NOT NULL);
+
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (787699, 'Wonka', True, False);
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (572802, 'Aquaman and the Lost Kingdom', True, False);
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (695721, 'The Hunger Games: The Ballad of Songbirds & Snakes', True, False);
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (901362, 'Trolls Band Together', True, False);
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (940551, 'Migration', True, False);
+INSERT INTO movies (tmdb_id, title, active, deleted) VALUES (748783, 'The Garfield Movie', False, False);
+
 
 DROP TABLE staff_changes;
 CREATE TABLE staff_changes (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     staff_id INTEGER NOT NULL,
-    change TEXT NOT NULL CHECK (change == 'added' OR change == 'removed' OR change == 'updated'),
+    change TEXT NOT NULL CHECK (change == 'added' OR change == 'activated' OR change == 'inactivated' OR change == 'updated'),
     table_name TEXT NOT NULL,
     data_id INTEGER NOT NULL,
     date_time DATETIME NOT NULL,

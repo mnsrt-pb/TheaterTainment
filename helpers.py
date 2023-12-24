@@ -82,7 +82,7 @@ def search_movie(title, year, db):
     
     data = []
     for movie in result:
-        temp = {k:v for k,v in movie.items() if k in ['title', 'poster_path', 'release_date', 'id']}
+        temp = {k:v for k,v in movie.items() if k in ['id', 'popularity', 'poster_path', 'release_date', 'title']}
         try:
             temp['release_date'] = display_date(temp['release_date'])
         except:

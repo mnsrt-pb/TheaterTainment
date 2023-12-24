@@ -32,19 +32,14 @@
                             <h6 class="card-title text-truncate">{{movie['title']}}</h6><br>
                         </span>
                         
-                        {% if movie['status'] == 'released' %}
-                            <p class="card-text"><small>Coming Soon<br>
-                        {% else %}
-                            <p class="card-text"><small>Now Playing<br>
-                        {% endif %}
-
-                        <b>Release Date:</b> {{movie['release_date']}}<br>
-                    
-                        {% if movie['rating'] %}
-                            <b>Rated:</b> {{movie['rating']}}<br>
-                        {% endif %}
-                        <b>Popularity:</b> {{movie['popularity']}}
-
+                        <p class="card-text"><small>
+                            <b>{{movie['status']}}</b><br>
+                            <b>Release Date:</b> {{movie['release_date']}}<br>
+                        
+                            {% if movie['rating'] %}
+                                <b>Rated:</b> {{movie['rating']}}<br>
+                            {% endif %}
+                            <b>Popularity:</b> {{movie['popularity']}}
                         </small></p></br>
                         
                         <p class="card-text"><small class="text-body-secondary">
