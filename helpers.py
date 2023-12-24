@@ -135,6 +135,16 @@ def member_login_required(f):
     return decorated_function
 
 
+def released(tmdb_id):
+    '''Find upcoming movies'''
+    try:
+        r = display_date(tmdb.Movies(tmdb_id).info()['release_date'] )
+    except:
+       return False
+
+    return datetime.datetime.strptime(r, '%b %d, %Y') < datetime.datetime.now()
+
+
 def sort_by(data):
     '''Sort movies by popularity, release date, and in alphabetical order'''
 
@@ -169,13 +179,6 @@ def staff_login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
-
-
-def upcoming():
-    '''Find upcoming movies'''
-    # Movie release date must be later than current date
-    # Movie must not already be in database
-    return 
 
 
 def validate_password(password):

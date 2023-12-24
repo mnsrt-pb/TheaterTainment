@@ -20,6 +20,76 @@
         </select>
     </div>
 
+    <!-- Activate/Inactivate Movies -->
+    {% if title == 'All Movies' %} 
+    <div class="conatainer mb-5 mt-0">
+        <!-- Buttons for Modals -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activate-movie">
+            Activate Movie
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
+            Inactivate Movie
+        </button>
+        
+        <!-- Modals -->
+        <div class="modal fade" id="activate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Activate Movie</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/activate" method="POST" id="activate">
+                            <div class="form-floating">
+                                <select class="form-select"  id="movie-select1" name="m-id">
+                                  <option selected>Select Movie</option>
+                                  {% for movie in inactive %}
+                                    <option value="{{movie['tmdb_id']}}">{{movie['title']}}</option>
+                                  {% endfor %}
+                                </select>
+                                <label for="movie-select1">Movie</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" form="activate">Activate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="inactivate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Inactivate Movie</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/inactivate" method="POST" id="inactivate">
+                            <div class="form-floating">
+                                <select class="form-select" form='inactivate' id="movie-select2" name="m-id">
+                                  <option selected>Select Movie</option>
+                                  {% for movie in active %}
+                                    <option value="{{movie['tmdb_id']}}">{{movie['title']}}</option>
+                                  {% endfor %}
+                                </select>
+                                <label for="movie-select1">Movie</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" form="inactivate">Inactivate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
+
     {% for i in range (info | length) %}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="info{{i}}">
 

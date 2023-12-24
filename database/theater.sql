@@ -38,7 +38,7 @@ DROP TABLE staff_changes;
 CREATE TABLE staff_changes (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     staff_id INTEGER NOT NULL,
-    change TEXT NOT NULL CHECK (change == 'added' OR change == 'activated' OR change == 'inactivated' OR change == 'updated'),
+    change TEXT NOT NULL CHECK (change == 'added' OR change == 'activated' OR change == 'inactivated' OR change == 'deleted'),
     table_name TEXT NOT NULL,
     data_id INTEGER NOT NULL,
     date_time DATETIME NOT NULL,
