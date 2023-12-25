@@ -1,9 +1,11 @@
 from cs50 import SQL
 from datetime import datetime 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from flask_session import Session
 from forms import RegistrationForm, LoginForm
-from helpers import apology, member_login_required, staff_login_required, date, check_password_hash, generate_password_hash, database_movies, search_movie, get_title, released
+from helpers import apology, database_movies, date, get_title, member_login_required, released, search_movie, staff_login_required
 
 
 # Configure application
@@ -14,7 +16,11 @@ app.config["WTF_CSRF_ENABLED"] = False
 # Configure session to use filesystem (instead of signed cookies)
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
+
 Session(app)
+
+bcrypt = Bcrypt(app)
+# login_manager = LoginManager(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL('sqlite:///database/theater.db')
@@ -36,20 +42,17 @@ def activate():
         
         # Ensure movie exists in database
         if not exists:
-            session['failure'] = True
-            flash('Could not activate movie.')
+            flash('Could not activate movie.', 'danger')
             return redirect(url_for("all_movies"))
         
         else:
             if exists[0]['active']:
-                session['failure'] = True
-                flash('Movie is already active.')
+                flash('Movie is already active.', 'danger')
                 return redirect(url_for("all_movies"))
 
 
             if not released(tmdb_id):
-                session['failure'] = True
-                flash('Can only activate released movies.')
+                flash('Can only activate released movies.', 'danger')
                 return redirect(url_for("all_movies"))
 
             # Update movies's active status
@@ -58,8 +61,7 @@ def activate():
             # Insert a new change to database
             db.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'activated', 'movies', exists[0]['id'], date())
 
-            session['failure'] = False
-            flash('Movie has been activated.')
+            flash('Movie has been activated.', 'success')
             
     return redirect(url_for("all_movies"))
 
@@ -88,13 +90,11 @@ def add_movie():
                 if exists[0]['deleted']:
                     db.execute('UPDATE movies SET deleted = FALSE WHERE id = ?', exists[0]['id'])
 
-                    session['failure'] = False
-                    flash('Movie was added to our database')
+                    flash('Movie was added to our database', 'success')
                     return redirect(url_for("all_movies"))
                 # Movie is in database
                 else:
-                    flash('Movie is already in our database')
-                    session['failure'] = True
+                    flash('Movie is already in our database', 'danger')
                     return redirect(url_for("all_movies"))
             
             # Insert a new movie to dabase
@@ -106,8 +106,7 @@ def add_movie():
             # Insert a new change to database
             db.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'added', 'movies', data_id, date())
             
-            session['failure'] = False
-            flash('Movie was added to our database')
+            flash('Movie was added to our database', 'success')
             return redirect(url_for("all_movies"))
     else:
         return render_template('employee/add-movie.html', form=True)
@@ -176,78 +175,51 @@ def coming_soon():
         return apology('TODO', 'member/layout.html', 403)
     
 
-@app.route('/e-login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     '''Login employee'''
     
     # Forget any user_id
-    session.clear()
+    # session.clear()
 
     form = LoginForm()
 
     # User reached route via POST (as by submitting a form via POST)
-    if request.method == 'POST':
-
+    if form.validate_on_submit():
         # Query database for username
-        # rows = db.execute('SELECT * FROM staff WHERE username = ?', request.form.get('username'))
+        rows = db.execute('SELECT * FROM staff WHERE username = ?', form.username.data)
 
         # Ensure username exists and password is correct
-        # if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get('password')):
-        #     flash('Invalid Username or Password.')
-        #     return render_template('employee/login.html', failure=True)
+        if len(rows) != 0 and bcrypt.check_password_hash(rows[0]['hash'],form.password.data):
+            # Remember which user has logged in
+            session['user_id'] = rows[0]['id']
+            session['user_type'] = 'staff'
 
-        # Remember which user has logged in
-        # session['user_id'] = rows[0]['id']
-        # session['user_type'] = 'staff'
-
-        # Redirect user to home page
-        return redirect('/')
+            # Redirect user to home page
+            return redirect('/')
+        
+        else:
+            flash('Invalid Username or Password.', 'danger')
 
     # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template('employee/login.html', form=form)
+    return render_template('employee/login.html', form=form)
 
 
-@app.route('/e-register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     '''Register associate'''
 
-    # Forget any user id
-    session.clear()
-    
     form = RegistrationForm()
-
     if form.validate_on_submit():
-            # flash('Registered!', 'success')
-            # flash('Username alredy exists.', 'success')
-            flash('Registered!', 'success')
-            return redirect('/')
-        
 
-
-        # # Query database for username
-        # rows = db.execute('SELECT * FROM staff WHERE username = ?', form.username.data)
-
-        # # Ensure username does not exist
-        # if len(rows) != 0:
-        #     flash('Username already exists.')
-        #     return render_template('employee/register.html', failure=True, link=True)
-
-        # # Insert a new user to database
-        # db.execute(
-        #     'INSERT INTO staff (form.username.data, hash) VALUES (?, ?);',
-        #     username,
-        #     generate_password_hash(form.password.data)
-        # )
-        # flash('Registered!', 'success')
-
-        # # Query database for user id
-        # row = db.execute('SELECT id FROM staff WHERE username = ?', username)
-
-        # # Log in user
-        # session['user_id'] = row[0]['id']
-        # session['user_type'] = 'employee'
-
+        # Insert a new user to database
+        db.execute(
+            'INSERT INTO staff (username, hash) VALUES (?, ?);',
+            form.username.data,
+            bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        )
+        flash('Your account has been created! You are now able to log in.', 'success')
+        return redirect(url_for('login'))
     else:
         return render_template('employee/register.html', form=form)
 
@@ -265,13 +237,11 @@ def inactivate():
         
         # Ensure movie exists in database
         if not exists:
-            session['failure'] = True
-            flash('Could not inactivate movie.')
+            flash('Could not inactivate movie.', 'danger')
             return redirect(url_for("all_movies"))
         
         elif not exists[0]['active']:
-            session['failure'] = True
-            flash('Movie is already inactive.')
+            flash('Movie is already inactive.', 'danger')
             return redirect(url_for("all_movies"))
 
         # Update movies's active status
@@ -280,8 +250,7 @@ def inactivate():
         # Insert a new change to database
         db.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'inactivated', 'movies', exists[0]['id'], date())
 
-        session['failure'] = False
-        flash('Movie has been inactivated.')
+        flash('Movie has been inactivated.', 'success')
             
     return redirect(url_for("all_movies"))
 
@@ -349,7 +318,6 @@ def member_login():
         # # Remember which user has logged in
         # session['user_id'] = rows[0]['id']
         # session['user_type'] = 'member'
-        # session['failure'] = False
 
         # # Redirect user to home page
         return redirect('/')

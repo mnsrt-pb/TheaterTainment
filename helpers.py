@@ -37,10 +37,6 @@ def apology(message, extends, code=400):
     return render_template('other/apology.html', ext=extends, top=code, bottom=escape(message)), code
 
 
-def check_password_hash(pwhash, password):
-    return pwhash == generate_password_hash(password)
-
-
 def database_movies(movies, coming_soon=False):
     '''Return movie info as a list of movie dictionaries.'''
     
@@ -104,11 +100,6 @@ def display_date(date_str):
 
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     return date_obj.strftime('%b %d, %Y')
-
-
-def generate_password_hash(password):
-    hash = hashlib.md5(password.encode())
-    return hash.hexdigest()
 
 
 def get_title(tmdb_id):

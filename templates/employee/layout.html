@@ -77,22 +77,9 @@
             {% if messages %}
             <header class="mt-4">
                     {% for category, message in messages %}
-                        {% if category == 'link' %}
-                        <div class="alert alert-danger mb-0 text-center" role="alert">
-                            {{ message }} Try <a href="/e-login" class="alert-link">logging</a> in.
-                        </div>
-
-                        {% elif category == 'failure' %}
-                        <div class="alert alert-danger mb-0 text-center" role="alert">
+                        <div class="alert alert-{{category}} mb-0 text-center" role="alert">
                             {{ message }} 
                         </div>
-
-                        {% elif category == 'success' %}
-                        <div class="alert alert-success mb-0 text-center" role="alert">
-                            {{ message }} 
-                        </div>
-
-                        {% endif %}
                     {% endfor %}
                 </header>
             {% endif %}

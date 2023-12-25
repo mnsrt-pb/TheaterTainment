@@ -13,8 +13,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
     window.addEventListener("resize", fixTooltips);
     // Fixing tooltips END
 
-    check_invalid();
-
     movies_sortby();
     document.getElementById('sortby').addEventListener("change", movies_sortby)
 });
@@ -83,23 +81,3 @@ function movies_sortby(){
     }
 }
 
-// Disabling form submissions if there are invalid fields
-function check_invalid() {
-    'use strict'
-
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.querySelectorAll('.needs-validation')
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-    .forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-        }
-
-        form.classList.add('was-validated')
-        }, false)
-    })
-}

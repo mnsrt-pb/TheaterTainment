@@ -62,16 +62,16 @@
                     {% endif %}
                 </div>
                 <div class="left-align mb-3">
-                    {{ form.e_key.label(class="font-bold form-label font-sm mx-auto w-auto")}}
-                    {% if form.e_key.errors %}
-                        {{ form.e_key(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                    {{ form.key.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {% if form.key.errors %}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
                         <div class="invalid-feedback">
-                            {% for error in form.e_key.errors %}
+                            {% for error in form.key.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.e_key(autocomplete="off", autofocus=true, class="form-control")}}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control")}}
                     {% endif %}
                 </div>
                 {{form.submit(class="btn btn-primary")}}
