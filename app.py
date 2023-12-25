@@ -2,12 +2,14 @@ from cs50 import SQL
 from datetime import datetime 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
-
-from helpers import apology, member_login_required, staff_login_required, validate_password, date, check_password_hash, generate_password_hash, database_movies, search_movie, get_title, released
+from forms import RegistrationForm, LoginForm
+from helpers import apology, member_login_required, staff_login_required, date, check_password_hash, generate_password_hash, database_movies, search_movie, get_title, released
 
 
 # Configure application
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '238b73674c2a7a432a1ade61a2ecd214'
+app.config["WTF_CSRF_ENABLED"] = False
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config['SESSION_PERMANENT'] = False
@@ -175,120 +177,79 @@ def coming_soon():
     
 
 @app.route('/e-login', methods=['GET', 'POST'])
-def employee_login():
+def login():
     '''Login employee'''
     
     # Forget any user_id
     session.clear()
 
+    form = LoginForm()
+
     # User reached route via POST (as by submitting a form via POST)
     if request.method == 'POST':
 
-        # Ensure username was submitted
-        if not request.form.get('username'):
-            flash('The Username field is required.')
-            return render_template('employee/login.html', failure=True)
-
-        # Ensure password was submitted
-        elif not request.form.get('password'):
-            flash('The Password field is required.')
-            return render_template('employee/login.html', failure=True)
-
         # Query database for username
-        rows = db.execute('SELECT * FROM staff WHERE username = ?', request.form.get('username'))
+        # rows = db.execute('SELECT * FROM staff WHERE username = ?', request.form.get('username'))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get('password')):
-            flash('Invalid Username or Password.')
-            return render_template('employee/login.html', failure=True)
+        # if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get('password')):
+        #     flash('Invalid Username or Password.')
+        #     return render_template('employee/login.html', failure=True)
 
         # Remember which user has logged in
-        session['user_id'] = rows[0]['id']
-        session['user_type'] = 'staff'
+        # session['user_id'] = rows[0]['id']
+        # session['user_type'] = 'staff'
 
         # Redirect user to home page
         return redirect('/')
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template('employee/login.html')
+        return render_template('employee/login.html', form=form)
 
 
 @app.route('/e-register', methods=['GET', 'POST'])
-def employee_register():
+def register():
     '''Register associate'''
 
     # Forget any user id
     session.clear()
+    
+    form = RegistrationForm()
 
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == 'POST':
-        username, password, confirmation, e_key = (
-            request.form.get('username'),
-            request.form.get('password'),
-            request.form.get('confirmation'),
-            request.form.get('e-key')
-        )
-
-        # Ensure username was submitted
-        if not username:
-            flash('The Username field is required.')
-            return render_template('employee/register.html', failure=True)
-
-        # Ensure password was submitted
-        elif not password:
-            flash('The Password field is required.')
-            return render_template('employee/register.html', failure=True)
+    if form.validate_on_submit():
+            # flash('Registered!', 'success')
+            # flash('Username alredy exists.', 'success')
+            flash('Registered!', 'success')
+            return redirect('/')
         
-        # Ensure password was submitted
-        elif not e_key:
-            flash('The Employee Key field is required.')
-            return render_template('employee/register.html', failure=True)
 
-        # Ensure passwords match
-        elif password != confirmation:
-            flash('The passwords you enter must match.')
-            return render_template('employee/register.html', failure=True)
-        
-        # Ensure user is an employee
-        elif employee_key != e_key:
-            flash('Invalid Employee Key.')
-            return render_template('employee/register.html', failure=True)
-        
-        # Ensure password requirements are met
-        elif not validate_password(password):
-            flash('Password must meet password requirements.')
-            return render_template('employee/register.html', failure=True)
 
-        # Query database for username
-        rows = db.execute('SELECT * FROM staff WHERE username = ?', username)
+        # # Query database for username
+        # rows = db.execute('SELECT * FROM staff WHERE username = ?', form.username.data)
 
-        # Ensure username does not exist
-        if len(rows) != 0:
-            flash('Username already exists.')
-            return render_template('employee/register.html', failure=True, link=True)
+        # # Ensure username does not exist
+        # if len(rows) != 0:
+        #     flash('Username already exists.')
+        #     return render_template('employee/register.html', failure=True, link=True)
 
-        # Insert a new user to database
-        db.execute(
-            'INSERT INTO staff (username, hash) VALUES (?, ?);',
-            username,
-            generate_password_hash(password)
-        )
-        flash('Registered!')
+        # # Insert a new user to database
+        # db.execute(
+        #     'INSERT INTO staff (form.username.data, hash) VALUES (?, ?);',
+        #     username,
+        #     generate_password_hash(form.password.data)
+        # )
+        # flash('Registered!', 'success')
 
-        # Query database for user id
-        row = db.execute('SELECT id FROM staff WHERE username = ?', username)
+        # # Query database for user id
+        # row = db.execute('SELECT id FROM staff WHERE username = ?', username)
 
-        # Log in user
-        session['user_id'] = row[0]['id']
-        session['user_type'] = 'employee'
+        # # Log in user
+        # session['user_id'] = row[0]['id']
+        # session['user_type'] = 'employee'
 
-        # Redirect user to home page
-        return redirect('/')
-
-    # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template('employee/register.html')
+        return render_template('employee/register.html', form=form)
 
 
 @app.route('/inactivate', methods=['GET', 'POST'])
@@ -366,31 +327,31 @@ def member_login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == 'POST':
-        # Ensure username was submitted
-        if not request.form.get('username'):
-            return apology('must provide username', 'employee/layout.html', 403)
+        # # Ensure username was submitted
+        # if not request.form.get('username'):
+        #     return apology('must provide username', 'employee/layout.html', 403)
 
-        # Ensure password was submitted
-        elif not request.form.get('password'):
-            return apology('must provide password', 'employee/layout.html', 403)
+        # # Ensure password was submitted
+        # elif not request.form.get('password'):
+        #     return apology('must provide password', 'employee/layout.html', 403)
 
-        # Query database for username
-        rows = db.execute(
-            'SELECT * FROM users WHERE username = ?', request.form.get('username')
-        )
+        # # Query database for username
+        # rows = db.execute(
+        #     'SELECT * FROM users WHERE username = ?', request.form.get('username')
+        # )
 
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(
-            rows[0]['hash'], request.form.get('password')
-        ):
-            return apology('invalid username and/or password', 'employee/layout.html', 403)
+        # # Ensure username exists and password is correct
+        # if len(rows) != 1 or not check_password_hash(
+        #     rows[0]['hash'], request.form.get('password')
+        # ):
+        #     return apology('invalid username and/or password', 'employee/layout.html', 403)
 
-        # Remember which user has logged in
-        session['user_id'] = rows[0]['id']
-        session['user_type'] = 'member'
-        session['failure'] = False
+        # # Remember which user has logged in
+        # session['user_id'] = rows[0]['id']
+        # session['user_type'] = 'member'
+        # session['failure'] = False
 
-        # Redirect user to home page
+        # # Redirect user to home page
         return redirect('/')
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -461,3 +422,6 @@ def tickets():
 
     return apology('TODO', 'employee/layout.html', 403)
 
+ 
+# if __name__ == '__main__':
+#     app.run(debug=True)

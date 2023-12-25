@@ -35,11 +35,11 @@
                                   Movies
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="/all-movies">All Movies</a></li>
-                                    <li><a class="dropdown-item" href="/now-playing">Now Playing</a></li>
-                                    <li><a class="dropdown-item" href="/coming-soon">Coming Soon</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('all_movies') }}">All Movies</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('now_playing') }}">Now Playing</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('coming_soon') }}">Coming Soon</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/add-movie">Add Movie</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('add_movie') }}">Add Movie</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -47,52 +47,56 @@
                                   Showtimes
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="/all-showtimes">All Showtimes</a></li>
-                                    <li><a class="dropdown-item" href="/past-showtimes">Past Showtimes</a></li>
-                                    <li><a class="dropdown-item" href="/showtimes-now">Showtimes Now</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('all_showtimes') }}">All Showtimes</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('past_showtimes') }}">Past Showtimes</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('showtimes_now') }}">Showtimes Now</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/add-showtime">Add showtime</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('add_showtime') }}">Add showtime</a></li>
                                 </ul>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="/auditoriums">Auditoriums</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/tickets">Tickets</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('auditoriums') }}">Auditoriums</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('tickets') }}">Tickets</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log Out</a></li>
                         </ul>
                     {% else %}
                         <ul class="navbar-nav me-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/e-login">Sign In</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/e-register">Create Account</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Sign In</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Create Account</a></li>
                         </ul>
                     {% endif %}
                 </div>
             </div>
         </nav>
 
-        {% if get_flashed_messages() %}
+        {% with messages =  get_flashed_messages(with_categories=true) %}
+            {% if messages %}
             <header class="mt-4">
-                {% if link and failure %}
-                <div class="alert alert-danger mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} Try <a href="/e-login" class="alert-link">logging</a> in.
-                </div>
+                    {% for category, message in messages %}
+                        {% if category == 'link' %}
+                        <div class="alert alert-danger mb-0 text-center" role="alert">
+                            {{ message }} Try <a href="/e-login" class="alert-link">logging</a> in.
+                        </div>
 
-                {% elif failure %}
-                <div class="alert alert-danger mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} 
-                </div>
+                        {% elif category == 'failure' %}
+                        <div class="alert alert-danger mb-0 text-center" role="alert">
+                            {{ message }} 
+                        </div>
 
-                {% else %}
-                <div class="alert alert-success mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} 
-                </div>
+                        {% elif category == 'success' %}
+                        <div class="alert alert-success mb-0 text-center" role="alert">
+                            {{ message }} 
+                        </div>
 
-                {% endif %}
-            </header>
-        {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </header>
+            {% endif %}
+        {% endwith %}
 
         <main class="container container-fluid py-5 text-center flex-shrink-0">
             <div class="container">
@@ -105,11 +109,11 @@
                 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
                     {% if not session["user_id"]%}
                         <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
-                        <li class="nav-item"><a href="/movies" class="nav-link px-2 text-muted">Movies</a></li>
-                        <li class="nav-item"><a href="/showtimes" class="nav-link px-2 text-muted">Showtimes</a></li>
+                        <li class="nav-item"><a href="{{ url_for('movies') }}" class="nav-link px-2 text-muted">Movies</a></li>
+                        <li class="nav-item"><a href="{{ url_for('showtimes') }}" class="nav-link px-2 text-muted">Showtimes</a></li>
                     {% else %}
-                        <li class="nav-item"><a href="/add-movie" class="nav-link px-2 text-muted">Add Movie</a></li>   
-                        <li class="nav-item"><a href="/add-showtime" class="nav-link px-2 text-muted">Add Showtime</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% endif %}
                 </ul>
 

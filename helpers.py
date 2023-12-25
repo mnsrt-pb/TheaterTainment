@@ -6,7 +6,7 @@ import requests
 import tmdbsimple as tmdb
 import urllib.parse
 
-from flask import redirect, render_template, session
+from flask import redirect, render_template, session, url_for
 from functools import wraps
 
 tmdb.API_KEY = config.api_key
@@ -173,27 +173,10 @@ def staff_login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get('user_id') is None:
-            return redirect('/e-login')
+            return redirect(url_for('login'))
         elif session.get('user_type') != 'staff':
             return redirect('/')
         return f(*args, **kwargs)
 
     return decorated_function
-
-
-def validate_password(password):
-    has_num, has_upper, has_lower, has_special_char = False, False, False, False
-
-    for char in password:
-        if char.isnumeric():
-            has_num = True
-        elif char.isupper():
-            has_upper = True
-        elif char.islower():
-            has_lower = True
-        elif char in '[@_!#$%^&*()<>?/\|}{~:]':
-            has_special_char = True
-
-    print(has_num, has_upper, has_lower, has_special_char)
-    return has_num and has_upper and has_lower and has_special_char and (len(password) >= 8)
-        
+   

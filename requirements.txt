@@ -1,0 +1,15 @@
+cs50
+Flask
+Flask-Session
+requests
+jQuery
+tmdsimple
+flask_wtf
+
+
+
+
+cat theater.sql | sqlite3 theater.db
+ASDF123!!45
+HelloWorld#3
+helloworld#3
