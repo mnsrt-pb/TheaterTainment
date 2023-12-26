@@ -1,5 +1,6 @@
 from cs50 import SQL
 from flask_wtf import FlaskForm
+from theatert.models import Employee
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 
@@ -12,15 +13,13 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, username):
         '''Ensure username does not exist'''
 
-        # Query database for username
-        user = db.execute('SELECT * FROM staff WHERE username = ?', username.data)
-
-        if len(user) != 0:
+        user = Employee.query.filter_by(username=username.data).first()
+        if user:
             raise ValidationError('Username already exists.')
 
 
     def validate_key(self, key):
-        if key.data != 'ASDF123!!45': 
+        if key.data != 'HelloWorld#3': 
             raise ValidationError('Invalid Employee Key.')
         
 
@@ -55,4 +54,4 @@ class LoginForm(FlaskForm):
                              validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
-
+ 

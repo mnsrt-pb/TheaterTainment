@@ -1,16 +1,23 @@
-cs50
+# cs50
 Flask
-# Flask-Session
 requests
 tmdsimple
 
 flask-wtf
 flask-bcrypt
 flask-login
+flask-sqlalchemy
 
+
+flask shell
+from theatert import app, db
+app.app_context()
+
+db.create_all()
+db.drop_all()
 
 
 cat theater.sql | sqlite3 theater.db
 ASDF123!!45
+
 HelloWorld#3
-helloworld#3

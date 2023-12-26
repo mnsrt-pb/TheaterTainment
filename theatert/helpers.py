@@ -1,13 +1,13 @@
 import csv
 import config
 import datetime
-import hashlib 
 import requests
 import tmdbsimple as tmdb
-import urllib.parse
-
-from flask import redirect, render_template, session, url_for
+from flask import redirect, render_template, url_for
+from flask_login import current_user, login_user
 from functools import wraps
+from theatert import login_manager
+
 
 tmdb.API_KEY = config.api_key
 
@@ -108,22 +108,20 @@ def get_title(tmdb_id):
     return tmdb.Movies(tmdb_id).info()['title']
 
 
-def member_login_required(f):
-    '''
-    Decorate routes to require login.
+def login_required(role="ANY"):
+    '''Decorate routes to require login.'''
 
-    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
-    '''
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return login_manager.unauthorized()
+            if (current_user.role != role) and (role != "ANY"):
+                return login_manager.unauthorized()
 
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if session.get('user_id') is None:
-            return redirect('/login')
-        elif session.get('user_type') != 'member':
-            return redirect('/')
-        return f(*args, **kwargs)
-
-    return decorated_function
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
 
 
 def released(tmdb_id):
@@ -154,20 +152,3 @@ def sort_by(data):
     return info
 
 
-def staff_login_required(f):
-    '''
-    Decorate routes to require login.
-
-    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
-    '''
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if session.get('user_id') is None:
-            return redirect(url_for('login'))
-        elif session.get('user_type') != 'staff':
-            return redirect('/')
-        return f(*args, **kwargs)
-
-    return decorated_function
-   
