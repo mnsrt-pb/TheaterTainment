@@ -1,7 +1,5 @@
 import os
 
-from cs50 import SQL
-
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user
@@ -21,9 +19,6 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = "danger"
-
-# Configure CS50 Library to use SQLite database
-db_cs50 = SQL('sqlite:///database/theater.db')
 
 
 from theatert import routes

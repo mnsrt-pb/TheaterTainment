@@ -59,7 +59,7 @@ function fixTooltips()
 // Display movies accordingly
 function movies_sortby(){
     var min = 0
-    var max = 2
+    var max = 1
     var sortby_val = document.getElementById('sortby').value;
 
     if (sortby_val < min || sortby_val > max)

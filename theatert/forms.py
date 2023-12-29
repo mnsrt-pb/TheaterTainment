@@ -1,7 +1,8 @@
 from cs50 import SQL
+from flask import flash
 from flask_wtf import FlaskForm
-from theatert.models import Employee
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from theatert.models import Employee, Movie
+from wtforms import BooleanField, HiddenField, PasswordField, SelectField,StringField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 
 
@@ -54,4 +55,47 @@ class LoginForm(FlaskForm):
                              validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
- 
+
+
+class SearchMovieForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    release_year = StringField('Release Year', validators=[Length(min=0, max=4)])
+    submit = SubmitField('Search')
+
+
+class AddMovieForm(FlaskForm):
+    def validate_m_id(self, m_id):
+        '''Ensure movie does not exist'''
+
+        movie = Movie.query.filter_by(tmdb_id=m_id.data).first()
+        if movie:
+            if movie.deleted == False: # Movie is not flagged "deleted"
+                flash('Movie already exists', 'danger')
+                raise ValidationError('Movie already exists.')
+        
+    m_id = HiddenField(validators=[DataRequired()])
+    submit = SubmitField('Add Movie')
+
+
+class InactivateForm(FlaskForm):
+    def validate_m_id(self, m_id):
+        '''Ensure Select Movie was not selected and movie has been released.'''
+        if m_id.data == '-1':
+            flash('Must select a movie.', 'danger')
+            raise ValidationError('Must select a movie.')
+        
+    m_id = SelectField('Movie') 
+    submit = SubmitField('Inactivate')
+
+
+class ActivateForm(FlaskForm):
+    def validate_m_id(self, m_id):
+        '''Ensure Select Movie was not selected and movie has been released.'''
+        if m_id.data == '-1':
+            flash('Must select a movie.', 'danger')
+            raise ValidationError('Must select a movie.')
+        
+    m_id = SelectField('Movie')
+    submit = SubmitField('Activate')
+
+

@@ -10,13 +10,8 @@
     <div class="border container cont-2 rounded shadow mb-5">
         <h5 class="color-light">Sort By</h5>
         <select class="form-select" id="sortby">
-            <option value=0 selected>Popular</option>
-            {% if session['user_type'] == 'staff' %}
-                <option value=1>Descending Date</option>
-            {% else %}
-                <option value=1>Most Recent</option>
-            {% endif %}
             <option value=2>Alphabetical Order</option>
+            <option value=1>Descending Date</option>
         </select>
     </div>
 
@@ -40,21 +35,18 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/activate" method="POST" id="activate">
+                            <p>Only movies that have been released can be activated.</p>
+                        <form action="" method="POST" id="activate" class="needs-validation" novalidate>
+                            {{ activate_form.hidden_tag() }}
                             <div class="form-floating">
-                                <select class="form-select"  id="movie-select1" name="m-id">
-                                  <option selected>Select Movie</option>
-                                  {% for movie in inactive %}
-                                    <option value="{{movie['tmdb_id']}}">{{movie['title']}}</option>
-                                  {% endfor %}
-                                </select>
-                                <label for="movie-select1">Movie</label>
+                                {{ activate_form.m_id(class="form-select") }}
+                                {{ activate_form.m_id.label }}
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" form="activate">Activate</button>
+                        {{ activate_form.submit(class="btn btn-primary", form="activate") }}
                     </div>
                 </div>
             </div>
@@ -67,21 +59,17 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/inactivate" method="POST" id="inactivate">
+                        <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
+                            {{ inactivate_form.hidden_tag() }}
                             <div class="form-floating">
-                                <select class="form-select" form='inactivate' id="movie-select2" name="m-id">
-                                  <option selected>Select Movie</option>
-                                  {% for movie in active %}
-                                    <option value="{{movie['tmdb_id']}}">{{movie['title']}}</option>
-                                  {% endfor %}
-                                </select>
-                                <label for="movie-select1">Movie</label>
+                                {{ inactivate_form.m_id(class="form-select") }}
+                                {{ inactivate_form.m_id.label }}
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" form="inactivate">Inactivate</button>
+                        {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
                     </div>
                 </div>
             </div>
@@ -98,29 +86,32 @@
                 <div class="card">
                     <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
                     <div class="card-body">
-                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie['title']}}">
-                            <h6 class="card-title text-truncate">{{movie['title']}}</h6><br>
+                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
+                            <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
                         </span>
                         
                         <p class="card-text"><small>
-                            <b>{{movie['status']}}</b><br>
-                            <b>Release Date:</b> {{movie['release_date']}}<br>
-                        
-                            {% if movie['rating'] %}
-                                <b>Rated:</b> {{movie['rating']}}<br>
+                            <b>{{ movie.status }}</b><br>
+                            {% if movie.release_date %}
+                                <b>Release Date:</b> {{ movie.release_date.strftime("%b %d, %Y") }}<br>
+                            {% else %}
+                                <b>Release Date:</b> N/A<br>
                             {% endif %}
-                            <b>Popularity:</b> {{movie['popularity']}}
+                        
+                            {% if movie.rating %}
+                                <b>Rated:</b> {{ movie.rating }}<br>
+                            {% endif %}
                         </small></p></br>
                         
                         <p class="card-text"><small class="text-body-secondary">
-                            {% for genre in movie['genres'] %}
-                                    {{genre}},
+                            {% for genre in movie.genres %}
+                                    {{ genre.name }},
                             {% endfor %}
                         </small></p>
                     </div>
 
                     <small class="text-body-secondary">
-                        {% if movie['active'] %}
+                        {% if movie.active %}
                             <div class="card-footer green">
                                 Active
                             </div>

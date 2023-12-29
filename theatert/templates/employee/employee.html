@@ -14,7 +14,7 @@
             <thead>
                 <tr>
                     <th class=>#</th>
-                    <th class="text-start">Table</th>
+                    <th class="text-start">Type</th>
                     <th class="text-start">Item</th>
                     <th class="text-end">Change</th>
                     <th class="text-end">Date-Time</th>
@@ -27,7 +27,7 @@
                     <td class="text-start">{{c['table_name']}}</td>
                     <td class="text-start">{{c['item']}}</td>
                     <td class="text-end">{{c['change']}}</td>
-                    <td class="text-end">{{c['date_time']}}</td>
+                    <td class="text-end">{{c['date_time'].strftime("%b %d, %Y")}}&emsp;{{c['date_time'].strftime("%I:%M:%S %p")}}</td>
                 </tr>
                 {% endfor %}
             </tbody>

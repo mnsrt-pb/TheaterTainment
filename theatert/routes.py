@@ -1,96 +1,83 @@
+import datetime
 from flask import flash, render_template,  redirect, request, url_for
 from flask_login import current_user, login_user, logout_user
 
-from theatert import app, db_cs50, db, bcrypt
-from theatert.forms import RegistrationForm, LoginForm
-from theatert.models import Employee, Member, Change
-from theatert.helpers import (apology, database_movies, 
-                    date, get_title, 
-                    login_required, 
-                    released, search_movie)
+from theatert import app, db, bcrypt
+from theatert.forms import LoginForm, RegistrationForm, SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm
+from theatert.models import Employee, Change, Member, Movie
+from theatert.helpers import ( add_genres, add_rating, apology, 
+                                login_required, search_movie)
+import tmdbsimple as tmdb
 
-
-@app.route('/activate', methods=['GET', 'POST'])
-@login_required(role="EMPLOYEE")
-def activate():
-    '''Activate a movie'''
-    
-    if request.method == 'POST':
-        id = request.form.get('m-id')
-
-        # Query the database for movie (movie must not have been deleted)
-        exists = db_cs50.execute('SELECT * FROM movies WHERE deleted = FALSE AND id = ?;', id)
-        
-        # Ensure movie exists in database
-        if not exists:
-            flash('Could not activate movie.', 'danger')
-            return redirect(url_for("all_movies"))
-        
-        else:
-            if exists[0]['active']:
-                flash('Movie is already active.', 'danger')
-                return redirect(url_for("all_movies"))
-
-
-            if not released(id):
-                flash('Can only activate released movies.', 'danger')
-                return redirect(url_for("all_movies"))
-
-            # Update movies's active status
-            db_cs50.execute('UPDATE movies SET active = TRUE WHERE id = ?', exists[0]['id'])
-
-            # Insert a new change to database
-            # db_cs50.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'activated', 'movies', exists[0]['id'], date())
-
-            flash('Movie has been activated.', 'success')
-            
-    return redirect(url_for("all_movies"))
 
 
 @app.route('/add-movie', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def add_movie():
     '''Add movie to theater database'''
-    if request.method == 'POST':
-        title, year, id = request.form.get('title'), request.form.get('year'), request.form.get('m-id')
+
+    search_form = SearchMovieForm()
+    add_form =  AddMovieForm()
+
+    if search_form.validate_on_submit():
+        return render_template('employee/add-movie.html', search_result=True, form=add_form, result=search_movie(search_form.title.data, search_form.release_year.data))
+    
+    if add_form.validate_on_submit():
+        movie = Movie.query.filter_by(tmdb_id=add_form.m_id.data).first()
         
-        if not id:
-            # Ensure title was submitted
-            if not title:
-                return render_template('employee/add-movie.html', t_feedb_cs50ack='is-invalid', y_feedb_cs50ack='is-valid', form=True)
+        # Fetch movie's info from TMDB
+        data = tmdb.Movies(add_form.m_id.data)
+        info = data.info()
 
-            # Query database for all movies
-            movies = db_cs50.execute('SELECT id FROM movies')
+        if movie:
+            # Update Movie
+            movie.deleted = False
+            movie.status = info['status']
+            movie.overview = info['overview']
+            movie.poster_path = info['poster_path']
+            movie.runtime = info['runtime']
+            movie.tagline = info['tagline']
+            add_genres(movie, info)
+            add_rating(movie, data)
+            try:
+                movie.release_date = datetime.datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+            except:
+                pass
 
-            return render_template('employee/add-movie.html', search_result=True, result=search_movie(title, year, movies))
-        else:
-            # Ensure movie is not in our database
-            exists = db_cs50.execute('SELECT * FROM movies WHERE id = ?', id)
-            if exists:
-                # Movie is in database but flagged as 'deleted'
-                if exists[0]['deleted']:
-                    db_cs50.execute('UPDATE movies SET deleted = FALSE WHERE id = ?', exists[0]['id'])
+        else: 
+            # Add Movie
+            movie = Movie(
+                tmdb_id = add_form.m_id.data,
+                title = info['title'],
+                status = info['status'],
+                overview = info['overview'],
+                poster_path = info['poster_path'],
+                runtime = info['runtime'],
+                tagline = info['tagline']
+            )
+            db.session.add(movie)
+            add_genres(movie, info)
+            add_rating(movie, data)
+            try:
+                movie.release_date = datetime.datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+            except:
+                pass
+        
+        # Add Employee Change
+        change = Change(
+            action = "added",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
 
-                    flash('Movie was added to our database', 'success')
-                    return redirect(url_for("all_movies"))
-                # Movie is in database
-                else:
-                    flash('Movie is already in our database', 'danger')
-                    return redirect(url_for("all_movies"))
-            
-            # Insert a new movie to dabase
-            db_cs50.execute('INSERT INTO movies (id, title, active, deleted) values (?, ?, ?, ?);', id, get_title(id), False, False)
+        db.session.add(change)
+        db.session.commit()
 
-            # Query databse for movie's row id
-            data_id = db_cs50.execute('SELECT id FROM movies WHERE id = ?', id)[0]['id']
-            
-            # Insert a new change to database
-            # db_cs50.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'added', 'movies', data_id, date())
-            
-            flash('Movie was added to our database', 'success')
-            return redirect(url_for("all_movies"))
+        flash('Movie was added.', 'success')
+        return redirect(url_for('all_movies'))
     else:
-        return render_template('employee/add-movie.html', form=True)
+        return render_template('employee/add-movie.html', form=search_form)
 
 
 @app.route('/add-showtime', methods=['GET', 'POST'])
@@ -101,101 +88,128 @@ def add_showtime():
     return apology('TODO', 'employee/layout.html', 403)
 
 
-@app.after_request
-def after_request(response):
-    '''Ensure responses aren't cached'''
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Expires'] = 0
-    response.headers['Pragma'] = 'no-cache'
-    return response
-
-
-@app.route('/all-movies')
+@app.route('/all-movies', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def all_movies():
-    '''Display all movies in theater database'''
+    '''
+    Display all movies in theater database.
+    Activate/Inactivate movies.
+    '''
 
-    # Query database for all movies
-    movies = db_cs50.execute('SELECT * FROM movies WHERE deleted = FALSE ORDER BY title;')
-    active = db_cs50.execute('SELECT id, title FROM movies WHERE deleted = FALSE AND active = TRUE ORDER BY title;')
-    inactive = db_cs50.execute('SELECT id, title FROM movies WHERE deleted = FALSE AND active = FALSE ORDER BY title;')
+    movies = [Movie.query.filter_by(deleted=False).order_by(Movie.title).all(), 
+              Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc()).all()] 
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=database_movies(movies), active=active, inactive=inactive)
+    # Create Forms
+    activate_form = ActivateForm()
 
+    # Filter for movies that are inactive AND have not been released 
+    inactive = filter(lambda m: m.release_date < datetime.datetime.now(),
+                    Movie.query.filter(
+                        db.and_(
+                            Movie.release_date.is_not(None),
+                            Movie.active.is_(False), 
+                            Movie.deleted.is_(False), 
+                        )).order_by(Movie.title))
+    choices = [(None, 'Select Movie')]
+    for m in inactive:
+        choices.append((m.id, m.title))
+    activate_form.m_id.choices = choices
 
-@app.route('/all-showtimes')
-@login_required(role="EMPLOYEE")
-def all_showtimes():
-    '''Display showtimes'''
+    inactivate_form = InactivateForm()
+    active = Movie.query.filter_by(active=True, deleted=False).order_by(Movie.title)
+    choices = [(-1, 'Select Movie')]
+    for m in active:
+        choices.append((m.id, m.title))
+    inactivate_form.m_id.choices = choices
 
-    return apology('TODO', 'employee/layout.html', 403)
+    # Check form submissions
+    if activate_form.validate_on_submit():
+        # Activate movie
+        movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
+        if movie:
+            movie.active = True
 
+        # Add Employee Change
+        change = Change(
+            action = "activated",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
 
-@app.route('/auditoriums')
-@login_required(role="EMPLOYEE")
-def auditoriums():
-    '''Display auditoriums'''
+        db.session.commit()
+        flash('Movie activated.', 'success')
+        return redirect(url_for('all_movies'))
 
-    return apology('TODO', 'employee/layout.html', 403)
+    if inactivate_form.validate_on_submit():
+        # Inactivate Movie
+        movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
+        if movie:
+            movie.active = False
+
+        # Add Employee Change
+        change = Change(
+            action = "inactivated",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
+
+        db.session.commit()
+        flash('Movie inactivated.', 'success')
+        return redirect(url_for('all_movies'))
+
+    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movies, activate_form=activate_form, inactivate_form=inactivate_form)
 
 
 @app.route('/coming-soon')
 def coming_soon():
     '''Display movies that have not been released'''
 
-    # Query database for movies
-    movies = db_cs50.execute('SELECT * FROM movies WHERE deleted = FALSE AND active = FALSE ORDER BY title;')
+    def coming_soon(movies):
+        '''Returns a list of  movies that have not been released'''
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=database_movies(movies, True))
-    
+        ms = []
+        for movie in movies:
+            if not movie.release_date:
+                ms.append(movie)
+            elif movie.release_date > datetime.datetime.now():
+                ms.append(movie)
+        return ms
+                
+    info = []
 
-@app.route('/inactivate', methods=['GET', 'POST'])
-@login_required(role="EMPLOYEE")
-def inactivate():
-    '''Inactivate a movie'''
-    
-    if request.method == 'POST':
-        id = request.form.get('m-id')
+    movies = Movie.query.filter(Movie.deleted.is_(False)).order_by(Movie.title)
+    info.append(coming_soon(movies))
 
-        # Query the database for movie (movie must not have been deleted)
-        exists = db_cs50.execute('SELECT * FROM movies WHERE deleted = FALSE AND id = ?;', id)
-        
-        # Ensure movie exists in database
-        if not exists:
-            flash('Could not inactivate movie.', 'danger')
-            return redirect(url_for("all_movies"))
-        
-        elif not exists[0]['active']:
-            flash('Movie is already inactive.', 'danger')
-            return redirect(url_for("all_movies"))
+    movies = Movie.query.filter(Movie.deleted.is_(False)).order_by(Movie.release_date.desc())
+    info.append(coming_soon(movies))
 
-        # Update movies's active status
-        db_cs50.execute('UPDATE movies SET active = FALSE WHERE id = ?', exists[0]['id'])
-
-        # Insert a new change to database
-        # db_cs50.execute('INSERT INTO staff_changes (staff_id, change, table_name, data_id, date_time) VALUES (?, ?, ?, ?, ?);', session['user_id'], 'inactivated', 'movies', exists[0]['id'], date())
-
-        flash('Movie has been inactivated.', 'success')
-            
-    return redirect(url_for("all_movies"))
+    return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=info)
 
 
 @app.route('/')
+@app.route('/home')
 def home():
     '''Show home page'''
     
     if not current_user.is_authenticated:
-            return apology('TODO', 'member/layout.html', 403) 
-    #     rows = db_cs50.execute('SELECT * FROM staff_changes WHERE staff_id = ? ORDER BY date_time DESC;', session['user_id'])
+            return apology('TODO', 'member/layout.html', 403)
+    else:
+        data = Change.query.filter_by(employee_id = current_user.id).order_by(Change.date).all()
         
-    #     changes = []
-    #     for c in rows:
-    #         if c['table_name'] == 'movies':
-    #             temp = {k:v for k,v in c.items() if k in ['change', 'table_name', 'date_time']}
-    #             temp['item'] = db_cs50.execute('SELECT title FROM movies WHERE id = ?;', c['data_id'])[0]['title']
-    #             changes.append(temp)
+        changes = []
+        for c in data:
+            if c.table_name == 'movie':
+                temp = {'change' : c.action,
+                        'table_name' : 'Movie',
+                        'date_time' : c.date,
+                        'item': Movie.query.filter_by(id = c.data_id).first().title}
+                changes.append(temp)
 
-    return render_template('employee/employee.html')
+    return render_template('employee/employee.html', changes=changes)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -218,7 +232,6 @@ def login():
         
         flash('Invalid Username or Password.', 'danger')
 
-    # User reached route via GET (as by clicking a link or via redirect)
     return render_template('employee/login.html', form=form)
 
 
@@ -238,17 +251,20 @@ def now_playing():
     '''Display movies that are now playing'''
     
     # Query database for movies that are now playing
-    movies = db_cs50.execute('SELECT * FROM movies WHERE deleted = FALSE AND active = TRUE ORDER BY title')
+    movies = [Movie.query.filter(
+                db.and_(Movie.deleted.is_(False),
+                        Movie.active.is_(True))).order_by(Movie.title), 
+            Movie.query.filter(
+                db.and_(Movie.deleted.is_(False),
+                        Movie.active.is_(True))).order_by(Movie.release_date.desc())]
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=database_movies(movies))
+    return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movies)
     
 
-@app.route('/past-showtimes')
+@app.route('/movie/<int:movie_id>')
 @login_required(role="EMPLOYEE")
-def past_showtimes():
-    '''Display available showtimes'''
-
-    return apology('TODO', 'employee/layout.html', 403)
+def movie(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -272,20 +288,3 @@ def register():
         return redirect(url_for('login'))
     else:
         return render_template('employee/register.html', form=form)
-
-
-@app.route('/showtimes-now')
-@login_required(role="EMPLOYEE")
-def showtimes_now():
-    '''Display available showtimes'''
-
-    return apology('TODO', 'employee/layout.html', 403)
-
-
-@app.route('/tickets')
-@login_required(role="EMPLOYEE")
-def tickets():
-    '''Display tickets data'''
-
-    return apology('TODO', 'employee/layout.html', 403)
-

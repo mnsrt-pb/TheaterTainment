@@ -8,6 +8,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# Users
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique = True, nullable=False)
@@ -60,3 +61,36 @@ class Change(db.Model):
     def __repr__(self):
         return f"Change({self.id}, {self.action}, {self.table_name}, {self.data_id}, {self.date})"
 
+
+# Movies
+genres = db.Table('genres',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), primary_key=True),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True)
+)
+
+class Movie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tmdb_id = db.Column(db.Integer, unique=True, nullable=False)
+    title = db.Column(db.String, nullable=False)
+    status = db.Column(db.String)
+    overview = db.Column(db.String)
+    poster_path = db.Column(db.String)
+    release_date = db.Column(db.DateTime)
+    runtime = db.Column(db.Integer)
+    tagline = db.Column(db.String)
+    rating = db.Column(db.String)
+    active = db.Column(db.Boolean, default=False, nullable=False)
+    deleted = db.Column(db.Boolean, default=False, nullable=False)
+    genres = db.relationship('Genre', secondary=genres, lazy='subquery', 
+                             backref=db.backref('movies', lazy=True))
+    
+    def __repr__(self):
+        return f"Movie({self.id}, {self.tmdb_id}, {self.title}, {self.status}, {self.overview}, {self.release_date}, {self.runtime}, {self.tagline}, {self.active}, {self.deleted}, {self.genres})"
+
+
+class Genre(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    
+    def __repr__(self):
+        return f"Genre({self.id}, {self.name})"
