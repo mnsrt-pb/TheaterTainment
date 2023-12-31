@@ -1,13 +1,8 @@
-from cs50 import SQL
 from flask import flash
 from flask_wtf import FlaskForm
 from theatert.models import Employee, Movie
 from wtforms import BooleanField, HiddenField, PasswordField, SelectField,StringField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
-
-
-# Configure CS50 Library to use SQLite database
-db = SQL('sqlite:///database/theater.db')
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional
 
 
 class RegistrationForm(FlaskForm):
@@ -65,13 +60,11 @@ class SearchMovieForm(FlaskForm):
 
 class AddMovieForm(FlaskForm):
     def validate_m_id(self, m_id):
-        '''Ensure movie does not exist'''
+        '''Ensure Select Movie was not selected.'''
 
-        movie = Movie.query.filter_by(tmdb_id=m_id.data).first()
-        if movie:
-            if movie.deleted == False: # Movie is not flagged "deleted"
-                flash('Movie already exists', 'danger')
-                raise ValidationError('Movie already exists.')
+        if m_id.data == '-1':
+            flash('Must select a movie.', 'danger')
+            raise ValidationError('Must select a movie.')
         
     m_id = HiddenField(validators=[DataRequired()])
     submit = SubmitField('Add Movie')
@@ -79,8 +72,9 @@ class AddMovieForm(FlaskForm):
 
 class InactivateForm(FlaskForm):
     def validate_m_id(self, m_id):
-        '''Ensure Select Movie was not selected and movie has been released.'''
-        if m_id.data == '-1':
+        '''Ensure Select Movie was not selected.'''
+
+        if m_id.data == 'None':
             flash('Must select a movie.', 'danger')
             raise ValidationError('Must select a movie.')
         
@@ -91,7 +85,8 @@ class InactivateForm(FlaskForm):
 class ActivateForm(FlaskForm):
     def validate_m_id(self, m_id):
         '''Ensure Select Movie was not selected and movie has been released.'''
-        if m_id.data == '-1':
+
+        if m_id.data == 'None':
             flash('Must select a movie.', 'danger')
             raise ValidationError('Must select a movie.')
         
@@ -99,3 +94,8 @@ class ActivateForm(FlaskForm):
     submit = SubmitField('Activate')
 
 
+class UpdateMovieForm(FlaskForm):
+    poster = SelectField('Poster', validators=[Optional()])
+    backdrop = SelectField('Backdrop', validators=[Optional()])
+    trailer = SelectField('Trailer', validators=[Optional()])
+    submit = SubmitField('Update')

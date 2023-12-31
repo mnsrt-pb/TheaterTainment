@@ -46,7 +46,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{ activate_form.submit(class="btn btn-primary", form="activate") }}
+                        {% if activate_form.m_id.choices | length > 1 %}
+                            {{ activate_form.submit(class="btn btn-primary", form="activate") }}
+                        {% else %}
+                            {{ activate_form.submit(class="btn btn-primary", disabled=True) }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -69,7 +73,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
+                        {% if inactivate_form.m_id.choices | length > 1 %}
+                            {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
+                        {% else %}
+                            {{ inactivate_form.submit(class="btn btn-primary", disabled=True) }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -79,13 +87,15 @@
     {% endif %}
 
     {% for i in range (info | length) %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" id="info{{i}}">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded" id="info{{i}}">
 
         {% for movie in info[i] %}
             <div class="col">
                 <div class="card">
-                    <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
+                    <a href="{{ url_for('movie', movie_name=movie.route) }}" class="movie-link">
+                        <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
                     <div class="card-body">
+                    </a>
                         <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
                             <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
                         </span>

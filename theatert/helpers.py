@@ -1,12 +1,12 @@
 import config
 import datetime
 import tmdbsimple as tmdb
+
 from flask import redirect, render_template, url_for
 from flask_login import current_user, login_user
 from functools import wraps
 from theatert import db, login_manager
 from theatert.models import Genre, genres
-
 
 
 tmdb.API_KEY = config.api_key
@@ -92,4 +92,31 @@ def login_required(role="ANY"):
             return f(*args, **kwargs)
         return decorated_function
     return wrapper
+
+
+def route_name(title):
+    title = ''.join(c for c in title.lower() if c.isalnum() or c.isspace())
+    title = '-'.join(title.split())
+    return title
+
+
+def update_choices(images, videos):
+    posters = [('None', 'Select Poster')]
+    i = 1
+    for b in images['posters']:
+        posters.append((b['file_path'], str(i)))
+        i += 1
+
+    backdrops = [('None', 'Select Backdrop')]
+    i = 1
+    for b in images['backdrops']:
+        backdrops.append((b['file_path'],str(i)))
+        i += 1
+
+    trailers = [('None', 'Select Trailers')]
+    i = 1
+    for v in videos:
+        trailers.append((v['key'], str(i) + '. ' + v['name'] ))
+        i += 1
+    return posters, backdrops, trailers
 

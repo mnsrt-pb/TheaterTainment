@@ -1,13 +1,13 @@
 import datetime
 from flask import flash, render_template,  redirect, request, url_for
 from flask_login import current_user, login_user, logout_user
-
 from theatert import app, db, bcrypt
-from theatert.forms import LoginForm, RegistrationForm, SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm
+from theatert.forms import LoginForm, RegistrationForm, SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm, UpdateMovieForm
 from theatert.models import Employee, Change, Member, Movie
 from theatert.helpers import ( add_genres, add_rating, apology, 
-                                login_required, search_movie)
+                                login_required, route_name, search_movie, update_choices)
 import tmdbsimple as tmdb
+
 
 
 
@@ -46,6 +46,9 @@ def add_movie():
 
         else: 
             # Add Movie
+            print('HERE')
+            route_name(info['title'])
+            print('HERE')
             movie = Movie(
                 tmdb_id = add_form.m_id.data,
                 title = info['title'],
@@ -55,6 +58,10 @@ def add_movie():
                 runtime = info['runtime'],
                 tagline = info['tagline']
             )
+            try:
+                movie.route = route_name(movie.title)
+            except:
+                movie.route = route_name(movie.title) + '-' + str(movie.id)
             db.session.add(movie)
             add_genres(movie, info)
             add_rating(movie, data)
@@ -101,8 +108,7 @@ def all_movies():
 
     # Create Forms
     activate_form = ActivateForm()
-
-    # Filter for movies that are inactive AND have not been released 
+    # FIXME: Filter for movies that are inactive AND have a poster_path, backdrop_path, and trailer_path
     inactive = filter(lambda m: m.release_date < datetime.datetime.now(),
                     Movie.query.filter(
                         db.and_(
@@ -117,7 +123,7 @@ def all_movies():
 
     inactivate_form = InactivateForm()
     active = Movie.query.filter_by(active=True, deleted=False).order_by(Movie.title)
-    choices = [(-1, 'Select Movie')]
+    choices = [(None, 'Select Movie')]
     for m in active:
         choices.append((m.id, m.title))
     inactivate_form.m_id.choices = choices
@@ -205,7 +211,7 @@ def home():
             if c.table_name == 'movie':
                 temp = {'change' : c.action,
                         'table_name' : 'Movie',
-                        'date_time' : c.date,
+                        'date_time' : c.date - datetime.timedelta(hours=5),
                         'item': Movie.query.filter_by(id = c.data_id).first().title}
                 changes.append(temp)
 
@@ -261,10 +267,19 @@ def now_playing():
     return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movies)
     
 
-@app.route('/movie/<int:movie_id>')
+@app.route('/movie/<string:movie_name>')
 @login_required(role="EMPLOYEE")
-def movie(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+def movie(movie_name):
+    movie = Movie.query.filter_by(route = movie_name, deleted=False).first_or_404()
+
+    # FIXME: let employee choose poster and trailer?
+    trailer = tmdb.Movies(movie.tmdb_id).videos()
+    if trailer:
+        if trailer['results']:
+            trailer = trailer['results'][0]
+
+
+    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie, trailer=trailer)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -288,3 +303,21 @@ def register():
         return redirect(url_for('login'))
     else:
         return render_template('employee/register.html', form=form)
+
+
+@app.route('/movie/<string:movie_name>/update', methods=['GET', 'POST'])
+@login_required(role="EMPLOYEE")
+def update_movie(movie_name):
+    movie = Movie.query.filter_by(route = movie_name, deleted=False).first_or_404()
+    data = tmdb.Movies(movie.tmdb_id)
+    images = data.images(language='en')
+    videos = list(filter(lambda v: ('type', 'Trailer') in v.items(), data.videos(language='en')['results']))[::-1]
+
+    form = UpdateMovieForm()
+    form.poster.choices, form.backdrop.choices, form.trailer.choices = update_choices(images, videos)
+
+    if form.validate_on_submit():
+        print(request.form.to_dict())
+    
+    return render_template('employee/update-movie.html', ext="employee/layout.html", Movie=movie, images=images, videos=videos, form=form)
+
