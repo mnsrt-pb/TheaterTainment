@@ -7,12 +7,18 @@
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, width=device-width">
 
-        <!-- contians bootstrap -->
+        <!-- Contians bootstrap -->
         <link href="../../static/css/styles.css" rel="stylesheet">
         <script src="../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
+        <!-- My css and bootstrap -->
         <link href="../../static/css/main.css" rel="stylesheet">
         <script src="../../static/javascript/main.js" rel="stylesheet"></script>
+
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
 
         <title> Employee | {% block title %}{% endblock %}</title>
 
@@ -21,7 +27,7 @@
     <!-- <body class=""> -->
     <body class="d-flex flex-column h-100 pt-5">
 
-        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light">
+        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light shadow">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{url_for('home')}}"><span class="color-dark">EMPLOYEE</span></a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
@@ -85,7 +91,7 @@
             {% endif %}
         {% endwith %}
 
-        <main class="container container-fluid py-5 text-center flex-shrink-0">
+        <main class="container container-fluid my-3 py-5 text-center">
             <div class="container">
                 {% block main %}{% endblock %}
             </div>
@@ -95,6 +101,7 @@
             <div class="container">
                 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
                     {% if current_user.is_authenticated%}
+                        <li class="nav-item"><a href="{{ url_for('all_movies') }}" class="nav-link px-2 text-muted">All Movies</a></li>   
                         <li class="nav-item"><a href="{{ url_for('add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
                         <li class="nav-item"><a href="{{ url_for('add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% else %}

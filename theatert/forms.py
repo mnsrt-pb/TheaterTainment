@@ -58,16 +58,10 @@ class SearchMovieForm(FlaskForm):
     submit = SubmitField('Search')
 
 
-class AddMovieForm(FlaskForm):
-    def validate_m_id(self, m_id):
-        '''Ensure Select Movie was not selected.'''
-
-        if m_id.data == '-1':
-            flash('Must select a movie.', 'danger')
-            raise ValidationError('Must select a movie.')
-        
+class AddMovieForm(FlaskForm):        
     m_id = HiddenField(validators=[DataRequired()])
     submit = SubmitField('Add Movie')
+    fetch = SubmitField('Fetch New Data')
 
 
 class InactivateForm(FlaskForm):
@@ -99,3 +93,5 @@ class UpdateMovieForm(FlaskForm):
     backdrop = SelectField('Backdrop', validators=[Optional()])
     trailer = SelectField('Trailer', validators=[Optional()])
     submit = SubmitField('Update')
+
+

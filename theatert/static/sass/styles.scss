@@ -6,6 +6,11 @@ $card-height: 100%;
 
 .color-a { color: $gray-600; }
 
+.cont-light 
+{
+  background-color: rgba($gray-200, .5);
+}
+
 /* Navbar Start */
   /* Colors for brand */
   nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, h3.color-light, a.color-light
@@ -31,12 +36,18 @@ $card-height: 100%;
 
 small .green { 
   background-color: $green-600; 
-  color: $white;
 }
 
 small .red { 
   background-color: $red-600; 
-  color: $white;
+}
+
+small .update {
+  background-color: rgba($purple-700, .3);
+}
+
+small .update:hover {
+  background-color: rgba($purple-700, .5);
 }
 
 /* override variables */
@@ -50,6 +61,7 @@ $theme-colors: map-merge($theme-colors, (
 /* Customize navbar colors */
 $navbar-light-color: rgba($pink-700, .55);
 $navbar-light-hover-color: rgba($pink-700, .9);
+
 
 /* import bootstrap */
 @import "../node_modules/bootstrap/scss/bootstrap";

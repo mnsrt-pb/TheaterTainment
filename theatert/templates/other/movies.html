@@ -19,10 +19,10 @@
     {% if title == 'All Movies' %} 
     <div class="conatainer mb-5 mt-0">
         <!-- Buttons for Modals -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activate-movie">
+        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#activate-movie">
             Activate Movie
         </button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
+        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
             Inactivate Movie
         </button>
         
@@ -35,7 +35,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                            <p>Only movies that have been released can be activated.</p>
+                            <p>Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
                         <form action="" method="POST" id="activate" class="needs-validation" novalidate>
                             {{ activate_form.hidden_tag() }}
                             <div class="form-floating">
@@ -86,57 +86,60 @@
     </div>
     {% endif %}
 
+
     {% for i in range (info | length) %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded" id="info{{i}}">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded" id="info{{i}}">
+            {% for movie in info[i] %}
+                <div class="col pb-4">
+                    <div class="card">
+                        <a href="{{ url_for('movie', movie_route=movie.route) }}" class="movie-link">
+                            <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
+                        <div class="card-body">
+                        </a>
+                            <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
+                                <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
+                            </span>
+                            
+                            <p class="card-text"><small>
+                                <b>{{ movie.status }}</b><br>
+                                {% if movie.release_date %}
+                                    <b>Release Date:</b> {{ movie.release_date.strftime("%b %d, %Y") }}<br>
+                                {% else %}
+                                    <b>Release Date:</b> N/A<br>
+                                {% endif %}
+                            
+                                {% if movie.rating %}
+                                    <b>Rated:</b> {{ movie.rating }}<br>
+                                {% endif %}
+                            </small></p></br>
+                            
+                            <p class="card-text"><small class="text-body-secondary">
+                                {% for genre in movie.genres %}
+                                        {{ genre.name }},
+                                {% endfor %}
+                            </small></p>
+                        </div>
 
-        {% for movie in info[i] %}
-            <div class="col">
-                <div class="card">
-                    <a href="{{ url_for('movie', movie_name=movie.route) }}" class="movie-link">
-                        <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
-                    <div class="card-body">
-                    </a>
-                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
-                            <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
-                        </span>
-                        
-                        <p class="card-text"><small>
-                            <b>{{ movie.status }}</b><br>
-                            {% if movie.release_date %}
-                                <b>Release Date:</b> {{ movie.release_date.strftime("%b %d, %Y") }}<br>
+                        <small class="text-body-secondary">
+                            <div class="card-footer text-white update" onclick="location.href='/movie/{{ movie.route }}/update'">
+                                Update
+                            </div>
+                            {% if movie.active %}
+                                <div class="card-footer text-white green">
+                                    Active
+                                </div>
                             {% else %}
-                                <b>Release Date:</b> N/A<br>
+                                <div class="card-footer text-white red">
+                                    Inactive
+                                </div>
                             {% endif %}
-                        
-                            {% if movie.rating %}
-                                <b>Rated:</b> {{ movie.rating }}<br>
-                            {% endif %}
-                        </small></p></br>
-                        
-                        <p class="card-text"><small class="text-body-secondary">
-                            {% for genre in movie.genres %}
-                                    {{ genre.name }},
-                            {% endfor %}
-                        </small></p>
+                        </small>
                     </div>
-
-                    <small class="text-body-secondary">
-                        {% if movie.active %}
-                            <div class="card-footer green">
-                                Active
-                            </div>
-                        {% else %}
-                            <div class="card-footer red">
-                                Inactive
-                            </div>
-                        {% endif %}
-                    </small>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+    {% endfor %}
 
-    </div>
-    {% endfor %}       
 </div>
 {% endblock %}
 

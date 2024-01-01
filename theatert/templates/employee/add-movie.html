@@ -68,7 +68,11 @@
 
                         <form action="" method="POST">
                             {{ form.m_id(value=movie["id"]) }}
-                            {{ form.submit(class="btn btn-primary") }}
+                            {% if movie["id"] in tmdb_ids %}
+                                {{ form.fetch(class="btn btn-primary") }}
+                            {% else %}
+                                {{ form.submit(class="btn btn-primary") }}
+                            {% endif %}
                         </form>
                     </div>
                 </div>

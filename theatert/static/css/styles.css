@@ -3,6 +3,10 @@
   color: #6c757d;
 }
 
+.cont-light {
+  background-color: rgba(233, 236, 239, 0.5);
+}
+
 /* Navbar Start */
 /* Colors for brand */
 nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, .color-light.h5, h3.color-light, .color-light.h3, a.color-light {
@@ -24,12 +28,18 @@ a.dropdown-item {
 /* Navbar end*/
 small .green, .small .green {
   background-color: #146c43;
-  color: #fff;
 }
 
 small .red, .small .red {
   background-color: #b02a37;
-  color: #fff;
+}
+
+small .update, .small .update {
+  background-color: rgba(67, 40, 116, 0.3);
+}
+
+small .update:hover, .small .update:hover {
+  background-color: rgba(67, 40, 116, 0.5);
 }
 
 /* override variables */

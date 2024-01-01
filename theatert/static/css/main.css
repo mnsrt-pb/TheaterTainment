@@ -1,3 +1,14 @@
+.backdrop > img:not(.play-button)
+{
+    height: 100%;
+    width: 100%;
+}
+
+.container > img
+{
+    width: 80%;
+}
+
 .cont-1 
 {
     /* border: 1px solid black; */
@@ -23,10 +34,55 @@
     width: 90vw;
 }
 
-.cont-light
+.col-1 { width: 30%; }
+
+.col-2 { width: 70% }
+
+.col-3 { width: 20%; }
+
+.col-4 { width: 80% }
+
+.movie-detail
 {
-  background-color: rgb(233, 236, 239, .30);
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 400!important;
 }
+
+.movie-detail-label
+{ 
+    font-size: .7em;
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title 
+{ 
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title-label 
+{ 
+    font-size: 1.3em;
+}
+
+.play-button
+{
+    width: 50px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    opacity: .7;
+    transition: opacity .2s ease-in-out
+}
+
+.play-button:hover
+{
+    opacity: 1;
+    transition: opacity .2s ease-in-out
+}
+
+div .update { cursor:pointer; }
 
 .font-bold { font-weight: bold; }
 .font-sm { font-size: .9em; }
@@ -34,6 +90,7 @@
 .hide-info { display: none; }
 
 .left-align { text-align: left; }
+.right-align { text-align: right; }
 
 @media screen and (min-width: 750px)
 {
@@ -49,7 +106,47 @@
     {
         width: 250px;
     }
+    td 
+    {
+        white-space: nowrap;
+    }
 }
+
+@media screen and (max-width: 300px)
+{
+    .cont-2
+    {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 500px)
+{
+    .col-1 { width: 80%; }
+    .col-2 { width: 100%; }
+    .col-3 { width: 30%; }
+    .col-4 { width: 70%; }
+    
+    .trailer > img 
+    { 
+        width: 70px; 
+    }
+    .backdrop > img:not(.play-button) 
+    { 
+        width: 150%; 
+    }
+    .play-button 
+    { 
+        top: 50%; 
+        left: 75%; 
+    }
+}
+
+.modal-trailer
+{
+    width: 100vw;
+}
+
 
 a .movie-link
 {
@@ -57,3 +154,14 @@ a .movie-link
     text-decoration: none;
 }
 
+
+#trailer 
+{
+    width: 60%;
+    position: relative
+}
+
+.trailer > img
+{
+    width: 70px;
+}

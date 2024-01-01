@@ -18,9 +18,13 @@ def add_movie():
 
     search_form = SearchMovieForm()
     add_form =  AddMovieForm()
+    movies = Movie.query.filter_by(deleted=False).all()
+    tmdb_ids = []
+    for m in movies:
+        tmdb_ids.append(m.tmdb_id)
 
     if search_form.validate_on_submit():
-        return render_template('employee/add-movie.html', search_result=True, form=add_form, result=search_movie(search_form.title.data, search_form.release_year.data))
+        return render_template('employee/add-movie.html', search_result=True, form=add_form, result=search_movie(search_form.title.data, search_form.release_year.data), tmdb_ids = tmdb_ids)
     
     if add_form.validate_on_submit():
         movie = Movie.query.filter_by(tmdb_id=add_form.m_id.data).first()
@@ -30,11 +34,9 @@ def add_movie():
         info = data.info()
 
         if movie:
-            # Update Movie
-            movie.deleted = False
+            # Fetch new data
             movie.status = info['status']
             movie.overview = info['overview']
-            movie.poster_path = info['poster_path']
             movie.runtime = info['runtime']
             movie.tagline = info['tagline']
             add_genres(movie, info)
@@ -44,11 +46,27 @@ def add_movie():
             except:
                 pass
 
+            # Add Employee Change
+            change = Change(
+                action = "fetched new data",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+
+            if movie.deleted:
+                movie.deleted = False
+                movie.poster_path = info['poster_path']
+                movie.backdrop_path = None
+                movie.trailer_path = None
+                change.action = "added"
+                flash('Movie was added.', 'success')
+            else:
+                flash('Fetched new data.', 'success')
+
         else: 
             # Add Movie
-            print('HERE')
             route_name(info['title'])
-            print('HERE')
             movie = Movie(
                 tmdb_id = add_form.m_id.data,
                 title = info['title'],
@@ -70,18 +88,18 @@ def add_movie():
             except:
                 pass
         
-        # Add Employee Change
-        change = Change(
-            action = "added",
-            table_name = "movie",
-            data_id = movie.id,
-            employee_id = current_user.id
-        )
+            # Add Employee Change
+            change = Change(
+                action = "added",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+            flash('Movie was added.', 'success')
 
         db.session.add(change)
         db.session.commit()
 
-        flash('Movie was added.', 'success')
         return redirect(url_for('all_movies'))
     else:
         return render_template('employee/add-movie.html', form=search_form)
@@ -108,14 +126,16 @@ def all_movies():
 
     # Create Forms
     activate_form = ActivateForm()
-    # FIXME: Filter for movies that are inactive AND have a poster_path, backdrop_path, and trailer_path
-    inactive = filter(lambda m: m.release_date < datetime.datetime.now(),
-                    Movie.query.filter(
+    # Filter for movies that are inactive AND have a poster_path, backdrop_path, and trailer_path
+    inactive = Movie.query.filter(
                         db.and_(
                             Movie.release_date.is_not(None),
+                            Movie.poster_path.is_not(None),
+                            Movie.backdrop_path.is_not(None),
+                            Movie.trailer_path.is_not(None),
                             Movie.active.is_(False), 
                             Movie.deleted.is_(False), 
-                        )).order_by(Movie.title))
+                        )).order_by(Movie.title)
     choices = [(None, 'Select Movie')]
     for m in inactive:
         choices.append((m.id, m.title))
@@ -167,6 +187,7 @@ def all_movies():
         flash('Movie inactivated.', 'success')
         return redirect(url_for('all_movies'))
 
+    
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movies, activate_form=activate_form, inactivate_form=inactivate_form)
 
 
@@ -194,6 +215,26 @@ def coming_soon():
     info.append(coming_soon(movies))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=info)
+
+
+@login_required(role="EMPLOYEE")
+@app.route('/movie/<int:movie_id>/delete', methods=['POST'])
+def delete_movie(movie_id):
+    movie = Movie.query.filter_by(id = movie_id, deleted=False).first_or_404()
+    movie.deleted = True
+    movie.active = False
+
+    change = Change(
+        action = "deleted",
+        table_name = "movie",
+        data_id = movie.id,
+        employee_id = current_user.id
+    )
+    db.session.add(change)
+
+    db.session.commit()
+    flash(f'{movie.title} has been deleted!', 'success')
+    return redirect (url_for('all_movies'))
 
 
 @app.route('/')
@@ -267,19 +308,11 @@ def now_playing():
     return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movies)
     
 
-@app.route('/movie/<string:movie_name>')
+@app.route('/movie/<string:movie_route>')
 @login_required(role="EMPLOYEE")
-def movie(movie_name):
-    movie = Movie.query.filter_by(route = movie_name, deleted=False).first_or_404()
-
-    # FIXME: let employee choose poster and trailer?
-    trailer = tmdb.Movies(movie.tmdb_id).videos()
-    if trailer:
-        if trailer['results']:
-            trailer = trailer['results'][0]
-
-
-    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie, trailer=trailer)
+def movie(movie_route):
+    movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
+    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -305,10 +338,10 @@ def register():
         return render_template('employee/register.html', form=form)
 
 
-@app.route('/movie/<string:movie_name>/update', methods=['GET', 'POST'])
+@app.route('/movie/<string:movie_route>/update', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
-def update_movie(movie_name):
-    movie = Movie.query.filter_by(route = movie_name, deleted=False).first_or_404()
+def update_movie(movie_route):
+    movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
     data = tmdb.Movies(movie.tmdb_id)
     images = data.images(language='en')
     videos = list(filter(lambda v: ('type', 'Trailer') in v.items(), data.videos(language='en')['results']))[::-1]
@@ -317,7 +350,27 @@ def update_movie(movie_name):
     form.poster.choices, form.backdrop.choices, form.trailer.choices = update_choices(images, videos)
 
     if form.validate_on_submit():
-        print(request.form.to_dict())
+        if form.poster.data != None and form.poster.data != 'None':
+            movie.poster_path = form.poster.data
+        
+        if form.backdrop.data != None and form.backdrop.data != 'None':
+            movie.backdrop_path = form.backdrop.data
+        
+        if form.trailer.data != None and form.trailer.data != 'None':
+            movie.trailer_path = form.trailer.data
+    
+        # Add Employee Change
+        change = Change(
+            action = "updated",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
+
+        db.session.commit()
+        flash('Movie updated.', 'success')
+        return redirect(url_for('movie', movie_route = movie.route))
     
     return render_template('employee/update-movie.html', ext="employee/layout.html", Movie=movie, images=images, videos=videos, form=form)
 
