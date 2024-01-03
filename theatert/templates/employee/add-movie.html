@@ -44,41 +44,43 @@
 
     {% else %}
         <h3 class="color-dark mb-5">Search Results</h3>
+        {% if not movie %}
+            <h5 class="my-4">No results</h5>
+        {% else %}
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
-            
-            {% for movie in result %}
-            <div class="col">
-                <div class="card">
-                    {% if movie["poster_path"] %}
-                        <img src="https://image.tmdb.org/t/p/original{{movie["poster_path"]}}" class="card-img-top" alt="Poster for {{movie["title"]}}">
-                    {% endif %}
-                    <div class="card-body">
-                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie["title"]}}">
-                            <h6 class="card-title text-truncate">{{movie["title"]}}</h6><br>
-                        </span>
-
-                        <p class="card-text"><small>
-                            {% if movie["release_date"] %}
-                                <b>Release Date:</b> {{ movie["release_date"].strftime("%b %d, %Y") }}<br>
-                            {% else %}
-                                <b>Release Date:</b> N/A<br>
+                {% for movie in result %}
+                    <div class="col">
+                        <div class="card">
+                            {% if movie["poster_path"] %}
+                                <img src="https://image.tmdb.org/t/p/original{{movie["poster_path"]}}" class="card-img-top" alt="Poster for {{movie["title"]}}">
                             {% endif %}
-                            <b>Popularity:</b> {{movie["popularity"]}}
-                        </small></p>
+                            <div class="card-body">
+                                <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie["title"]}}">
+                                    <h6 class="card-title text-truncate">{{movie["title"]}}</h6><br>
+                                </span>
 
-                        <form action="" method="POST">
-                            {{ form.m_id(value=movie["id"]) }}
-                            {% if movie["id"] in tmdb_ids %}
-                                {{ form.fetch(class="btn btn-primary") }}
-                            {% else %}
-                                {{ form.submit(class="btn btn-primary") }}
-                            {% endif %}
-                        </form>
+                                <p class="card-text"><small>
+                                    {% if movie["release_date"] %}
+                                        <b>Release Date:</b> {{ movie["release_date"].strftime("%b %d, %Y") }}<br>
+                                    {% else %}
+                                        <b>Release Date:</b> N/A<br>
+                                    {% endif %}
+                                    <b>Popularity:</b> {{movie["popularity"]}}
+                                </small></p>
+
+                                <form action="" method="POST">
+                                    {{ form.m_id(value=movie["id"]) }}
+                                    {% if movie["id"] in tmdb_ids %}
+                                        {{ form.fetch(class="btn btn-primary") }}
+                                    {% else %}
+                                        {{ form.submit(class="btn btn-primary") }}
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-
-        </div>
+        {% endif %}
     {% endif %}
 {% endblock %}

@@ -1,6 +1,6 @@
-import config
 import datetime
 import tmdbsimple as tmdb
+import os
 
 from flask import redirect, render_template, url_for
 from flask_login import current_user, login_user
@@ -9,7 +9,7 @@ from theatert import db, login_manager
 from theatert.models import Genre, genres
 
 
-tmdb.API_KEY = config.api_key
+tmdb.API_KEY = os.environ.get('TMDB_API_KEY')
 
 
 def apology(message, extends, code=400):

@@ -4,7 +4,10 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 # Configure application
 app = Flask(__name__)

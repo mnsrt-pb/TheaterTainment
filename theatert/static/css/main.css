@@ -1,10 +1,21 @@
+a 
+{
+    text-decoration: none;
+}
+
+a .movie-link
+{
+    display:block;
+    text-decoration: none;
+}
+
 .backdrop > img:not(.play-button)
 {
     height: 100%;
     width: 100%;
 }
 
-.container > img
+.col-1 > img
 {
     width: 80%;
 }
@@ -145,13 +156,6 @@ div .update { cursor:pointer; }
 .modal-trailer
 {
     width: 100vw;
-}
-
-
-a .movie-link
-{
-    display:block;
-    text-decoration: none;
 }
 
 

@@ -42,6 +42,18 @@ small .update:hover, .small .update:hover {
   background-color: rgba(67, 40, 116, 0.5);
 }
 
+a.page:link {
+  color: #801f4f;
+}
+
+a.page-current:link {
+  border: solid #801f4f 1px;
+  border-radius: 50%;
+  padding: 5px 10px;
+  color: white;
+  background-color: #801f4f;
+}
+
 /* override variables */
 /* merge variables */
 /* Customize navbar colors */

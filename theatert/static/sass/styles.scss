@@ -50,6 +50,20 @@ small .update:hover {
   background-color: rgba($purple-700, .5);
 }
 
+a.page:link
+{
+    color: $pink-700;
+}
+
+a.page-current:link
+{
+    border: solid $pink-700 1px;
+    border-radius: 50%;
+    padding: 5px 10px;
+    color: white;
+    background-color: $pink-700;
+}
+
 /* override variables */
 $primary: $pink-700;
 
