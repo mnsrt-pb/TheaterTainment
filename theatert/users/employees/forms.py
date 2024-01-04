@@ -1,6 +1,6 @@
 from flask import flash
 from flask_wtf import FlaskForm
-from theatert.models import Employee, Movie
+from theatert.models import Employee
 from wtforms import BooleanField, HiddenField, PasswordField, SelectField,StringField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional
 

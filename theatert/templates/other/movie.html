@@ -8,7 +8,7 @@
     <div class="row row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 cont-light pb-4">
         <div class="col col-1 container my-5">
             <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded mb-3">
-            <a href="{{ url_for('update_movie', movie_route=Movie.route) }}" class="btn btn-primary mb-3" tabindex="-1" role="button" aria-disabled="true">Update</a>
+            <a href="{{ url_for('employees.update_movie', movie_route=Movie.route) }}" class="btn btn-primary mb-3" tabindex="-1" role="button" aria-disabled="true">Update</a>
             <!-- Delete Modal Trigger -->
             <button type="button" class="btn btn-danger mb-3" data-bs-toggle="modal" data-bs-target="#modal-delete">
                 Delete
@@ -68,7 +68,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <form action="{{ url_for('delete_movie', movie_id = Movie.id )}}" method="POST">
+                            <form action="{{ url_for('employees.delete_movie', movie_id = Movie.id )}}" method="POST">
                                 <input class="btn btn-danger" type="submit" value="Delete">
                             </form>
                         </div>

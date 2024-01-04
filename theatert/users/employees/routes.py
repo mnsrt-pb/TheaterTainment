@@ -1,16 +1,19 @@
 import datetime
-from flask import flash, render_template,  redirect, request, url_for
-from flask_login import current_user, login_user, logout_user
-from theatert import app, db, bcrypt
-from theatert.forms import LoginForm, RegistrationForm, SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm, UpdateMovieForm
-from theatert.models import Employee, Change, Member, Movie
-from theatert.helpers import ( add_genres, add_rating, apology, 
-                                login_required, route_name, search_movie, update_choices)
+from flask import Blueprint, flash, render_template,  redirect, request, url_for
+from flask_login import current_user
+from theatert import db, bcrypt
+from theatert.users.employees.forms import RegistrationForm, SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm, UpdateMovieForm
+from theatert.models import Employee, Change, Movie
+from theatert.users.employees.utils import ( add_genres, add_rating, route_name, search_movie, update_choices)
+from theatert.users.utils import apology, login_required
 
 import tmdbsimple as tmdb
 
 
-@app.route('/add-movie', methods=['GET', 'POST'])
+employees = Blueprint('employees', __name__, url_prefix='/employee', template_folder='../../templates')
+
+
+@employees.route('/add-movie', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def add_movie():
     '''Add movie to theater database'''
@@ -99,12 +102,12 @@ def add_movie():
         db.session.add(change)
         db.session.commit()
 
-        return redirect(url_for('all_movies'))
+        return redirect(url_for('employees.all_movies'))
     else:
         return render_template('employee/add-movie.html', form=search_form)
 
 
-@app.route('/add-showtime', methods=['GET', 'POST'])
+@employees.route('/add-showtime', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def add_showtime():
     '''Assign showtimes to movies'''
@@ -112,7 +115,7 @@ def add_showtime():
     return apology('TODO', 'employee/layout.html', 403)
 
 
-@app.route('/all-movies', methods=['GET', 'POST'])
+@employees.route('/all-movies', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def all_movies():
     '''
@@ -167,7 +170,7 @@ def all_movies():
 
         db.session.commit()
         flash('Movie activated.', 'success')
-        return redirect(url_for('all_movies'))
+        return redirect(url_for('employees.all_movies'))
 
     if inactivate_form.validate_on_submit():
         # Inactivate Movie
@@ -186,13 +189,13 @@ def all_movies():
 
         db.session.commit()
         flash('Movie inactivated.', 'success')
-        return redirect(url_for('all_movies'))
+        return redirect(url_for('employees.all_movies'))
 
     
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movies, activate_form=activate_form, inactivate_form=inactivate_form)
 
 
-@app.route('/coming-soon')
+@employees.route('/coming-soon')
 def coming_soon():
     '''Display movies that have not been released'''
 
@@ -209,7 +212,7 @@ def coming_soon():
 
 
 @login_required(role="EMPLOYEE")
-@app.route('/movie/<int:movie_id>/delete', methods=['POST'])
+@employees.route('/movie/<int:movie_id>/delete', methods=['POST'])
 def delete_movie(movie_id):
     movie = Movie.query.filter_by(id = movie_id, deleted=False).first_or_404()
     movie.deleted = True
@@ -225,16 +228,17 @@ def delete_movie(movie_id):
 
     db.session.commit()
     flash(f'{movie.title} has been deleted!', 'success')
-    return redirect (url_for('all_movies'))
+    return redirect (url_for('employees.all_movies'))
 
 
-@app.route('/')
-@app.route('/home')
+@employees.route('/')
+@employees.route('/home')
 def home():
     '''Show home page'''
     
+    # FIXME: should be something else
     if not current_user.is_authenticated:
-            return apology('TODO', 'member/layout.html', 403)
+        return apology('TODO', 'member/layout.html', 403)
     else:
         page = request.args.get('page', 1, type=int)
         data = Change.query.filter_by(employee_id = current_user.id)\
@@ -250,43 +254,10 @@ def home():
                         'item': Movie.query.filter_by(id = c.data_id).first().title}
                 changes.append(temp)
 
-    return render_template('employee/employee.html', changes=changes, data=data)
+    return render_template('employee/home.html', changes=changes, data=data)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    '''Login employee'''
-
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = Employee.query.filter_by(username=form.username.data).first()
-
-        # Ensure username exists and password is correct
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next')
-
-            return redirect(next_page) if next_page else redirect(url_for('home'))
-        
-        flash('Invalid Username or Password.', 'danger')
-
-    return render_template('employee/login.html', form=form)
-
-
-@app.route('/logout')
-def logout():
-    '''Log user out'''
-
-    logout_user()
-
-    # Redirect user to login form 
-    return apology('TODO', 'member/layout.html', 403)
-
-
-@app.route('/now-playing')
+@employees.route('/now-playing')
 @login_required(role="EMPLOYEE")
 def now_playing():
     '''Display movies that are now playing'''
@@ -305,19 +276,19 @@ def now_playing():
     return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movies)
     
 
-@app.route('/movie/<string:movie_route>')
+@employees.route('/movie/<string:movie_route>')
 @login_required(role="EMPLOYEE")
 def movie(movie_route):
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
     return render_template('other/movie.html', ext="employee/layout.html", Movie=movie)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@employees.route('/register', methods=['GET', 'POST'])
 def register():
     '''Register associate'''
 
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('employees.home'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -330,17 +301,18 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('employees.login'))
     else:
         return render_template('employee/register.html', form=form)
 
 
-@app.route('/movie/<string:movie_route>/update', methods=['GET', 'POST'])
+@employees.route('/movie/<string:movie_route>/update', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def update_movie(movie_route):
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
     data = tmdb.Movies(movie.tmdb_id)
     images = data.images(language='en')
+
     videos = list(filter(lambda v: ('type', 'Trailer') in v.items(), data.videos(language='en')['results']))[::-1]
 
     form = UpdateMovieForm()
@@ -367,7 +339,7 @@ def update_movie(movie_route):
 
         db.session.commit()
         flash('Movie updated.', 'success')
-        return redirect(url_for('movie', movie_route = movie.route))
+        return redirect(url_for('employees.movie', movie_route = movie.route))
     
     return render_template('employee/update-movie.html', ext="employee/layout.html", Movie=movie, images=images, videos=videos, form=form)
 

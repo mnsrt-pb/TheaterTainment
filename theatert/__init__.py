@@ -1,27 +1,37 @@
-import os
-
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, UserMixin, login_user
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+from theatert.config import Config
 
 
 load_dotenv()
 
-# Configure application
-app = Flask(__name__)
-app.config['SECRET_KEY'] = '238b73674c2a7a432a1ade61a2ecd214'
-app.config["WTF_CSRF_ENABLED"] = False
+# Create extensions
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(base_dir, 'theater.db')
-
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'users.employee_login'
 login_manager.login_message_category = "danger"
 
 
-from theatert import routes
+def create_app(config_class=Config):
+    # Configure application
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # Initialize extensions
+    db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+
+    # Blueprints
+    from theatert.users.employees.routes import employees
+    from theatert.users.routes import users
+    app.register_blueprint(employees)
+    app.register_blueprint(users)
+
+    return app
+
