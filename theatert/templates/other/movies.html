@@ -91,7 +91,7 @@
             {% for movie in info[i].items %}
                 <div class="col pb-4">
                     <div class="card">
-                        <a href="{{ url_for('employees.movie', movie_route=movie.route) }}" class="movie-link">
+                        <a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="movie-link">
                             <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
                         <div class="card-body">
                         </a>
@@ -120,7 +120,7 @@
                         </div>
 
                         <small class="text-body-secondary">
-                            {% set link =  url_for('employees.update_movie', movie_route=movie.route) %}
+                            {% set link =  url_for('employees.movies.update_movie', movie_route=movie.route) %}
                             <div class="card-footer text-white update" onclick="location.href='{{ link }}'">
                                 Update
                             </div>
@@ -144,9 +144,9 @@
         {% for pg_num in info[0].iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if pg_num %}
                     {% if info[0].page == pg_num %}
-                        <a class="page-current me-3" href="{{ url_for('employees.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+                        <a class="page-current me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
                     {% else %}
-                        <a class="page me-3" href="{{ url_for('employees.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+                        <a class="page me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
                     {% endif %}
                 {% else %}
                     <span class="me-3">...</span>

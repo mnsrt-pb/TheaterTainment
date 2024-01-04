@@ -41,11 +41,11 @@
                                   Movies
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.all_movies') }}">All Movies</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.now_playing') }}">Now Playing</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.coming_soon') }}">Coming Soon</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.all_movies') }}">All Movies</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.now_playing') }}">Now Playing</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.coming_soon') }}">Coming Soon</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.add_movie') }}">Add Movie</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.add_movie') }}">Add Movie</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -101,8 +101,8 @@
             <div class="container">
                 <ul class="nav justify-content-center border-bottom pb-3 mb-3">
                     {% if current_user.is_authenticated%}
-                        <li class="nav-item"><a href="{{ url_for('employees.all_movies') }}" class="nav-link px-2 text-muted">All Movies</a></li>   
-                        <li class="nav-item"><a href="{{ url_for('employees.add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('employees.movies.all_movies') }}" class="nav-link px-2 text-muted">All Movies</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('employees.movies.add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
                         <li class="nav-item"><a href="{{ url_for('employees.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% else %}
                         <li class="nav-item"><a href="{{ url_for('employees.home') }}" class="nav-link px-2 text-muted">Home</a></li>

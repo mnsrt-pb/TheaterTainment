@@ -6,7 +6,7 @@ from theatert.users.employees.forms import LoginForm
 from theatert.users.utils import apology
 
 
-users = Blueprint('users', __name__, template_folder='../../templates')
+users = Blueprint('users', __name__)
 
 
 @users.route('/employee/login', methods=['GET', 'POST'])
