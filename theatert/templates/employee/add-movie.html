@@ -1,0 +1,86 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Add Movie
+{% endblock %}
+
+{% block main %}
+    {% if not search_result %}
+        <h3 class="color-dark">Add Movie</h3>
+        <div class="border container cont-1 rounded shadow">
+            <h5 class="color-light mb-4">Search Movie</h5>
+
+            <form action="" method="POST" class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-floating mb-3">
+                    {% if form.title.errors and not get_flashed_messages(with_categories=true)%}
+                        {{ form.title(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="Title")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.title(autocomplete="off", autofocus=true, class="form-control", placeholder="Title")}}
+                    {% endif %}
+                    {{ form.title.label }}
+                </div>
+                <div class="form-floating mb-3">
+                    {% if form.release_year.errors %}
+                        {{ form.release_year(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="release_year")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.release_year.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.release_year(autocomplete="off", autofocus=true, class="form-control", placeholder="release_year")}}
+                    {% endif %}
+                    {{ form.release_year.label }}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+
+    {% else %}
+        <h3 class="color-dark mb-5">Search Results</h3>
+        {% if not result %}
+            <h5 class="my-4">No results</h5>
+        {% else %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+                {% for movie in result %}
+                    <div class="col">
+                        <div class="card">
+                            {% if movie["poster_path"] %}
+                                <img src="https://image.tmdb.org/t/p/original{{movie["poster_path"]}}" class="card-img-top" alt="Poster for {{movie["title"]}}">
+                            {% endif %}
+                            <div class="card-body">
+                                <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie["title"]}}">
+                                    <h6 class="card-title text-truncate">{{movie["title"]}}</h6><br>
+                                </span>
+
+                                <p class="card-text"><small>
+                                    {% if movie["release_date"] %}
+                                        <b>Release Date:</b> {{ movie["release_date"].strftime("%b %d, %Y") }}<br>
+                                    {% else %}
+                                        <b>Release Date:</b> N/A<br>
+                                    {% endif %}
+                                    <b>Popularity:</b> {{movie["popularity"]}}
+                                </small></p>
+
+                                <form action="" method="POST">
+                                    {{ form.m_id(value=movie["id"]) }}
+                                    {% if movie["id"] in tmdb_ids %}
+                                        {{ form.fetch(class="btn btn-primary") }}
+                                    {% else %}
+                                        {{ form.submit(class="btn btn-primary") }}
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

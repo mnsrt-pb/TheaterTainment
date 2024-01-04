@@ -1,0 +1,118 @@
+{% extends ext %}
+
+{% block title %}
+    {{ Movie.title }}
+{% endblock %}
+
+{% block main %}
+    <div class="row row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 cont-light pb-4">
+        <div class="col col-1 container my-5">
+            <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded mb-3">
+            <a href="{{ url_for('employees.movies.update_movie', movie_route=Movie.route) }}" class="btn btn-primary mb-3" tabindex="-1" role="button" aria-disabled="true">Update</a>
+            <!-- Delete Modal Trigger -->
+            <button type="button" class="btn btn-danger mb-3" data-bs-toggle="modal" data-bs-target="#modal-delete">
+                Delete
+            </button>
+        </div>
+
+        <!-- Trailer Modal Trigger -->
+        <div class="col col-2">
+            {% if Movie.trailer_path and Movie.backdrop_path %}
+            <div id="trailer" data-bs-toggle="modal" data-bs-target="#modal-trailer">
+                <div class="backdrop">
+                    <img src="https://image.tmdb.org/t/p/original{{Movie.backdrop_path}}" alt="Backdrop for {{Movie.title}}">
+                    <img src="../../static/images/play-button.png" alt="Play Trailer" class="play-button">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Modals -->
+            <div class="modal" id="modal-trailer" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="embed-responsive ratio ratio-16x9">
+                                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{Movie.trailer_path}}?autoplay=1&mute=1" allowfullscreen allow="autoplay" frameborder="0"></iframe>
+                            </div>
+                        </div>
+                        <div class="row row-cols-2 row-cols-sm-2">
+                            <div class="col col-3 container mb-3 trailer right-align">
+                                <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded">
+                            </div>
+                            <div class="col col-4 container left-align">
+                                <label class="mb-0 pb-0 movie-detail-title movie-detail-title-label">{{ Movie.title }}</label>
+                                {% if Movie.runtime < 60 %}
+                                    {% set runtime = (Movie.runtime)|string + ' min' %}
+                                {% else %}
+                                    {% set runtime = (Movie.runtime // 60)|string + ' hr ' + (Movie.runtime % 60)|string + ' min' %}
+                                {% endif %}
+
+                                {% if Movie.rating %}
+                                    <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ Movie.rating }} &emsp; {{ runtime }}</div>
+                                {% else %}
+                                    <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ runtime }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal" id="modal-delete" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Movie?</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <form action="{{ url_for('employees.movies.delete_movie', movie_id = Movie.id )}}" method="POST">
+                                <input class="btn btn-danger" type="submit" value="Delete">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal End -->
+
+            <h2 class="movie-detail-title left-align mt-5">{{ Movie.title }}</h2>
+            <div class="d-sm-flex flex-row mt-5 left-align">
+                {% if Movie.rating %}
+                    <div class="me-3">
+                        <label class="movie-detail-label">Rating</label>
+                        <div class="movie-detail">{{ Movie.rating }}</div>
+                    </div>
+                {% endif %}
+                <div class="me-3">
+                    <label class="movie-detail-label">Runtime</label>
+                    <div class="movie-detail">{{ runtime }}</div>
+                </div>
+                {% if Movie.release_date %}
+                    <div class="me-3">
+                        <label class="movie-detail-label">Release Date</label>
+                        <div class="movie-detail">{{ Movie.release_date.strftime("%b %d, %Y") }}</div>
+                    </div>
+                {% endif %}
+                {% if Movie.genres %}
+                    <div class="me-3">
+                        <label class="movie-detail-label">Genres</label>
+                        <div class="movie-detail">
+                            {% for g in Movie.genres %}
+                                {% if loop.index != (Movie.genres | length) %}
+                                    {{ g.name }},
+                                {% else %}
+                                    {{ g.name }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="movie-detail left-align mt-5 pe-5">
+                {{ Movie.overview }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

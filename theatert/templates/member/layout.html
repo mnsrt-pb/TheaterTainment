@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html lang="en" class="h-100">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <!-- Contians bootstrap -->
+        <link href="/cs50x-project/" rel="stylesheet">
+        <script src="/../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- My css and bootstrap -->
+        <link href="/../../static/css/main.css" rel="stylesheet">
+        <script src="/../../static/javascript/main.js" rel="stylesheet"></script>
+
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+        <title> TheaterTainment | {% block title %}{% endblock %}</title>
+
+    </head>
+
+    <!-- <body class=""> -->
+    <body class="d-flex flex-column h-100 pt-5">
+
+        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{url_for('employees.home')}}"><span class="color-dark">THEATER</span><span class="color-light">TAINMENT</span></a>
+                <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar">
+                    {% if current_user.is_authenticated %}
+                        <ul class="navbar-nav me-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Showtimes</a></li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
+                        </ul>
+                        {% else %}
+                        <ul class="navbar-nav me-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Showtimes</a></li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="#">Sign In</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Create Account</a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        {% if get_flashed_messages() %}
+            <header class="mt-4">
+                {% if link and failure %}
+                <div class="alert alert-danger mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} Try <a href="#" class="alert-link">logging</a> in.
+                </div>
+
+                {% elif failure %}
+                <div class="alert alert-danger mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} 
+                </div>
+
+                {% else %}
+                <div class="alert alert-success mb-0 text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }} 
+                </div>
+                
+                {% endif %}
+            </header>
+        {% endif %}
+        
+        <main class="container-fluid py-5 text-center flex-shrink-0">
+            <div class="container">
+                {% block main %}{% endblock %}
+            </div>
+        </main>
+
+        <footer class="footer mt-auto py-3 my-1">
+            <div class="container">
+                <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+                    <li class="nav-item"><a href="{{ url_for('employees.home') }}" class="nav-link px-2 text-muted">Home</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Movies</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Showtimes</a></li>
+                    {% if not current_user.is_authenticated %}
+                        <li class="nav-item"><a href="{{ url_for('users.employee_login') }}" class="nav-link px-2 text-muted">Employee</a></li>
+                    {% endif %}
+                </ul>
+                <p class="text-center text-muted">&copy; 2023 THEATERTAINMENT</p>
+            </div>
+        </footer>
+    
+    </body>
+
+</html>

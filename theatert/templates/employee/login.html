@@ -1,0 +1,54 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <div class="border container cont-1 rounded shadow">
+        <div class="mb-4">
+            <form action="" method="POST" class="needs-validation" novalidate>
+                <h5 class="color-dark">Log In</h5>
+    
+                {{ form.hidden_tag() }}
+                <div class="left-align mb-3">
+                    {{ form.username.label(class="font-bold form-label font-sm mx-auto w-auto" )}}
+    
+                    {% if form.username.errors %}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {% if form.password.errors %}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.remember(class="form-check-input")}}
+                    {{ form.remember.label(class="form-check-input-label")}}
+                </div>
+                {{form.submit(class="btn btn-primary")}}
+            </form>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Don't Have An Account? <a class="ml-2" href="{{ url_for('employees.register') }}">Register</a>
+            </small>
+        </div>
+    </div>
+{% endblock %}

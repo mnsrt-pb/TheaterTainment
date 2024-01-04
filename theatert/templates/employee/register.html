@@ -1,0 +1,86 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Register a New Account
+{% endblock %}
+
+{% block main %}
+    <div class="border container cont-1 rounded shadow">
+        <div class="mb-4">
+            <form action="" method="POST" class="needs-validation" novalidate>
+                <h5 class="color-dark">Create Account</h5>
+
+                <div class="color-a font-sm left-align mt-4">&emsp;Password Requirements:</div>
+                <ul class="color-a font-sm left-align">
+                    <li>An alphabetic character</li>
+                    <li>An uppercase character</li>
+                    <li>A lowercase character</li>
+                    <li>A numeric character</li>
+                    <li>A special character</li>
+                    <li>A minimum of 8 characters</li>
+                </ul>
+
+                {{ form.hidden_tag() }}
+                <div class="left-align mb-3">
+                    {{ form.username.label(class="font-bold form-label font-sm mx-auto w-auto" )}}
+
+                    {% if form.username.errors %}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {% if form.password.errors %}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {% if form.confirmation.errors %}
+                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirmation.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.key.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {% if form.key.errors %}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.key.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control")}}
+                    {% endif %}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Already Have An Account? <a class="ml-2" href="{{ url_for('users.employee_login') }}">Sign In</a>
+            </small>
+        </div>
+    </div>
+{% endblock %}
