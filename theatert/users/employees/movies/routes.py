@@ -17,7 +17,6 @@ movies = Blueprint('movies', __name__, url_prefix='/movies')
 @login_required(role="EMPLOYEE")
 def add_movie():
     '''Add movie to theater database'''
-
     search_form = SearchMovieForm()
     add_form =  AddMovieForm()
     movies = Movie.query.filter_by(deleted=False).all()
@@ -107,6 +106,7 @@ def add_movie():
         return render_template('employee/add-movie.html', form=search_form)
 
 
+# FIXME: going to a different page resets sort by
 @movies.route('/all-movies', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def all_movies():

@@ -3,7 +3,7 @@ from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from theatert import db, bcrypt
 from theatert.users.employees.forms import RegistrationForm
-from theatert.models import Employee, Change, Movie
+from theatert.models import Employee, Change, Movie, Auditorium, Seat
 from theatert.users.utils import apology, login_required
 
 import tmdbsimple as tmdb
@@ -12,20 +12,30 @@ import tmdbsimple as tmdb
 employees = Blueprint('employees', __name__, url_prefix='/employee')
 
 
-@employees.route('/add-showtime', methods=['GET', 'POST'])
-@login_required(role="EMPLOYEE")
-def add_showtime():
-    '''Assign showtimes to movies'''
+@employees.route('/auditoriums')
+@login_required(role='EMPLOYEE')
+def auditoriums():
+    page = request.args.get('auditorium', 1, type=int)
+    auditorium = Auditorium.query.paginate(page=page, per_page=1)
 
-    return apology('TODO', 'employee/layout.html', 403)
+    for a in auditorium:
+        seats = Seat.query.filter_by(auditorium_id = a.id).order_by(Seat.id) 
+    
+        seats_total = Seat.query.filter(
+                            db.and_(
+                                Seat.auditorium_id.is_(a.id), 
+                                Seat.seat_type.is_not('empty'))).count()
+
+    return render_template('employee/auditoriums.html', auditorium=auditorium, seats=seats, seats_total=seats_total)
 
 
+# FIXME: add item num for employee changes (0 or add 1 to prev item's num)
 @employees.route('/')
 @employees.route('/home')
 def home():
     '''Show home page'''
     
-    # FIXME: should be something else
+    # FIXME: should use login_required(role='EMPLOYEE')
     if not current_user.is_authenticated:
         return apology('TODO', 'member/layout.html', 403)
     else:
@@ -67,4 +77,5 @@ def register():
         return redirect(url_for('employees.login'))
     else:
         return render_template('employee/register.html', form=form)
+
 

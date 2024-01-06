@@ -97,3 +97,27 @@ class Genre(db.Model):
     
     def __repr__(self):
         return f"Genre({self.id}, {self.name})"
+
+
+# Auditoriums & Seats
+class Auditorium(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rows = db.Column(db.Integer, nullable=False)
+    cols = db.Column(db.Integer, nullable=False)
+    seats = db.relationship('Seat', backref='auditorium', lazy=True)
+
+    def __repr__(self):
+        return f"Auditorium({self.id}, {self.rows}, {self.cols})"
+
+
+class Seat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    row = db.Column(db.Integer, nullable=False)
+    col = db.Column(db.Integer, nullable=False)
+    row_name = db.Column(db.String, nullable=False)
+    seat_type = db.Column(db.String)
+    auditorium_id = db.Column(db.Integer, db.ForeignKey('auditorium.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Seat({self.id}, {self.row}, {self.row_name}, {self.col}, {self.seat_type}, {self.auditorium_id})"
+

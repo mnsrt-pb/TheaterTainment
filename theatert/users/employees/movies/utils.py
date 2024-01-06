@@ -3,7 +3,7 @@ import tmdbsimple as tmdb
 import os
 
 from theatert import db
-from theatert.models import Genre, genres
+from theatert.models import Genre, genres, Auditorium, Seat
 
 
 tmdb.API_KEY = os.environ.get('TMDB_API_KEY')
@@ -75,4 +75,5 @@ def update_choices(images, videos):
         trailers.append((v['key'], str(i) + '. ' + v['name'] ))
         i += 1
     return posters, backdrops, trailers
+
 

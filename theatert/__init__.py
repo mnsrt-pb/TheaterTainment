@@ -29,9 +29,11 @@ def create_app(config_class=Config):
 
     # Blueprints
     from theatert.users.employees.movies.routes import movies
+    from theatert.users.employees.showtimes.routes import showtimes
     from theatert.users.employees.routes import employees
     from theatert.users.routes import users
     employees.register_blueprint(movies)
+    employees.register_blueprint(showtimes)
     app.register_blueprint(employees)
     app.register_blueprint(users)
 

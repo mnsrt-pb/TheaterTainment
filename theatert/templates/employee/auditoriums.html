@@ -1,0 +1,64 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Auditoriums
+{% endblock %}
+
+{% block main %}
+    <div >
+        {% for a in auditorium.items %} {# only one auditorium #}
+        <h3 class="color-dark">Auditorium {{ a.id }} </h3> 
+        <h5 class="color-light">{{seats_total}} seats</h5>
+    
+        <div class="container cont-4">
+            <div class="d-flex row justify-content-md-center">
+            {% if a.id == 3 %}
+                <h3 class="screen screen-a my-3">SCREEN</h3>
+            {% elif a.id == 4 %}
+                <h3 class="screen screen-b my-3">SCREEN</h3>
+            {% else %}
+                <h3 class="screen screen-c my-3">SCREEN</h3>
+            {% endif %}
+            </div>
+
+            {% for seat in seats %}
+                {% if (loop.index0 % a.cols) == 0 %}
+                <div class="flex-row flex-nowrap row justify-content-md-center">
+                {% endif %}
+    
+                    {% if seat.seat_type == 'normal'%}
+                        <div class="seat available p-2 m-1">{{ seat.row_name }}{{ seat.col }}</div>
+                    {% elif seat.seat_type == 'wheelchair' %}
+                        <div class="seat seat-wheelchair seat-img p-2 m-1">
+                            <img src="../../static/images/seat_wheelchair.webp">
+                        </div>
+                    {% elif seat.seat_type == 'companion' %}
+                        <div class="seat seat-img p-2 m-1">
+                            <img src="../../static/images/seat_companion.webp">
+                        </div>
+                    {% else %}
+                        <div class="seat empty p-2 m-1">{{ seat.row_name }}{{ seat.col }}</div>
+                    {% endif %}
+    
+                {% if (loop.index0 % a.cols) == (a.cols-1) %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    
+        <div class="my-5">
+            {% for pg_num in auditorium.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if pg_num %}
+                        {% if auditorium.page == pg_num %}
+                            <a class="page-current me-3" href="{{ url_for('employees.auditoriums', auditorium=pg_num) }}">{{ pg_num }}</a>
+                        {% else %}
+                            <a class="page me-3" href="{{ url_for('employees.auditoriums', auditorium=pg_num) }}">{{ pg_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="me-3">...</span>
+                    {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

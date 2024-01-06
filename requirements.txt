@@ -10,12 +10,16 @@ flask-sqlalchemy
 
 
 flask shell
-from theatert import app, db
-app.app_context()
+from theatert import db
+from flask import current_app
+current_app.app_context()
 
 db.create_all()
 db.drop_all()
 Table.__table__.drop(db.engine)
+
+audi1 = Auditorium.query.get(1)
+
 
 cat theater.sql | sqlite3 theater.db
 ASDF123!!45

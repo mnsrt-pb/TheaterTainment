@@ -60,7 +60,7 @@
                                     <li><a class="dropdown-item" href="#">Add showtime</a></li>
                                 </ul>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="#">Auditoriums</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('employees.auditoriums') }}">Auditoriums</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Tickets</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
@@ -103,7 +103,7 @@
                     {% if current_user.is_authenticated%}
                         <li class="nav-item"><a href="{{ url_for('employees.movies.all_movies') }}" class="nav-link px-2 text-muted">All Movies</a></li>   
                         <li class="nav-item"><a href="{{ url_for('employees.movies.add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
-                        <li class="nav-item"><a href="{{ url_for('employees.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('employees.showtimes.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% else %}
                         <li class="nav-item"><a href="{{ url_for('employees.home') }}" class="nav-link px-2 text-muted">Home</a></li>
                         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Movies</a></li>
