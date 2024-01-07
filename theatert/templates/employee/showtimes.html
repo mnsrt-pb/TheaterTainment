@@ -1,0 +1,65 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block main %}
+    <h3 class="color-dark">{{ title }}</h3>
+    {% if total == 0 %}
+        <h5 class="color-light my-4">There are no showtimes.</h5>
+    {% else %}
+        <h5 class="color-light mb-4">Total: {{ total }}</h5>
+        <div class="table-responsive-md">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class=>#</th>
+                        <th class="text-start">Movie</th>
+                        <th class="text-end">Auditorium</th>
+                        <th class="text-end">Tickets</th>
+                        <th class="text-end">Duration</th>
+                        <th class="text-end">Date</th>
+                        <th class="text-end">Start Time</th>
+                        <th class="text-end">End Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in screenings %}
+                    <tr>
+                        <th>{{ loop.index }}</th>
+                        <td class="text-start">{{ s.movie.title }}</td>
+                        <td class="text-end">{{ s.auditorium.id }}</td>
+                        <td class="text-end">{{ seats_total[loop.index0] }}</td>
+                        {% if s.movie.runtime < 60 %}
+                            {% set runtime = (s.movie.runtime)|string + ' min' %}
+                        {% else %}
+                            {% set runtime = (s.movie.runtime // 60)|string + ' hr ' + (s.movie.runtime % 60)|string + ' min' %}
+                        {% endif %}
+                        <td class="text-end">{{ runtime }}</td>
+                        
+                        <td class="text-end">{{ s.start_datetime.strftime("%A, %b %d, %Y") }}</td>
+                        <td class="text-end">{{ s.start_datetime.strftime(" %I:%M %p") }}</td>
+                        <td class="text-end">{{ s.end_datetime.strftime(" %I:%M %p") }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="my-5">
+            {% for pg_num in screenings.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if pg_num %}
+                        {% if screenings.page == pg_num %}
+                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                        {% else %}
+                            <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="me-3">...</span>
+                    {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}

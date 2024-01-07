@@ -144,9 +144,9 @@
         {% for pg_num in info[0].iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if pg_num %}
                     {% if info[0].page == pg_num %}
-                        <a class="page-current me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+                        <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
                     {% else %}
-                        <a class="page me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+                        <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
                     {% endif %}
                 {% else %}
                     <span class="me-3">...</span>

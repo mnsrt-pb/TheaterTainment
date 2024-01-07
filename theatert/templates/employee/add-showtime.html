@@ -1,0 +1,106 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    Add Showtime
+{% endblock %}
+
+{% block main %}
+    <h3 class="color-dark">Add Showtime</h3>
+    <div class="border container cont-1 rounded shadow">
+        <form action="" method="POST" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="font-sm left-align mx-auto w-auto text-muted mb-3">
+                You can start assigning screenings to unreleased movies 20 days prior to release date.
+            </div>
+            <div class="form-floating mb-3">
+                {% if form.m_id.errors %}
+                    {{ form.m_id(class="form-select is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.m_id.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.m_id(class="form-select") }}
+                {% endif %}
+                {{ form.m_id.label }}
+            </div>
+
+            <div class="form-floating mb-3">
+                {% if form.a_id.errors %}
+                    {{ form.a_id(class="form-select is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.a_id.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.a_id(class="form-select") }}
+                {% endif %}
+                {{ form.a_id.label }}
+            </div>
+
+            <div class="form-floating mb-3">
+                {% if form.adult_price.errors %}
+                    {{ form.adult_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="adult_price")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.adult_price.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.adult_price(autocomplete="off", autofocus=true, class="form-control", placeholder="adult_price")}}
+                {% endif %}
+                {{ form.adult_price.label }}
+            </div>
+
+            <div class="form-floating mb-3">
+                {% if form.child_price.errors %}
+                    {{ form.child_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="child_price")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.child_price.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.child_price(autocomplete="off", autofocus=true, class="form-control", placeholder="child_price")}}
+                {% endif %}
+                {{ form.child_price.label }}
+            </div>
+
+            <div class="form-floating mb-3">
+                {% if form.senior_price.errors %}
+                    {{ form.senior_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="senior_price")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.senior_price.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.senior_price(autocomplete="off", autofocus=true, class="form-control", placeholder="senior_price")}}
+                {% endif %}
+                {{ form.senior_price.label }}
+            </div>
+
+            <div class="left-align mb-3">
+                {{ form.date_time.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                <div class="font-sm mb-3 mx-auto w-auto text-muted">
+                    Earliest Screening: 10:00 AM<br>
+                    Latest Screening: 10:00 PM
+                </div>
+                {% if form.date_time.errors %}
+                    {{ form.date_time(class="form-control is-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.date_time.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.date_time(class="form-control")}}
+                {% endif %}
+            </div>
+            
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>      
+{% endblock %}

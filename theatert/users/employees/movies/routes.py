@@ -116,9 +116,9 @@ def all_movies():
     '''
     page = request.args.get('page', 1, type=int)
     movies = [Movie.query.filter_by(deleted=False).order_by(Movie.title)\
-                .paginate(page=page, per_page=5), 
+                .paginate(page=page, per_page=10), 
               Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=5)] 
+                .paginate(page=page, per_page=10)] 
 
     # Activate Form
     activate_form = ActivateForm()
@@ -185,7 +185,9 @@ def all_movies():
         flash('Movie inactivated.', 'success')
         return redirect(url_for('employees.movies.all_movies'))
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", info=movies, activate_form=activate_form, inactivate_form=inactivate_form)
+    return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
+                           info=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
+                            url='employees.movies.all_movies')
 
 
 @movies.route('/coming-soon')
@@ -197,12 +199,13 @@ def coming_soon():
 
     movies = [Movie.query.filter(db.and_(Movie.deleted.is_(False), db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
                 .order_by(Movie.title)\
-                .paginate(page=page, per_page=5),
+                .paginate(page=page, per_page=10),
             Movie.query.filter(db.and_(Movie.deleted.is_(False), db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
                 .order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=5)]
+                .paginate(page=page, per_page=10)]
         
-    return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", info=movies)
+    return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", \
+                           info=movies, url='employees.movies.coming_soon')
 
 
 @movies.route('/movie/<int:movie_id>/delete', methods=['POST'])
@@ -237,13 +240,14 @@ def now_playing():
     movies = [Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
                     .order_by(Movie.title)\
-                    .paginate(page=page, per_page=5), 
+                    .paginate(page=page, per_page=10), 
             Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
                     .order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=5)]
+                .paginate(page=page, per_page=10)]
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", info=movies)
+    return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", \
+                           info=movies, url='employees.movies.now_playing')
     
 
 @movies.route('/<string:movie_route>')
@@ -263,35 +267,42 @@ def update_movie(movie_route):
 
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
     data = tmdb.Movies(movie.tmdb_id)
-    images = data.images(language='en')
+    images = data.images(include_image_language='en,null')
 
     videos = list(filter(lambda v: ('type', 'Trailer') in v.items(), data.videos(language='en')['results']))[::-1]
 
     form = UpdateMovieForm()
     form.poster.choices, form.backdrop.choices, form.trailer.choices = update_choices(images, videos)
 
-    if form.validate_on_submit():
-        if form.poster.data != None and form.poster.data != 'None':
-            movie.poster_path = form.poster.data
-        
-        if form.backdrop.data != None and form.backdrop.data != 'None':
-            movie.backdrop_path = form.backdrop.data
-        
-        if form.trailer.data != None and form.trailer.data != 'None':
-            movie.trailer_path = form.trailer.data
-    
-        # Add Employee Change
-        change = Change(
-            action = "updated",
-            table_name = "movie",
-            data_id = movie.id,
-            employee_id = current_user.id
-        )
-        db.session.add(change)
 
-        db.session.commit()
-        flash('Movie updated.', 'success')
-        return redirect(url_for('employees.movies.movie', movie_route = movie.route))
+    if form.validate_on_submit():
+        if not ((form.poster.data == None or form.poster.data == 'None') and \
+        (form.backdrop.data == None or form.backdrop.data == 'None') and \
+        (form.trailer.data == None or form.trailer.data == 'None')):
+            
+            if form.poster.data != None and form.poster.data != 'None':
+                movie.poster_path = form.poster.data
+            
+            if form.backdrop.data != None and form.backdrop.data != 'None':
+                movie.backdrop_path = form.backdrop.data
+            
+            if form.trailer.data != None and form.trailer.data != 'None':
+                movie.trailer_path = form.trailer.data
+        
+            # Add Employee Change
+            change = Change(
+                action = "updated",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+            db.session.add(change)
+
+            db.session.commit()
+            flash('Movie updated.', 'success')
+            return redirect(url_for('employees.movies.movie', movie_route = movie.route))
+        else:
+            flash('Must select something.', 'danger')
     
     return render_template('employee/update-movie.html', ext="employee/layout.html", Movie=movie, images=images, videos=videos, form=form)
 

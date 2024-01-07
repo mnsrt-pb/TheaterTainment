@@ -8,7 +8,8 @@
     {% if changes|length == 0 %}
         <h5 class="color-dark my-4">You have made no changes to the database.</h5>
     {% else %}
-        <h5 class="color-dark my-4">Your Changes:</h5>
+        <h3 class="color-dark mb-4">Your Changes</h3>
+        <h5 class="color-light my-2">Total: {{ total }}</h5>
         <div class="table-responsive-md">
             <table class="table table-striped">
                 <thead>
@@ -22,14 +23,14 @@
                 </thead>
                 <tbody>
                     {% for c in changes %}
-                    <tr>
-                        <th>{{ loop.index }}</th>
-                        <td class="text-start">{{ c['table_name'] }}</td>
-                        <td class="text-start">{{ c['item'] }}</td>
-                        <td class="text-end">{{ c['change'] }}</td>
-                        
-                        <td class="text-end">{{ c['date_time'].strftime("%b %d, %Y") }}&emsp;{{ c['date_time'].strftime("%I:%M:%S %p") }}</td>
-                    </tr>
+                        <tr>
+                            <th>{{ loop.index }}</th>
+                            <td class="text-start">{{ c['table_name'] }}</td>
+                            <td class="text-start">{{ c['item'] }}</td>
+                            <td class="text-end">{{ c['change'] }}</td>
+                            
+                            <td class="text-end">{{ c['date_time'].strftime("%b %d, %Y") }}&emsp;{{ c['date_time'].strftime("%I:%M:%S %p") }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>

@@ -30,7 +30,7 @@ class InactivateForm(FlaskForm):
 
 class ActivateForm(FlaskForm):
     def validate_m_id(self, m_id):
-        '''Ensure Select Movie was not selected and movie has been released.'''
+        '''Ensure Select Movie was not selected.'''
 
         if m_id.data == 'None':
             flash('Must select a movie.', 'danger')

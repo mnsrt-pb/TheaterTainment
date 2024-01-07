@@ -3,7 +3,7 @@ from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from theatert import db, bcrypt
 from theatert.users.employees.forms import RegistrationForm
-from theatert.models import Employee, Change, Movie, Auditorium, Seat
+from theatert.models import Employee, Change, Movie, Auditorium, Seat, Screening
 from theatert.users.utils import apology, login_required
 
 import tmdbsimple as tmdb
@@ -44,6 +44,8 @@ def home():
             .order_by(Change.date.desc())\
             .paginate(page=page, per_page=10)
         
+        total = Change.query.filter_by(employee_id = current_user.id).count()
+
         changes = []
         for c in data.items:
             if c.table_name == 'movie':
@@ -52,8 +54,26 @@ def home():
                         'date_time' : c.date - datetime.timedelta(hours=5),
                         'item': Movie.query.filter_by(id = c.data_id).first().title}
                 changes.append(temp)
+            elif c.table_name == 'screening':
+                s = Screening.query.join(Movie).join(Auditorium).first()
+                seats_total = Seat.query.filter(
+                            db.and_(
+                                Seat.auditorium_id.is_(s.auditorium.id), 
+                                Seat.seat_type.is_not('empty'))).count()
 
-    return render_template('employee/home.html', changes=changes, data=data)
+                temp = {'change' : c.action,
+                        'table_name' : 'Showtime',
+                        'date_time': c.date - datetime.timedelta(hours=5),
+                        'item': f'{s.movie.title} | Auditorium {s.auditorium.id} \
+                        | {s.start_datetime.strftime("%A, %b %d, %Y")} \
+                        | {s.start_datetime.strftime(" %I:%M %p")} \
+                        | {seats_total} Tickets'
+                }
+                changes.append(temp)
+            else: 
+                pass
+
+    return render_template('employee/home.html', changes=changes, data=data, total=total)
 
 
 @employees.route('/register', methods=['GET', 'POST'])

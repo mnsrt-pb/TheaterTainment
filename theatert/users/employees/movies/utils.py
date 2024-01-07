@@ -74,6 +74,7 @@ def update_choices(images, videos):
     for v in videos:
         trailers.append((v['key'], str(i) + '. ' + v['name'] ))
         i += 1
+
     return posters, backdrops, trailers
 
 
