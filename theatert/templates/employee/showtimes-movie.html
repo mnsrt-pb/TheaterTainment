@@ -6,29 +6,18 @@
 
 {% block main %}
     {% if total == 0 %}
-        <h3 class="color-dark mb-3">{{ title }}</h3>
+        <h3 class="color-light mb-3">Showtimes for <span class="color-dark">{{ title }}</span></h3> 
         <h6 class="text-body-secondary my-4">There are no showtimes.</h6>
     {% else %}
-        <h3 class="color-dark mb-3">{{ title }} <span class="my-small color-light">({{ total }})</span></h3>
+        <h3 class="color-light">Showtimes for <span class="color-dark"><a href="{{ url_for('employees.movies.movie', movie_route=movie_route) }}">{{ title }}</a></span> <span class="my-small color-light">({{ total }})</span></h3> 
 
-        <div class="border container cont-2 rounded shadow mb-4">
-            <h5 class="color-light">Showtimes for Movie</h5>
-            <select class="form-select" id="select-link">
-                <option value="">All</option>
-                {% for m in movies %}    
-                    <option value="{{ url_for('employees.showtimes.movie', movie_route=m.movie.route) }}">{{ m.movie.title }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="container mb-3"><small class="fst-italic text-body-secondary">Note: Click on tickets to view tickets' info for that showtime.</small></div>
+        <div class="container mb-5"><small class="text-body-secondary fst-italic">Note: Click on tickets to view tickets' info for that showtime.</small></div>
 
         <div class="table-responsive-md">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th class="text-start">#</th>
-                        <th class="text-start">Movie</th>
+                        <th class=>#</th>
                         <th class="text-start">Date</th>
                         <th class="text-start">Start Time</th>
                         <th class="text-start">End Time</th>
@@ -41,11 +30,7 @@
                 <tbody>
                     {% for s in screenings %}
                     <tr>
-                        <th class="text-start">{{ loop.index }}</th>
-                        <td class="text-start">
-                            <a href="{{ url_for('employees.showtimes.movie', movie_route=s.movie.route) }}">{{ s.movie.title }}</a>
-                        </td>
-
+                        <th>{{ loop.index }}</th>
                         <td class="text-start">{{ s.start_datetime.strftime("%A, %b %d, %Y") }}</td>
                         <td class="text-start">{{ s.start_datetime.strftime(" %I:%M %p") }}</td>
                         <td class="text-start">{{ s.end_datetime.strftime(" %I:%M %p") }}</td>
@@ -68,9 +53,9 @@
             {% for pg_num in screenings.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                     {% if pg_num %}
                         {% if screenings.page == pg_num %}
-                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num, movie_route=movie_route) }}">{{ pg_num }}</a>
                         {% else %}
-                            <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                            <a class="page me-3" href="{{ url_for(url, page=pg_num, movie_route=movie_route) }}">{{ pg_num }}</a>
                         {% endif %}
                     {% else %}
                         <span class="me-3">...</span>
@@ -78,5 +63,4 @@
             {% endfor %}
         </div>
     {% endif %}
-
 {% endblock %}

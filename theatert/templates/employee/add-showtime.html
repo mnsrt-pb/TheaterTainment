@@ -21,7 +21,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.m_id(class="form-select") }}
+                    {{ form.m_id(autofocus=true, class="form-select") }}
                 {% endif %}
                 {{ form.m_id.label }}
             </div>
@@ -35,49 +35,49 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.a_id(class="form-select") }}
+                    {{ form.a_id(autofocus=true, class="form-select") }}
                 {% endif %}
                 {{ form.a_id.label }}
             </div>
 
             <div class="form-floating mb-3">
                 {% if form.adult_price.errors %}
-                    {{ form.adult_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="adult_price")}}
+                    {{ form.adult_price(autocomplete="off", class="form-control is-invalid", placeholder="adult_price")}}
                     <div class="invalid-feedback">
                         {% for error in form.adult_price.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.adult_price(autocomplete="off", autofocus=true, class="form-control", placeholder="adult_price")}}
+                    {{ form.adult_price(autocomplete="off", class="form-control", placeholder="adult_price")}}
                 {% endif %}
                 {{ form.adult_price.label }}
             </div>
 
             <div class="form-floating mb-3">
                 {% if form.child_price.errors %}
-                    {{ form.child_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="child_price")}}
+                    {{ form.child_price(autocomplete="off", class="form-control is-invalid", placeholder="child_price")}}
                     <div class="invalid-feedback">
                         {% for error in form.child_price.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.child_price(autocomplete="off", autofocus=true, class="form-control", placeholder="child_price")}}
+                    {{ form.child_price(autocomplete="off", class="form-control", placeholder="child_price")}}
                 {% endif %}
                 {{ form.child_price.label }}
             </div>
 
             <div class="form-floating mb-3">
                 {% if form.senior_price.errors %}
-                    {{ form.senior_price(autocomplete="off", autofocus=true, class="form-control is-invalid", placeholder="senior_price")}}
+                    {{ form.senior_price(autocomplete="off", class="form-control is-invalid", placeholder="senior_price")}}
                     <div class="invalid-feedback">
                         {% for error in form.senior_price.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.senior_price(autocomplete="off", autofocus=true, class="form-control", placeholder="senior_price")}}
+                    {{ form.senior_price(autocomplete="off", class="form-control", placeholder="senior_price")}}
                 {% endif %}
                 {{ form.senior_price.label }}
             </div>

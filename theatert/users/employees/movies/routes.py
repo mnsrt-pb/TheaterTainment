@@ -3,7 +3,7 @@ from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from theatert import db
 from theatert.users.employees.movies.forms import SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm, UpdateMovieForm
-from theatert.models import Change, Movie
+from theatert.models import Change, Movie, Screening
 from theatert.users.employees.movies.utils import add_genres, add_rating, route_name, search_movie, update_choices
 from theatert.users.utils import login_required
 
@@ -117,24 +117,27 @@ def all_movies():
     sort_by = request.args.get('sort_by', 1, type=int)
 
     if sort_by == 2:
-        movies = Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc())\
-                    .paginate(page=page, per_page=10)
+        movies = Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc())
+
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
     else:
-        movies = Movie.query.filter_by(deleted=False).order_by(Movie.title)\
-                    .paginate(page=page, per_page=10) 
+        movies = Movie.query.filter_by(deleted=False).order_by(Movie.title)
+        
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10) 
 
     # Activate Form
     activate_form = ActivateForm()
     # Filter for movies that have not been 'deleted', are inactive AND have a poster_path, backdrop_path, trailer_path, and a release data
-    inactive = Movie.query.filter(
-                        db.and_(
+    inactive = Movie.query.filter(db.and_(
                             Movie.release_date.is_not(None),
                             Movie.poster_path.is_not(None),
                             Movie.backdrop_path.is_not(None),
                             Movie.trailer_path.is_not(None),
                             Movie.active.is_(False), 
-                            Movie.deleted.is_(False), 
-                        )).order_by(Movie.title)
+                            Movie.deleted.is_(False)))\
+                    .order_by(Movie.title)
     choices = [(None, 'Select Movie')]
     for m in inactive:
         choices.append((m.id, m.title))
@@ -142,7 +145,16 @@ def all_movies():
 
     # Inactivate Form
     inactivate_form = InactivateForm()
-    active = Movie.query.filter_by(active=True, deleted=False).order_by(Movie.title)
+
+    # If an active movie has upcoming screenings, they cannot be inactivated
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+
+    active = Movie.query.filter(db.and_(
+                            Movie.active.is_(True), 
+                            Movie.deleted.is_(False),
+                            Movie.id.not_in(subquery)))\
+                        .order_by(Movie.title)
+    
     choices = [(None, 'Select Movie')]
     for m in active:
         choices.append((m.id, m.title))
@@ -190,7 +202,7 @@ def all_movies():
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
                            movies=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
-                            url='employees.movies.all_movies', sort_by=sort_by)
+                            url='employees.movies.all_movies', sort_by=sort_by, length=length)
 
 
 @movies.route('/coming-soon')
@@ -204,17 +216,19 @@ def coming_soon():
     if sort_by == 2:
         movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
                                     db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
-                            .order_by(Movie.release_date.desc())\
-                            .paginate(page=page, per_page=10)
+                            .order_by(Movie.release_date.desc())
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
     else:
         movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
                                     db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
-                            .order_by(Movie.title)\
-                            .paginate(page=page, per_page=10)
+                            .order_by(Movie.title)
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
         
         
     return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", \
-                           movies=movies, url='employees.movies.coming_soon', sort_by=sort_by)
+                           movies=movies, url='employees.movies.coming_soon', sort_by=sort_by, length=length)
 
 
 @movies.route('/movie/<int:movie_id>/delete', methods=['POST'])
@@ -223,19 +237,34 @@ def delete_movie(movie_id):
     '''Delete movies.'''
 
     movie = Movie.query.filter_by(id = movie_id, deleted=False).first_or_404()
-    movie.deleted = True
-    movie.active = False
 
-    change = Change(
-        action = "deleted",
-        table_name = "movie",
-        data_id = movie.id,
-        employee_id = current_user.id
-    )
-    db.session.add(change)
+    # Ensure that if movie has upcoming screenings, it cannot be deleted.
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+    
+    can_delete = Movie.query.filter(db.and_(
+                            Movie.id.is_(movie.id), 
+                            Movie.id.in_(subquery)))\
+                        .count()
+    
+    can_delete = not bool(can_delete)
 
-    db.session.commit()
-    flash(f'{movie.title} has been deleted!', 'success')
+    if can_delete:
+        movie.deleted = True
+        movie.active = False
+
+        change = Change(
+            action = "deleted",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
+
+        db.session.commit()
+        flash(f'{movie.title} has been deleted!', 'success')
+    else: 
+        flash(f'{movie.title} cannot be deleted! It has upcoming showtimes.', 'danger')
+
     return redirect (url_for('employees.movies.all_movies'))
 
 
@@ -250,17 +279,20 @@ def now_playing():
     if sort_by == 2:
         movies = Movie.query.filter(
                     db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                        .order_by(Movie.release_date.desc())\
-                    .paginate(page=page, per_page=10)
+                        .order_by(Movie.release_date.desc())
+        
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
     else:
         movies = Movie.query.filter(
                     db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                        .order_by(Movie.title)\
-                        .paginate(page=page, per_page=10) 
+                        .order_by(Movie.title)
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
         
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", \
-                           movies=movies, url='employees.movies.now_playing', sort_by=sort_by)
+                           movies=movies, url='employees.movies.now_playing', sort_by=sort_by, length=length)
     
 
 @movies.route('/<string:movie_route>')
@@ -270,7 +302,15 @@ def movie(movie_route):
 
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
 
-    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie)
+    # Ensure that if movie has upcoming screenings, it cannot be deleted.
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+    
+    can_delete = Movie.query.filter(db.and_(
+                            Movie.id.is_(movie.id), 
+                            Movie.id.in_(subquery)))\
+                        .count()
+
+    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie, can_delete=(not bool(can_delete)))
 
 
 @movies.route('/<string:movie_route>/update', methods=['GET', 'POST'])

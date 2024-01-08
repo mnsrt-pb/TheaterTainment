@@ -3,7 +3,7 @@ from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from theatert import db, bcrypt
 from theatert.users.employees.forms import RegistrationForm
-from theatert.models import Employee, Change, Movie, Auditorium, Seat, Screening
+from theatert.models import Employee, Change, Movie, Auditorium, Seat, Screening, Ticket
 from theatert.users.utils import apology, login_required
 
 import tmdbsimple as tmdb
@@ -30,21 +30,30 @@ def auditoriums():
 
 
 # FIXME: add item num for employee changes (0 or add 1 to prev item's num)
+# FIXME: should use login_required(role='EMPLOYEE')
 @employees.route('/')
 @employees.route('/home')
 def home():
     '''Show home page'''
     
-    # FIXME: should use login_required(role='EMPLOYEE')
     if not current_user.is_authenticated:
         return apology('TODO', 'member/layout.html', 403)
     else:
         page = request.args.get('page', 1, type=int)
-        data = Change.query.filter_by(employee_id = current_user.id)\
-            .order_by(Change.date.desc())\
-            .paginate(page=page, per_page=10)
+        type = request.args.get('type', 1, type=int)
+
+        if type == 2:
+            data = Change.query.filter_by(employee_id = current_user.id, table_name='movie')\
+                .order_by(Change.date.desc())
+        elif type == 3:
+            data = Change.query.filter_by(employee_id = current_user.id, table_name='screening')\
+                .order_by(Change.date.desc())
+        else: 
+            data = Change.query.filter_by(employee_id = current_user.id)\
+                .order_by(Change.date.desc())
         
-        total = Change.query.filter_by(employee_id = current_user.id).count()
+        total = data.count()
+        data = data.paginate(page=page, per_page=10)
 
         changes = []
         for c in data.items:
@@ -55,7 +64,9 @@ def home():
                         'item': Movie.query.filter_by(id = c.data_id).first().title}
                 changes.append(temp)
             elif c.table_name == 'screening':
-                s = Screening.query.join(Movie).join(Auditorium).first()
+                s = Screening.query.join(Movie).join(Auditorium) \
+                    .filter(Screening.id.is_(c.data_id)).first()
+                
                 seats_total = Seat.query.filter(
                             db.and_(
                                 Seat.auditorium_id.is_(s.auditorium.id), 
@@ -73,7 +84,7 @@ def home():
             else: 
                 pass
 
-    return render_template('employee/home.html', changes=changes, data=data, total=total)
+    return render_template('employee/home.html', changes=changes, data=data, total=total, type=type)
 
 
 @employees.route('/register', methods=['GET', 'POST'])
@@ -98,4 +109,32 @@ def register():
     else:
         return render_template('employee/register.html', form=form)
 
+
+# TODO: Show which tickets have been purchased and when
+@employees.route('/tickets/<int:s_id>', methods=['GET', 'POST'])
+@login_required(role='EMPLOYEE')
+def tickets(s_id):
+    page = request.args.get('page', 1, type=int)
+
+    screening = Screening.query.join(Movie).join(Auditorium) \
+        .filter(Screening.id.is_(s_id)) \
+        .first_or_404()
+    
+
+    tickets = Ticket.query.join(Screening).join(Seat) \
+        .filter(Screening.id.is_(s_id)) \
+        .order_by(Ticket.id) 
+    
+    total= tickets.count()
+
+    per_page = 10
+
+    if screening.auditorium.id == 1 or screening.auditorium.id == 2:
+        per_page=12
+
+    if screening.auditorium.id == 3:
+        per_page=16
+
+    tickets = tickets.paginate(page=page, per_page=per_page)
+    return render_template('employee/tickets.html', title='Tickets', screening=screening, tickets=tickets, total=total)
 

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     // Fixing tooltips END
 
     // movies_sortby();
-    document.getElementById('sortby').addEventListener("change", function(){
+    document.getElementById('select-link').addEventListener("change", function(){
         var url=this.value;
         window.open(url, '_self')
     });

@@ -6,15 +6,34 @@
 
 {% block main %}
     {% if changes|length == 0 %}
-        <h5 class="color-dark my-4">You have made no changes to the database.</h5>
+        <h6 class="text-body-secondary my-4">You have made no changes to the database.</h6>
     {% else %}
-        <h3 class="color-dark mb-4">Your Changes</h3>
-        <h5 class="color-light my-2">Total: {{ total }}</h5>
+        <h3 class="color-dark mb-2">Your Changes <span class="my-small color-light">({{ total }})</span></h3>
+
+        <div class="border container cont-5 rounded shadow mb-4">
+            <h5 class="color-light">Type</h5>
+            <select class="form-select" id="select-link">
+                {% if type == 2 %}
+                    <option value="{{ url_for('employees.home', type=2) }}">Movies</option>
+                    <option value="{{ url_for('employees.home', type=3) }}">Showtimes</option>
+                    <option value="{{ url_for('employees.home', type=1) }}">All</option>
+                {% elif type == 3 %}
+                    <option value="{{ url_for('employees.home', type=3) }}">Showtimes</option>
+                    <option value="{{ url_for('employees.home', type=2) }}">Movies</option>
+                    <option value="{{ url_for('employees.home', type=1) }}">All</option>
+                {% else %}    
+                    <option value="{{ url_for('employees.home', type=1) }}">All</option>
+                    <option value="{{ url_for('employees.home', type=2) }}">Movies</option>
+                    <option value="{{ url_for('employees.home', type=3) }}">Showtimes</option>
+                {% endif %}
+            </select>
+        </div>
+
         <div class="table-responsive-md">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th class=>#</th>
+                        <th class="text-start">#</th>
                         <th class="text-start">Type</th>
                         <th class="text-start">Item</th>
                         <th class="text-end">Change</th>
@@ -24,7 +43,7 @@
                 <tbody>
                     {% for c in changes %}
                         <tr>
-                            <th>{{ loop.index }}</th>
+                            <th class="text-start">{{ loop.index }}</th>
                             <td class="text-start">{{ c['table_name'] }}</td>
                             <td class="text-start">{{ c['item'] }}</td>
                             <td class="text-end">{{ c['change'] }}</td>
@@ -38,9 +57,9 @@
         {% for pg_num in data.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
             {% if pg_num %}
                 {% if data.page == pg_num %}
-                    <a class="page-current me-3" href="{{ url_for('employees.home', page=pg_num) }}">{{ pg_num }}</a>
+                    <a class="page-current me-3" href="{{ url_for('employees.home', type=type, page=pg_num) }}">{{ pg_num }}</a>
                 {% else %}
-                    <a class="page me-3" href="{{ url_for('employees.home', page=pg_num) }}">{{ pg_num }}</a>
+                    <a class="page me-3" href="{{ url_for('employees.home', type=type, page=pg_num) }}">{{ pg_num }}</a>
                 {% endif %}
             {% else %}
                 <span class="me-3">...</span>

@@ -113,8 +113,10 @@ def all_showtimes():
         .order_by(Screening.start_datetime.desc())
     
     total = screenings.count()
+    movies = screenings.group_by(Movie.id)
+
     screenings = screenings.paginate(page=page, per_page=10)
-    
+
     seats_total = []
     for s in screenings:
         seats_total.append(Seat.query.filter(
@@ -122,7 +124,8 @@ def all_showtimes():
                         Seat.auditorium_id.is_(s.auditorium.id), 
                         Seat.seat_type.is_not('empty'))).count())
     
-    return render_template('employee/showtimes.html', title='All Showtimes', screenings=screenings, \
+    return render_template('employee/showtimes.html', title='All Showtimes', \
+                           screenings=screenings, movies=movies, \
                            seats_total=seats_total, total=total, url='employees.showtimes.all_showtimes')
 
 
@@ -136,6 +139,8 @@ def showtimes_now():
         .order_by(Screening.start_datetime.desc()) 
         
     total = screenings.count()
+    movies = screenings.group_by(Movie.id)
+
     screenings = screenings.paginate(page=page, per_page=10)
 
     seats_total = []
@@ -145,7 +150,8 @@ def showtimes_now():
                         Seat.auditorium_id.is_(s.auditorium.id), 
                         Seat.seat_type.is_not('empty'))).count())
     
-    return render_template('employee/showtimes.html', title='Showtimes Now', screenings=screenings, \
+    return render_template('employee/showtimes.html', title='Showtimes Now', \
+                           screenings=screenings, movies=movies, \
                            seats_total=seats_total, total=total,  url='employees.showtimes.showtimes_now')
 
 
@@ -159,6 +165,8 @@ def past_showtimes():
         .order_by(Screening.start_datetime.desc()) 
         
     total = screenings.count()
+    movies = screenings.group_by(Movie.id)
+
     screenings = screenings.paginate(page=page, per_page=10)
 
     seats_total = []
@@ -168,8 +176,32 @@ def past_showtimes():
                         Seat.auditorium_id.is_(s.auditorium.id), 
                         Seat.seat_type.is_not('empty'))).count())
     
-    return render_template('employee/showtimes.html', title='Past Showtimes', screenings=screenings, \
+    return render_template('employee/showtimes.html', title='Past Showtimes', \
+                           screenings=screenings, movies=movies, \
                            seats_total=seats_total, total=total,  url='employees.showtimes.past_showtimes')
 
 
-# TODO: add_showtime_movie (try this)
+@showtimes.route('/<string:movie_route>')
+@login_required(role="EMPLOYEE")
+def movie(movie_route):
+    '''Display movie's showtimes.'''
+    page = request.args.get('page', 1, type=int)
+
+    movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
+    screenings = Screening.query.join(Movie).join(Auditorium) \
+        .filter(Movie.id.is_(movie.id)) \
+        .order_by(Screening.start_datetime.desc())
+    total = screenings.count()
+
+    screenings = screenings.paginate(page=page, per_page=10)
+
+    seats_total = []
+    for s in screenings:
+        seats_total.append(Seat.query.filter(
+                    db.and_(
+                        Seat.auditorium_id.is_(s.auditorium.id), 
+                        Seat.seat_type.is_not('empty'))).count())
+    
+    return render_template('employee/showtimes-movie.html', title=movie.title, screenings=screenings, \
+                           seats_total=seats_total, total=total, url='employees.showtimes.movie', movie_route=movie_route)
+

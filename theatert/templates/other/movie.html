@@ -8,11 +8,19 @@
     <div class="row row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 cont-light pb-4">
         <div class="col col-1 container my-5">
             <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded mb-3">
-            <a href="{{ url_for('employees.movies.update_movie', movie_route=Movie.route) }}" class="btn btn-primary mb-3" tabindex="-1" role="button" aria-disabled="true">Update</a>
-            <!-- Delete Modal Trigger -->
-            <button type="button" class="btn btn-danger mb-3" data-bs-toggle="modal" data-bs-target="#modal-delete">
-                Delete
-            </button>
+            <p class="fst-italic my-small2 my-font text-body-secondary">Note: Only movies without showtimes can be deleted.</p>
+            <div class="btn-group movie-action" role="group">
+                <button id="movie-action" type="button" class="btn btn-outline-other-darker dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="movie-action">
+                    <li><a href="{{ url_for('employees.movies.update_movie', movie_route=Movie.route) }}" class="dropdown-item">Update</a></li>
+                    <li><a href="{{ url_for('employees.showtimes.movie', movie_route=Movie.route) }}" class="dropdown-item">Showtimes</a></li>
+                    {% if can_delete %}
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-delete">Delete</button></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
 
         <!-- Trailer Modal Trigger -->
