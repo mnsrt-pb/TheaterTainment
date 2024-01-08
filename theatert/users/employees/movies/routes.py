@@ -106,7 +106,6 @@ def add_movie():
         return render_template('employee/add-movie.html', form=search_form)
 
 
-# FIXME: going to a different page resets sort by
 @movies.route('/all-movies', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def all_movies():
@@ -115,10 +114,14 @@ def all_movies():
     Activate/Inactivate movies.
     '''
     page = request.args.get('page', 1, type=int)
-    movies = [Movie.query.filter_by(deleted=False).order_by(Movie.title)\
-                .paginate(page=page, per_page=10), 
-              Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=10)] 
+    sort_by = request.args.get('sort_by', 1, type=int)
+
+    if sort_by == 2:
+        movies = Movie.query.filter_by(deleted=False).order_by(Movie.release_date.desc())\
+                    .paginate(page=page, per_page=10)
+    else:
+        movies = Movie.query.filter_by(deleted=False).order_by(Movie.title)\
+                    .paginate(page=page, per_page=10) 
 
     # Activate Form
     activate_form = ActivateForm()
@@ -186,8 +189,8 @@ def all_movies():
         return redirect(url_for('employees.movies.all_movies'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
-                           info=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
-                            url='employees.movies.all_movies')
+                           movies=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
+                            url='employees.movies.all_movies', sort_by=sort_by)
 
 
 @movies.route('/coming-soon')
@@ -196,16 +199,22 @@ def coming_soon():
     '''Display movies that have not been released'''
 
     page = request.args.get('page', 1, type=int)
+    sort_by = request.args.get('sort_by', 1, type=int)
 
-    movies = [Movie.query.filter(db.and_(Movie.deleted.is_(False), db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
-                .order_by(Movie.title)\
-                .paginate(page=page, per_page=10),
-            Movie.query.filter(db.and_(Movie.deleted.is_(False), db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
-                .order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=10)]
+    if sort_by == 2:
+        movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
+                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
+                            .order_by(Movie.release_date.desc())\
+                            .paginate(page=page, per_page=10)
+    else:
+        movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
+                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
+                            .order_by(Movie.title)\
+                            .paginate(page=page, per_page=10)
+        
         
     return render_template('other/movies.html', ext="employee/layout.html", title="Coming Soon", \
-                           info=movies, url='employees.movies.coming_soon')
+                           movies=movies, url='employees.movies.coming_soon', sort_by=sort_by)
 
 
 @movies.route('/movie/<int:movie_id>/delete', methods=['POST'])
@@ -236,18 +245,22 @@ def now_playing():
     '''Display movies that are now playing'''
     
     page = request.args.get('page', 1, type=int)
+    sort_by = request.args.get('sort_by', 1, type=int)
 
-    movies = [Movie.query.filter(
-                db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                    .order_by(Movie.title)\
-                    .paginate(page=page, per_page=10), 
-            Movie.query.filter(
-                db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                    .order_by(Movie.release_date.desc())\
-                .paginate(page=page, per_page=10)]
+    if sort_by == 2:
+        movies = Movie.query.filter(
+                    db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
+                        .order_by(Movie.release_date.desc())\
+                    .paginate(page=page, per_page=10)
+    else:
+        movies = Movie.query.filter(
+                    db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
+                        .order_by(Movie.title)\
+                        .paginate(page=page, per_page=10) 
+        
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", \
-                           info=movies, url='employees.movies.now_playing')
+                           movies=movies, url='employees.movies.now_playing', sort_by=sort_by)
     
 
 @movies.route('/<string:movie_route>')

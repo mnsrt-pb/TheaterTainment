@@ -13,8 +13,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
     window.addEventListener("resize", fixTooltips);
     // Fixing tooltips END
 
-    movies_sortby();
-    document.getElementById('sortby').addEventListener("change", movies_sortby)
+    // movies_sortby();
+    document.getElementById('sortby').addEventListener("change", function(){
+        var url=this.value;
+        window.open(url, '_self')
+    });
 });
 
 
@@ -52,31 +55,6 @@ function fixTooltips()
         }
         else {
             tooltips[i].setAttribute('title', titles[i])
-        }
-    }
-}
-
-// Display movies accordingly
-function movies_sortby(){
-    var min = 0
-    var max = 1
-    var sortby_val = document.getElementById('sortby').value;
-
-    if (sortby_val < min || sortby_val > max)
-    {
-        sortby_val = 0
-    }
-
-    for (let i = 0; i <= max; i++)
-    {
-        if (i == sortby_val){
-            
-            document.getElementById('info' + sortby_val.toString()).classList.remove('hide-info')
-        } 
-        else 
-        {
-            document.getElementById('info' + i.toString()).classList.add('hide-info')
-
         }
     }
 }

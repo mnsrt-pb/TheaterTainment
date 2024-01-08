@@ -10,8 +10,13 @@
     <div class="border container cont-2 rounded shadow mb-5">
         <h5 class="color-light">Sort By</h5>
         <select class="form-select" id="sortby">
-            <option value=2>Alphabetical Order</option>
-            <option value=1>Descending Date</option>
+            {% if sort_by == 2 %}
+            <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
+                <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>
+            {% else %}
+                <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>
+                <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
+            {% endif %}
         </select>
     </div>
 
@@ -86,67 +91,65 @@
     </div>
     {% endif %}
 
-    {% for i in range (info | length) %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded" id="info{{i}}">
-            {% for movie in info[i].items %}
-                <div class="col pb-4">
-                    <div class="card">
-                        <a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="movie-link">
-                            <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
-                        <div class="card-body">
-                        </a>
-                            <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
-                                <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
-                            </span>
-                            
-                            <p class="card-text"><small>
-                                <b>{{ movie.status }}</b><br>
-                                {% if movie.release_date %}
-                                    <b>Release Date:</b> {{ movie.release_date.strftime("%b %d, %Y") }}<br>
-                                {% else %}
-                                    <b>Release Date:</b> N/A<br>
-                                {% endif %}
-                            
-                                {% if movie.rating %}
-                                    <b>Rated:</b> {{ movie.rating }}<br>
-                                {% endif %}
-                            </small></p></br>
-                            
-                            <p class="card-text"><small class="text-body-secondary">
-                                {% for genre in movie.genres %}
-                                        {{ genre.name }},
-                                {% endfor %}
-                            </small></p>
-                        </div>
-
-                        <small class="text-body-secondary">
-                            {% set link =  url_for('employees.movies.update_movie', movie_route=movie.route) %}
-                            <div class="card-footer text-white update" onclick="location.href='{{ link }}'">
-                                Update
-                            </div>
-                            {% if movie.active %}
-                                <div class="card-footer text-white green">
-                                    Active
-                                </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded">
+        {% for movie in movies %}
+            <div class="col pb-4">
+                <div class="card">
+                    <a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="movie-link">
+                        <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
+                    <div class="card-body">
+                    </a>
+                        <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
+                            <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
+                        </span>
+                        
+                        <p class="card-text"><small>
+                            <b>{{ movie.status }}</b><br>
+                            {% if movie.release_date %}
+                                <b>Release Date:</b> {{ movie.release_date.strftime("%b %d, %Y") }}<br>
                             {% else %}
-                                <div class="card-footer text-white red">
-                                    Inactive
-                                </div>
+                                <b>Release Date:</b> N/A<br>
                             {% endif %}
-                        </small>
+                        
+                            {% if movie.rating %}
+                                <b>Rated:</b> {{ movie.rating }}<br>
+                            {% endif %}
+                        </small></p></br>
+                        
+                        <p class="card-text"><small class="text-body-secondary">
+                            {% for genre in movie.genres %}
+                                    {{ genre.name }},
+                            {% endfor %}
+                        </small></p>
                     </div>
+
+                    <small class="text-body-secondary">
+                        {% set link =  url_for('employees.movies.update_movie', movie_route=movie.route) %}
+                        <div class="card-footer text-white update" onclick="location.href='{{ link }}'">
+                            Update
+                        </div>
+                        {% if movie.active %}
+                            <div class="card-footer text-white green">
+                                Active
+                            </div>
+                        {% else %}
+                            <div class="card-footer text-white red">
+                                Inactive
+                            </div>
+                        {% endif %}
+                    </small>
                 </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
     
     <div class="my-5">
-        {% for pg_num in info[0].iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% for pg_num in movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if pg_num %}
-                    {% if info[0].page == pg_num %}
-                        <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                    {% if movies.page == pg_num %}
+                        <a class="page-current me-3" href="{{ url_for(url, page=pg_num, sort_by=sort_by) }}">{{ pg_num }}</a>
                     {% else %}
-                        <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                        <a class="page me-3" href="{{ url_for(url, page=pg_num, sort_by=sort_by) }}">{{ pg_num }}</a>
                     {% endif %}
                 {% else %}
                     <span class="me-3">...</span>
