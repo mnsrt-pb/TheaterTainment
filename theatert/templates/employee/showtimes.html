@@ -1,0 +1,82 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block main %}
+    {% if total == 0 %}
+        <h3 class="color-dark mb-3">{{ title }}</h3>
+        <h6 class="text-body-secondary my-4">There are no showtimes.</h6>
+    {% else %}
+        <h3 class="color-dark mb-3">{{ title }} <span class="my-small color-light">({{ total }})</span></h3>
+
+        <div class="border container cont-2 rounded shadow mb-4">
+            <h5 class="color-light">Showtimes for Movie</h5>
+            <select class="form-select" id="select-link">
+                <option value="">All</option>
+                {% for m in movies %}    
+                    <option value="{{ url_for('employees.showtimes.movie', movie_route=m.movie.route) }}">{{ m.movie.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="container mb-3"><small class="fst-italic text-body-secondary">Note: Click on tickets to view tickets' info for that showtime.</small></div>
+
+        <div class="table-responsive-md">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-start">#</th>
+                        <th class="text-start">Movie</th>
+                        <th class="text-start">Date</th>
+                        <th class="text-start">Start Time</th>
+                        <th class="text-start">End Time</th>
+                        <th class="text-start">Duration</th>
+
+                        <th class="text-end">Auditorium</th>
+                        <th class="text-end">Tickets</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in screenings %}
+                    <tr>
+                        <th class="text-start">{{ loop.index }}</th>
+                        <td class="text-start">
+                            <a href="{{ url_for('employees.showtimes.movie', movie_route=s.movie.route) }}">{{ s.movie.title }}</a>
+                        </td>
+
+                        <td class="text-start">{{ s.start_datetime.strftime("%A, %b %d, %Y") }}</td>
+                        <td class="text-start">{{ s.start_datetime.strftime(" %I:%M %p") }}</td>
+                        <td class="text-start">{{ s.end_datetime.strftime(" %I:%M %p") }}</td>
+                        {% if s.movie.runtime < 60 %}
+                            {% set runtime = (s.movie.runtime)|string + ' min' %}
+                        {% else %}
+                            {% set runtime = (s.movie.runtime // 60)|string + ' hr ' + (s.movie.runtime % 60)|string + ' min' %}
+                        {% endif %}
+                        <td class="text-start">{{ runtime }}</td>
+
+                        <td class="text-end">{{ s.auditorium.id }}</td>
+                        <td class="text-end"><a href="{{ url_for('employees.tickets', s_id=s.id) }}">{{ seats_total[loop.index0] }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="my-5">
+            {% for pg_num in screenings.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if pg_num %}
+                        {% if screenings.page == pg_num %}
+                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                        {% else %}
+                            <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="me-3">...</span>
+                    {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}

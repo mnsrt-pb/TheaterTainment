@@ -22,56 +22,56 @@
 
                 {{ form.hidden_tag() }}
                 <div class="left-align mb-3">
-                    {{ form.username.label(class="font-bold form-label font-sm mx-auto w-auto" )}}
+                    {{ form.username.label(class="font-bold form-label font-sm mx-auto w-auto") }}
 
                     {% if form.username.errors %}
-                        {{ form.username(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.username.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.username(autocomplete="off", autofocus=true, class="form-control")}}
+                        {{ form.username(autocomplete="off", autofocus=true, class="form-control") }}
                     {% endif %}
                 </div>
                 <div class="left-align mb-3">
-                    {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto") }}
                     {% if form.password.errors %}
-                        {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.password.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.password(autocomplete="off", autofocus=true, class="form-control")}}
+                        {{ form.password(autocomplete="off", autofocus=true, class="form-control") }}
                     {% endif %}
                 </div>
                 <div class="left-align mb-3">
-                    {{ form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {{ form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto") }}
                     {% if form.confirmation.errors %}
-                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.confirmation.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control")}}
+                        {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control") }}
                     {% endif %}
                 </div>
                 <div class="left-align mb-3">
-                    {{ form.key.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                    {{ form.key.label(class="font-bold form-label font-sm mx-auto w-auto") }}
                     {% if form.key.errors %}
-                        {{ form.key(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.key.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.key(autocomplete="off", autofocus=true, class="form-control")}}
+                        {{ form.key(autocomplete="off", autofocus=true, class="form-control") }}
                     {% endif %}
                 </div>
                 {{ form.submit(class="btn btn-primary") }}

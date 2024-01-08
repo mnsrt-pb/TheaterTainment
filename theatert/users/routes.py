@@ -40,3 +40,4 @@ def logout():
 
     # Redirect user to login form 
     return apology('TODO', 'member/layout.html', 403)
+

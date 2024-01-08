@@ -53,15 +53,14 @@
                                   Showtimes
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">All Showtimes</a></li> 
-                                    <li><a class="dropdown-item" href="#">Past Showtimes</a></li>
-                                    <li><a class="dropdown-item" href="#">Showtimes Now</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.all_showtimes') }}">All Showtimes</a></li> 
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.past_showtimes') }}">Past Showtimes</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.showtimes_now') }}">Showtimes Now</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#">Add showtime</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.add_showtime') }}">Add Showtime</a></li>
                                 </ul>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="#">Auditoriums</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Tickets</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('employees.auditoriums') }}">Auditoriums</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
@@ -81,7 +80,7 @@
 
         {% with messages =  get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <header class="mt-4">
+                <header class="mt-4">
                     {% for category, message in messages %}
                         <div class="alert alert-{{category}} mb-0 text-center" role="alert">
                             {{ message }} 
@@ -103,7 +102,7 @@
                     {% if current_user.is_authenticated%}
                         <li class="nav-item"><a href="{{ url_for('employees.movies.all_movies') }}" class="nav-link px-2 text-muted">All Movies</a></li>   
                         <li class="nav-item"><a href="{{ url_for('employees.movies.add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
-                        <li class="nav-item"><a href="{{ url_for('employees.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
+                        <li class="nav-item"><a href="{{ url_for('employees.showtimes.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% else %}
                         <li class="nav-item"><a href="{{ url_for('employees.home') }}" class="nav-link px-2 text-muted">Home</a></li>
                         <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Movies</a></li>

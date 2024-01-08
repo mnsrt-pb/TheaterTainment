@@ -1,0 +1,60 @@
+{% extends "employee/layout.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block main %}
+    <h3 class="color-dark mb-3">{{ title }}</h3>
+    <h6 class="my-font mb-3">
+        {{ screening.movie.title }} 
+        | Auditorium {{ screening.auditorium.id }} 
+        | {{ screening.start_datetime.strftime("%A, %b %d, %Y") }} 
+        | {{ screening.start_datetime.strftime(" %I:%M %p") }}
+        | {{ total }} Tickets
+    </h6>
+    <div class="container cont-2 shadow">
+        <div class="table-responsive-md">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-start">#</th>
+                        <th class="text-start">Seat</th>
+                        <th class="text-end">About</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tickets %}
+                        <tr>
+                            <th class="text-start">{{ loop.index }}</th>
+                            
+                            <td class="text-start">{{ t.seat.row_name }}{{ t.seat.col }}</td>
+                            
+                            {% if t.seat.seat_type == 'normal' %}
+                                <td class="text-end">Seat</td>
+                            {% elif t.seat.seat_type == 'wheelchair' %}
+                                <td class="text-end">Wheelchair Space (not a seat)</td>
+                            {% else %}
+                                <td class="text-end">Companion Seat</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="my-5">
+        {% for pg_num in tickets.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if pg_num %}
+                    {% if tickets.page == pg_num %}
+                        <a class="page-current me-3" href="{{ url_for('employees.tickets', s_id=screening.id, page=pg_num) }}">{{ pg_num }}</a>
+                    {% else %}
+                        <a class="page me-3" href="{{ url_for('employees.tickets',s_id=screening.id,  page=pg_num) }}">{{ pg_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span class="me-3">...</span>
+                {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

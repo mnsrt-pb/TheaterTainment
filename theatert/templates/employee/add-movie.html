@@ -43,11 +43,12 @@
         </div>
 
     {% else %}
-        <h3 class="color-dark mb-5">Search Results</h3>
         {% if not result %}
-            <h5 class="my-4">No results</h5>
+            <h3 class="color-dark mb-3">Search Results</h3>
+            <h6 class="my-4 text-body-secondary">No results</h6>
         {% else %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+            <h3 class="color-dark mb-5">Search Results</h3>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
                 {% for movie in result %}
                     <div class="col">
                         <div class="card">

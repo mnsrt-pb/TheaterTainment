@@ -7,88 +7,96 @@
 {% block main %}
 <div class="container">
     <h3 class="color-dark">{{ title }}</h3>
-    <div class="border container cont-2 rounded shadow mb-5">
-        <h5 class="color-light">Sort By</h5>
-        <select class="form-select" id="sortby">
-            <option value=2>Alphabetical Order</option>
-            <option value=1>Descending Date</option>
-        </select>
-    </div>
+    {% if length == 0 %}
+        <h6 class="text-body-secondary my-4">There are no movies.</h6>
+    {% else %}
+        <div class="border container cont-6 rounded shadow mb-5">
+            <h5 class="color-light">Sort By</h5>
+            <select class="form-select" id="select-link">
+                {% if sort_by == 2 %}
+                <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
+                    <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>
+                {% else %}
+                    <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>
+                    <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
+                {% endif %}
+            </select>
+        </div>
 
-    <!-- Activate/Inactivate Movies -->
-    {% if title == 'All Movies' %} 
-    <div class="conatainer mb-5 mt-0">
-        <!-- Buttons for Modals -->
-        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#activate-movie">
-            Activate Movie
-        </button>
-        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
-            Inactivate Movie
-        </button>
-        
-        <!-- Modals -->
-        <div class="modal fade" id="activate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Activate Movie</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                            <p>Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
-                        <form action="" method="POST" id="activate" class="needs-validation" novalidate>
-                            {{ activate_form.hidden_tag() }}
-                            <div class="form-floating">
-                                {{ activate_form.m_id(class="form-select") }}
-                                {{ activate_form.m_id.label }}
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {% if activate_form.m_id.choices | length > 1 %}
-                            {{ activate_form.submit(class="btn btn-primary", form="activate") }}
-                        {% else %}
-                            {{ activate_form.submit(class="btn btn-primary", disabled=True) }}
-                        {% endif %}
+        <!-- Activate/Inactivate Movies -->
+        {% if title == 'All Movies' %} 
+        <div class="conatainer mb-5 mt-0">
+            <!-- Buttons for Modals -->
+            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#activate-movie">
+                Activate Movie
+            </button>
+            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
+                Inactivate Movie
+            </button>
+            
+            <!-- Modals -->
+            <div class="modal fade" id="activate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Activate Movie</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="left-align text-body-secondary">Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
+                            <form action="" method="POST" id="activate" class="needs-validation" novalidate>
+                                {{ activate_form.hidden_tag() }}
+                                <div class="form-floating">
+                                    {{ activate_form.m_id(class="form-select") }}
+                                    {{ activate_form.m_id.label }}
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            {% if activate_form.m_id.choices | length > 1 %}
+                                {{ activate_form.submit(class="btn btn-primary", form="activate") }}
+                            {% else %}
+                                {{ activate_form.submit(class="btn btn-primary", disabled=True) }}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="modal fade" id="inactivate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Inactivate Movie</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
-                            {{ inactivate_form.hidden_tag() }}
-                            <div class="form-floating">
-                                {{ inactivate_form.m_id(class="form-select") }}
-                                {{ inactivate_form.m_id.label }}
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {% if inactivate_form.m_id.choices | length > 1 %}
-                            {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
-                        {% else %}
-                            {{ inactivate_form.submit(class="btn btn-primary", disabled=True) }}
-                        {% endif %}
+            <div class="modal fade" id="inactivate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Inactivate Movie</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="left-align text-body-secondary">Only movies with no upcoming showtimes can be inactivated.</p>
+                            <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
+                                {{ inactivate_form.hidden_tag() }}
+                                <div class="form-floating">
+                                    {{ inactivate_form.m_id(class="form-select") }}
+                                    {{ inactivate_form.m_id.label }}
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            {% if inactivate_form.m_id.choices | length > 1 %}
+                                {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
+                            {% else %}
+                                {{ inactivate_form.submit(class="btn btn-primary", disabled=True) }}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
+        {% endif %}
 
-    </div>
-    {% endif %}
-
-    {% for i in range (info | length) %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded" id="info{{i}}">
-            {% for movie in info[i].items %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 cont-light rounded">
+            {% for movie in movies %}
                 <div class="col pb-4">
                     <div class="card">
                         <a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="movie-link">
@@ -120,10 +128,17 @@
                         </div>
 
                         <small class="text-body-secondary">
-                            {% set link =  url_for('employees.movies.update_movie', movie_route=movie.route) %}
-                            <div class="card-footer text-white update" onclick="location.href='{{ link }}'">
-                                Update
+                            <div class="btn-group action" role="group">
+                                <button id="action" type="button" class="btn btn-other btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Action
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="movie-action">
+                                    <li><a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="dropdown-item">Info</a></li>
+                                    <li><a href="{{ url_for('employees.movies.update_movie', movie_route=movie.route) }}" class="dropdown-item">Update</a></li>
+                                    <li><a href="{{ url_for('employees.showtimes.movie', movie_route=movie.route) }}" class="dropdown-item">Showtimes</a></li>
+                                </ul>
                             </div>
+
                             {% if movie.active %}
                                 <div class="card-footer text-white green">
                                     Active
@@ -138,22 +153,23 @@
                 </div>
             {% endfor %}
         </div>
-    {% endfor %}
-    
-    <div class="my-5">
-        {% for pg_num in info[0].iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                {% if pg_num %}
-                    {% if info[0].page == pg_num %}
-                        <a class="page-current me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+        
+        <div class="my-5">
+            {% for pg_num in movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if pg_num %}
+                        {% if movies.page == pg_num %}
+                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num, sort_by=sort_by) }}">{{ pg_num }}</a>
+                        {% else %}
+                            <a class="page me-3" href="{{ url_for(url, page=pg_num, sort_by=sort_by) }}">{{ pg_num }}</a>
+                        {% endif %}
                     {% else %}
-                        <a class="page me-3" href="{{ url_for('employees.movies.all_movies', page=pg_num) }}">{{ pg_num }}</a>
+                        <span class="me-3">...</span>
                     {% endif %}
-                {% else %}
-                    <span class="me-3">...</span>
-                {% endif %}
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
 
-</div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
