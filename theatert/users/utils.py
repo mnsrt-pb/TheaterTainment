@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import render_template
 from flask_login import current_user
 from functools import wraps
@@ -43,3 +44,6 @@ def login_required(role="ANY"):
         return decorated_function
     return wrapper
 
+
+def date_obj(date_str):
+    return datetime.strptime(date_str, "%Y-%m-%d").date()

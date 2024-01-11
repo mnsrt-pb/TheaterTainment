@@ -1,6 +1,19 @@
 @import "../node_modules/bootstrap/scss/_functions";
 @import "../node_modules/bootstrap/scss/_variables";
 
+a.page:link
+{
+    color: $pink-700;
+}
+
+a.page-current:link
+{
+    border: solid $pink-700 1px;
+    border-radius: 50%;
+    padding: 5px 10px;
+    color: white;
+    background-color: $pink-700;
+}
 
 $card-height: 100%;
 
@@ -11,15 +24,17 @@ $card-height: 100%;
   background-color: rgba($gray-200, .5);
 }
 
+.bkg-pink { background-color: rgba($pink-700, .35) !important; }
+
 /* Navbar Start */
   /* + Colors for brand */
-  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, h3.color-light, a.color-light, span.color-light
+  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light
   {
     // color: #a27880;
     color: rgba($pink-700, .55);
   }
 
-  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h5.color-dark, h3.color-dark, a.nav-link:hover, span.color-dark
+  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover
   {
     // color: #590d22;
     color: $pink-700;
@@ -50,18 +65,28 @@ small .update:hover {
   background-color: rgba($purple-700, .5);
 }
 
-a.page:link
-{
-    color: $pink-700;
+/* Slick Arrows */
+
+.slick-next:before {
+  content: '>' !important;
+  border-radius: 15px 0px 0px 15px !important;
+  padding: 15px 10px 15px 10px;
+}
+.slick-prev:before {
+  content: '<' !important;
+  border-radius: 0px 15px 15px 0px !important;
+  padding: 15px 10px 15px 10px;
 }
 
-a.page-current:link
+.slick-prev:before, .slick-next:before
 {
-    border: solid $pink-700 1px;
-    border-radius: 50%;
-    padding: 5px 10px;
-    color: white;
-    background-color: $pink-700;
+  font-family: 'Work Sans', sans-serif!important; 
+  background-color: rgba($pink-700, .9) !important;
+  font-size: 40px !important;
+}
+
+.slick-prev.slick-disabled:before, .slick-next.slick-disabled:before {
+  opacity: .0 !important;
 }
 
 /* override variables and merge variables */
@@ -75,6 +100,34 @@ $theme-colors: map-merge($theme-colors, (
 $navbar-light-color: rgba($pink-700, .55);
 $navbar-light-hover-color: rgba($pink-700, .9);
 
+.watchlist-text
+{
+  font-size: 1em;
+
+  @media (max-width: 575px) {  
+    font-size: .9em;
+  }
+  
+  @media (max-width: 540px) {  
+    font-size: .7em;
+  }
+
+  @media (max-width: 495px) {  
+    font-size: .6em;
+  }
+
+  @media (max-width: 478px) {  
+    font-size: .9em;
+  }
+
+  @media (max-width: 437px) {  
+    font-size: .7em;
+  }
+
+  @media (max-width: 390px) {  
+    font-size: 1em;
+  }
+}
 
 /* import bootstrap */
 @import "../node_modules/bootstrap/scss/bootstrap";

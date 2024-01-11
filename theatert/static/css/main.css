@@ -27,12 +27,14 @@ button#action
     width: 100%;
 }
 
+.card-slick {border-radius: 0px !important;}
+
 .col-1 > img
 {
     width: 80%;
 }
 
-.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6
+.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6, cont-7
 {
     /* border: 1px solid black; */
     border-radius: 25px;
@@ -57,6 +59,10 @@ button#action
 
 .cont-6 { width: 300px; }
 
+.cont-6 { width: 90%; }
+
+.cont-7 { width: 300px !important; }
+
 .col-1 { width: 30%; }
 
 .col-2 { width: 70% }
@@ -64,49 +70,6 @@ button#action
 .col-3 { width: 20%; }
 
 .col-4 { width: 80% }
-
-
-.my-font {font-family: 'Work Sans', sans-serif!important;}
-
-.movie-detail
-{
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 400!important;
-}
-
-.movie-detail-label
-{ 
-    font-size: .7em;
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 700!important;
-}
-
-.movie-detail-title 
-{ 
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 700!important;
-}
-
-.movie-detail-title-label 
-{ 
-    font-size: 1.3em;
-}
-
-.play-button
-{
-    width: 50px;
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    opacity: .7;
-    transition: opacity .2s ease-in-out
-}
-
-.play-button:hover
-{
-    opacity: 1;
-    transition: opacity .2s ease-in-out
-}
 
 
 .font-bold { font-weight: bold; }
@@ -173,8 +136,53 @@ button#action
     width: 100vw;
 }
 
+.movie-detail, .showtime-date-detail
+{
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 400!important;
+}
+
+.movie-detail-label
+{ 
+    font-size: .7em;
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title, .showtime-date
+{ 
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title-label { font-size: 1.3em; }
+.showtime-date-label {font-size: 1.2em; }
+.movies-slick .card
+{
+    border: none;
+    border-radius: 100%;
+}
+
+.my-font {font-family: 'Work Sans', sans-serif!important;}
 .my-small {font-size: medium;}
 .my-small2 {font-size: small;}
+.no-borders *{border: none !important;}
+
+.play-button
+{
+    width: 50px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    opacity: .7;
+    transition: opacity .2s ease-in-out
+}
+
+.play-button:hover
+{
+    opacity: 1;
+    transition: opacity .2s ease-in-out
+}
 
 row 
 {
@@ -241,3 +249,4 @@ row
 {
     width: 70px;
 }
+

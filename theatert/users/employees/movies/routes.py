@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from theatert import db
@@ -43,7 +43,7 @@ def add_movie():
             add_genres(movie, info)
             add_rating(movie, data)
             try:
-                movie.release_date = datetime.datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+                movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
             except:
                 pass
 
@@ -85,7 +85,7 @@ def add_movie():
             add_genres(movie, info)
             add_rating(movie, data)
             try:
-                movie.release_date = datetime.datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+                movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
             except:
                 pass
         
@@ -147,7 +147,7 @@ def all_movies():
     inactivate_form = InactivateForm()
 
     # If an active movie has upcoming screenings, they cannot be inactivated
-    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.now()))
 
     active = Movie.query.filter(db.and_(
                             Movie.active.is_(True), 
@@ -215,13 +215,13 @@ def coming_soon():
 
     if sort_by == 2:
         movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
-                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
+                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
                             .order_by(Movie.release_date.desc())
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
     else:
         movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
-                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.datetime.now())))\
+                                    db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
                             .order_by(Movie.title)
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
@@ -239,7 +239,7 @@ def delete_movie(movie_id):
     movie = Movie.query.filter_by(id = movie_id, deleted=False).first_or_404()
 
     # Ensure that if movie has upcoming screenings, it cannot be deleted.
-    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.now()))
     
     can_delete = Movie.query.filter(db.and_(
                             Movie.id.is_(movie.id), 
@@ -303,7 +303,7 @@ def movie(movie_route):
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
 
     # Ensure that if movie has upcoming screenings, it cannot be deleted.
-    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.datetime.now()))
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.now()))
     
     can_delete = Movie.query.filter(db.and_(
                             Movie.id.is_(movie.id), 

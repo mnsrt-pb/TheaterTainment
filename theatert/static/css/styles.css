@@ -1,4 +1,16 @@
 @charset "UTF-8";
+a.page:link {
+  color: #801f4f;
+}
+
+a.page-current:link {
+  border: solid #801f4f 1px;
+  border-radius: 50%;
+  padding: 5px 10px;
+  color: white;
+  background-color: #801f4f;
+}
+
 .color-a {
   color: #6c757d;
 }
@@ -7,13 +19,17 @@
   background-color: rgba(233, 236, 239, 0.5);
 }
 
+.bkg-pink {
+  background-color: rgba(128, 31, 79, 0.35) !important;
+}
+
 /* Navbar Start */
 /* + Colors for brand */
-nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, .color-light.h5, h3.color-light, .color-light.h3, a.color-light, span.color-light {
+nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light {
   color: rgba(128, 31, 79, 0.55);
 }
 
-nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h5.color-dark, .color-dark.h5, h3.color-dark, .color-dark.h3, a.nav-link:hover, span.color-dark {
+nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover {
   color: #801f4f;
 }
 
@@ -42,20 +58,65 @@ small .update:hover, .small .update:hover {
   background-color: rgba(67, 40, 116, 0.5);
 }
 
-a.page:link {
-  color: #801f4f;
+/* Slick Arrows */
+.slick-next:before {
+  content: ">" !important;
+  border-radius: 15px 0px 0px 15px !important;
+  padding: 15px 10px 15px 10px;
 }
 
-a.page-current:link {
-  border: solid #801f4f 1px;
-  border-radius: 50%;
-  padding: 5px 10px;
-  color: white;
-  background-color: #801f4f;
+.slick-prev:before {
+  content: "<" !important;
+  border-radius: 0px 15px 15px 0px !important;
+  padding: 15px 10px 15px 10px;
+}
+
+.slick-prev:before, .slick-next:before {
+  font-family: "Work Sans", sans-serif !important;
+  background-color: rgba(128, 31, 79, 0.9) !important;
+  font-size: 40px !important;
+}
+
+.slick-prev.slick-disabled:before, .slick-next.slick-disabled:before {
+  opacity: 0 !important;
 }
 
 /* override variables and merge variables */
 /* Customize navbar colors */
+.watchlist-text {
+  font-size: 1em;
+}
+@media (max-width: 575px) {
+  .watchlist-text {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 540px) {
+  .watchlist-text {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 495px) {
+  .watchlist-text {
+    font-size: 0.6em;
+  }
+}
+@media (max-width: 478px) {
+  .watchlist-text {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 437px) {
+  .watchlist-text {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 390px) {
+  .watchlist-text {
+    font-size: 1em;
+  }
+}
+
 /* import bootstrap */
 /*!
  * Bootstrap  v5.3.2 (https://getbootstrap.com/)

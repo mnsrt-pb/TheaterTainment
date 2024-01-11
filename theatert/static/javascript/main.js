@@ -2,7 +2,91 @@
 
 let titles = [];
 
-document.addEventListener('DOMContentLoaded', function(e) {
+$(document).ready(function(){
+    $('.movies-slick').slick({
+        centerMode: true,
+        slidesToShow: 5,
+
+        autoplay: true,
+        autoplaySpeed: 3000,
+
+        responsive: [
+          {
+            breakpoint: 1200,
+            settings: {
+              slidesToShow: 3
+            }
+          },
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 2
+            }
+          },
+          {
+            breakpoint: 480,
+            settings: {
+              centerMode: false,
+              slidesToShow: 2
+            }
+          },
+          {
+            breakpoint: 390,
+            settings: {
+                centerMode: false,
+                slidesToShow: 1
+            }
+          }
+        ]
+    });
+
+    $('.dates-slick').slick({
+        infinite: false,
+        speed: 300,
+
+        slidesToShow: 12,
+        slidesToScroll: 12,
+
+        responsive: [
+          {
+            breakpoint: 990,
+            settings: {
+              slidesToShow: 8,
+              slidesToScroll: 8,
+            }
+          },
+          {
+            breakpoint: 769,
+            settings: {
+              slidesToShow: 6,
+              slidesToScroll: 6
+            }
+          },
+          {
+            breakpoint: 480,
+            settings: {
+              slidesToShow: 4,
+              slidesToScroll: 4
+            }
+          },
+          {
+            breakpoint: 390,
+            settings: {
+              slidesToShow: 3,
+              slidesToScroll: 3
+            }
+          },
+          {
+            breakpoint: 330,
+            settings: {
+              slidesToShow: 2,
+              slidesToScroll: 2
+            }
+          }
+        ]
+      });
+
+
     // Fixing tooltips START
     var tooltips = document.getElementsByClassName('my-tooltip');
     for (let i = 0, len = tooltips.length; i < len; i++){
@@ -13,12 +97,19 @@ document.addEventListener('DOMContentLoaded', function(e) {
     window.addEventListener("resize", fixTooltips);
     // Fixing tooltips END
 
-    // movies_sortby();
-    document.getElementById('select-link').addEventListener("change", function(){
+    select_link = document.getElementById('select-link')
+    if (select_link != null){
+        select_link.addEventListener("change", function(){
         var url=this.value;
         window.open(url, '_self')
-    });
-});
+        });
+    }
+  });
+
+
+// document.addEventListener('DOMContentLoaded', function(e) {
+
+// });
 
 
 // Shows toottips only for movies whose titles were ellipsed
@@ -58,4 +149,5 @@ function fixTooltips()
         }
     }
 }
+
 

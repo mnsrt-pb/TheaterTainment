@@ -1,0 +1,64 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    TheaterTainment
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <h3 class="color-dark fw-bold left-align mb-4 mt-3">Movies at TheaterTainment</h3>
+    </div>
+    <!-- Movie Carousel -->
+    <div class="my-5 ">
+        <div class="movies-slick ps-4 me-4">
+            {% for m in movies %}
+                    <div class="card card-slick mx-2">
+                        <a href="{{ url_for('users.todo') }}" class="movie-link">
+                            <img src="https://image.tmdb.org/t/p/original{{m.poster_path}}" class="card-img-top" alt="Poster for {{m.title}}">
+                        </a>
+
+                        <div class="card-body">
+                            <span class="my-tooltip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{m.title}}">
+                                <h6 class="card-title text-truncate">{{ m.title }}</h6><br>
+                            </span>
+                        </div>
+
+                        <small class="text-body-secondary">
+                            <div class="card-footer bkg-pink text-white watchlist-text">
+                                &#9825;&emsp;Add to watch list
+                            </div>
+                        </small>
+                    </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Dates Carousel -->
+    <div class="container mt-5">
+        <h4 class="color-dark fw-bolder left-align">Showtimes</h4>
+
+        <div class="dates-slick ps-4 me-4">
+            {% for d in dates %}
+                {% if loop.first %}
+                <div class="showtime-date showtime-date-label m-3 pt-3">
+                    <a href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">Today</a>
+                </div>
+                {% else %}    
+                    <a class='m-3' href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">
+                        <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                        <div class="showtime-date-detail">
+                            {{ d.strftime("%m/%d") }}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="container">
+        {% for s in showtimes %}
+            
+        {% endfor %}
+    </div>
+        
+{% endblock %}

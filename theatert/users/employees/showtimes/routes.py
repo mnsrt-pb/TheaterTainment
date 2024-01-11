@@ -205,3 +205,5 @@ def movie(movie_route):
     return render_template('employee/showtimes-movie.html', title=movie.title, screenings=screenings, \
                            seats_total=seats_total, total=total, url='employees.showtimes.movie', movie_route=movie_route)
 
+
+# TODO: add showtime(date)

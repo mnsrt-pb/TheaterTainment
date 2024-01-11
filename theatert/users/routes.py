@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user, login_user, logout_user
-from theatert import bcrypt
-from theatert.models import Employee
+from sqlalchemy import extract
+from theatert import bcrypt, db
+from theatert.models import Auditorium, Employee, Movie, Screening
 from theatert.users.employees.forms import LoginForm
-from theatert.users.utils import apology
+from theatert.users.utils import apology, date_obj
 
 
 users = Blueprint('users', __name__)
@@ -32,6 +34,27 @@ def employee_login():
     return render_template('/employee/login.html', form=form)
 
 
+@users.route('/')
+def home():
+    date = request.args.get('date', default=datetime.today(), type=date_obj)
+
+    movies = Movie.query.filter_by(deleted=False, active=True).order_by(Movie.title)
+    dates =[datetime.now() + timedelta(days=x) for x in range(41)]
+
+    showtimes = Screening.query.join(Movie).join(Auditorium) \
+        .filter(
+            extract('year', Screening.start_datetime)
+            ).order_by(Movie.title)
+
+    return render_template('guest/home.html', movies=movies, dates=dates, showtimes=showtimes)
+
+
+@users.route('/todo')
+def todo():
+    return apology('TODO', 'member/layout.html', 403)
+
+
+
 @users.route('/logout')
 def logout():
     '''Log user out'''
@@ -39,5 +62,5 @@ def logout():
     logout_user()
 
     # Redirect user to login form 
-    return apology('TODO', 'member/layout.html', 403)
+    return redirect(url_for('users.home'))
 

@@ -7,18 +7,26 @@
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, width=device-width">
 
-        <!-- Contians bootstrap -->
-        <link href="/cs50x-project/" rel="stylesheet">
-        <script src="/../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- JQuery -->
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-        <!-- My css and bootstrap -->
-        <link href="/../../static/css/main.css" rel="stylesheet">
-        <script src="/../../static/javascript/main.js" rel="stylesheet"></script>
+        <!-- Contians bootstrap -->
+        <link href="/../../static/css/styles.css" rel="stylesheet">
+        <script src="../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
         <!-- Font -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+        <!-- Slick -->
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" /> 
+        <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+        <!-- My css and bootstrap -->
+        <link href="../../static/css/main.css" rel="stylesheet">
+        <script src="../../static/javascript/main.js" rel="stylesheet"></script>
 
         <title> TheaterTainment | {% block title %}{% endblock %}</title>
 
@@ -27,9 +35,9 @@
     <!-- <body class=""> -->
     <body class="d-flex flex-column h-100 pt-5">
 
-        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light">
+        <nav class="bg-light border fixed-top navbar navbar-expand-md navbar-light shadow">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{{url_for('employees.home')}}"><span class="color-dark">THEATER</span><span class="color-light">TAINMENT</span></a>
+                <a class="navbar-brand" href="{{ url_for('users.home' )}}"><span class="color-dark">THEATER</span><span class="color-light">TAINMENT</span></a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -37,7 +45,6 @@
                     {% if current_user.is_authenticated %}
                         <ul class="navbar-nav me-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Showtimes</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
@@ -45,7 +52,6 @@
                         {% else %}
                         <ul class="navbar-nav me-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Showtimes</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="#">Sign In</a></li>

@@ -6,7 +6,7 @@
 
 {% block main %}
     {% if total == 0 %}
-        <h3 class="color-light mb-3">Showtimes for <span class="color-dark">{{ title }}</span></h3> 
+        <h3 class="color-light mb-3">Showtimes for <span class="color-dark"><a href="{{ url_for('employees.movies.movie', movie_route=movie_route) }}">{{ title }}</a></span></h3> 
         <h6 class="text-body-secondary my-4">There are no showtimes.</h6>
     {% else %}
         <h3 class="color-light">Showtimes for <span class="color-dark"><a href="{{ url_for('employees.movies.movie', movie_route=movie_route) }}">{{ title }}</a></span> <span class="my-small color-light">({{ total }})</span></h3> 
