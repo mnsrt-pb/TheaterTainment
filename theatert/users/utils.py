@@ -46,4 +46,4 @@ def login_required(role="ANY"):
 
 
 def date_obj(date_str):
-    return datetime.strptime(date_str, "%Y-%m-%d").date()
+    return datetime.strptime(date_str, "%Y-%m-%d")

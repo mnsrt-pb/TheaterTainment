@@ -42,6 +42,12 @@ nav a.dropdown-item, nav button.dropdown-item {
 }
 
 /* Navbar end*/
+.movies-slick .container-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-bottom-left-radius: 0.35em;
+  border-bottom-right-radius: 0.35em;
+}
+
 small .green, .small .green {
   background-color: #146c43;
 }

@@ -1,41 +1,37 @@
-a 
-{
+a  {
     text-decoration: none;
     color: inherit;
 }
 
-a .movie-link
-{
+a .movie-link {
     display:block;
     text-decoration: none;
 }
 
-.action 
-{ 
+.action  { 
     width: 100%;
 }
 
-button#action
-{ 
+button#action { 
     border-radius: 0 !important;
     padding: 8px 16px !important
 }
 
-.backdrop > img:not(.play-button)
-{
+.backdrop > img:not(.play-button) {
     height: 100%;
     width: 100%;
 }
 
-.card-slick {border-radius: 0px !important;}
+.card-img-top {
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
 
-.col-1 > img
-{
+.col-1 > img {
     width: 80%;
 }
 
-.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6, cont-7
-{
+.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6, .cont-7 {
     /* border: 1px solid black; */
     border-radius: 25px;
     margin-top: 3vh;
@@ -49,8 +45,7 @@ button#action
 
 .cont-3 { width: 90vw; }
 
-.cont-4 
-{
+.cont-4 {
     width: 100%;
     overflow: auto;
 }
@@ -58,8 +53,6 @@ button#action
 .cont-5 { width: 200px; }
 
 .cont-6 { width: 300px; }
-
-.cont-6 { width: 90%; }
 
 .cont-7 { width: 300px !important; }
 
@@ -69,7 +62,11 @@ button#action
 
 .col-3 { width: 20%; }
 
-.col-4 { width: 80% }
+.col-4 { width: 80%; }
+
+.col-5 { width: 15%; }
+
+.col-6 { width: 85% }
 
 
 .font-bold { font-weight: bold; }
@@ -80,59 +77,47 @@ button#action
 .left-align { text-align: left; }
 .right-align { text-align: right; }
 
-@media screen and (min-width: 750px)
-{
-    .cont-1 
-    {
+@media screen and (min-width: 750px) {
+    .cont-1 {
         width: 35vw;
     }
 }
 
-@media screen and (max-width: 750px)
-{
-    .cont-2
-    {
+@media screen and (max-width: 750px) {
+    .cont-2 {
         width: 250px;
     }
-    td 
-    {
+    td {
         white-space: nowrap;
     }
 }
 
-@media screen and (max-width: 300px)
-{
-    .cont-2
-    {
+@media screen and (max-width: 300px) {
+    .cont-2 {
         width: 100%;
     }
 }
 
-@media screen and (max-width: 500px)
-{
+@media screen and (max-width: 500px) {
     .col-1 { width: 80%; }
     .col-2 { width: 100%; }
     .col-3 { width: 30%; }
     .col-4 { width: 70%; }
     
-    .trailer > img 
-    { 
+    .trailer > img { 
         width: 70px; 
     }
-    .backdrop > img:not(.play-button) 
-    { 
+    .backdrop > img:not(.play-button) { 
         width: 150%; 
     }
-    .play-button 
-    { 
+    .play-button { 
         top: 50%; 
         left: 75%; 
     }
 }
 
 
-.modal-trailer
-{
+.modal-trailer {
     width: 100vw;
 }
 
@@ -142,34 +127,33 @@ button#action
     font-weight: 400!important;
 }
 
-.movie-detail-label
-{ 
+.movie-detail-label { 
     font-size: .7em;
     font-family: 'Work Sans', sans-serif!important; 
     font-weight: 700!important;
 }
 
-.movie-detail-title, .showtime-date
-{ 
+.movie-detail-title, .showtime-date { 
     font-family: 'Work Sans', sans-serif!important; 
     font-weight: 700!important;
 }
 
 .movie-detail-title-label { font-size: 1.3em; }
-.showtime-date-label {font-size: 1.2em; }
-.movies-slick .card
-{
+.showtime-date-label {font-size: 1em; }
+
+.movies-slick .card {
     border: none;
     border-radius: 100%;
 }
+
+.movie-title {font-weight: 600!important;}
 
 .my-font {font-family: 'Work Sans', sans-serif!important;}
 .my-small {font-size: medium;}
 .my-small2 {font-size: small;}
 .no-borders *{border: none !important;}
 
-.play-button
-{
+.play-button {
     width: 50px;
     position: absolute;
     top: 50%; left: 50%;
@@ -178,42 +162,41 @@ button#action
     transition: opacity .2s ease-in-out
 }
 
-.play-button:hover
-{
+.card-slick .play-button {
+    top: 40%; left: 50%;
+}
+
+.play-button:hover {
     opacity: 1;
     transition: opacity .2s ease-in-out
 }
 
-row 
-{
+.row {
     overflow: auto; 
 }
 
-.screen
-{
+.screen {
     border-top: 10px solid black; 
     border-radius: 50%; 
     position: inherit; 
 }
-.screen-a
-{
+.screen-a {
     width: 800px; 
     min-width: 800px; 
 }
-.screen-b
-{
+
+.screen-b {
     width: 450px;  
     min-width: 450px;
 }
-.screen-c
-{
+
+.screen-c {
     width: 520px; 
     min-width: 520px; 
 }
 
 /* SEAT start */
-.seat
-{
+.seat {
     color: white;
     font-size: .7em;
     width: 3em;
@@ -232,21 +215,25 @@ row
 
 .seat-wheelchair { border-radius: 40%; }
 
-.seat-img > img 
-{
+.seat-img > img  {
     width: 100%;
     height: 100%;
 }
 /* SEAT end */
 
-#trailer 
-{
+.showtime > img, .showtime > div {
+    width: 150px;
+    font-size: .8em;
+}
+
+.showtime > div { border-radius: 0.35em; }
+
+#trailer  {
     width: 60%;
     position: relative
 }
 
-.trailer > img
-{
+.trailer > img {
     width: 70px;
 }
 

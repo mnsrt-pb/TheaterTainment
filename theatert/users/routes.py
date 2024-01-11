@@ -34,24 +34,61 @@ def employee_login():
     return render_template('/employee/login.html', form=form)
 
 
+# TODO: Ensure only users who are not logged in can get here
 @users.route('/')
 def home():
     date = request.args.get('date', default=datetime.today(), type=date_obj)
+    max_days = 41
+    date if date <= datetime.today() + timedelta(days=max_days) else datetime.today()
 
     movies = Movie.query.filter_by(deleted=False, active=True).order_by(Movie.title)
-    dates =[datetime.now() + timedelta(days=x) for x in range(41)]
+    dates =[datetime.today() + timedelta(days=x) for x in range(max_days)]
+
+    # movies with showtimes for given date
+    m_showtimes = Screening.query.join(Movie).join(Auditorium) \
+        .filter(
+            db.and_(
+                extract('year', Screening.start_datetime).is_(date.year),
+                extract('month', Screening.start_datetime).is_(date.month),
+                extract('day', Screening.start_datetime).is_(date.day),
+            )).group_by(Screening.movie_id).order_by(Movie.title)
+    
+    # showtimes for each movie
+    s_showtimes = []
+    for s in m_showtimes:
+        st = Screening.query.join(Movie).join(Auditorium) \
+        .filter(
+            db.and_(
+                Screening.movie_id.is_(s.movie_id),
+                extract('year', Screening.start_datetime).is_(date.year),
+                extract('month', Screening.start_datetime).is_(date.month),
+                extract('day', Screening.start_datetime).is_(date.day),
+            )).order_by(Screening.start_datetime)
+        s_showtimes.append(st)
+
+    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes)
+
+
+@users.route('/movies/<string:movie_route>')
+def movie(movie_route):
+    '''Display movie info like it'll be displayed to members/guests.'''
+    date = request.args.get('date', default=datetime.today(), type=date_obj)
+    max_days = 12
+    date if date <= datetime.today() + timedelta(days=max_days) else datetime.today()
+
+    movie = Movie.query.filter_by(route = movie_route, deleted=False, active=True).first_or_404()
+    dates =[datetime.now() + timedelta(days=x) for x in range(max_days)]
 
     showtimes = Screening.query.join(Movie).join(Auditorium) \
-        .filter(
-            extract('year', Screening.start_datetime)
-            ).order_by(Movie.title)
+    .filter(
+        db.and_(
+            Screening.movie_id.is_(movie.id),
+            extract('year', Screening.start_datetime).is_(date.year),
+            extract('month', Screening.start_datetime).is_(date.month),
+            extract('day', Screening.start_datetime).is_(date.day),
+        )).order_by(Screening.start_datetime)
 
-    return render_template('guest/home.html', movies=movies, dates=dates, showtimes=showtimes)
-
-
-@users.route('/todo')
-def todo():
-    return apology('TODO', 'member/layout.html', 403)
+    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, Showtimes=showtimes)
 
 
 
@@ -63,4 +100,9 @@ def logout():
 
     # Redirect user to login form 
     return redirect(url_for('users.home'))
+
+
+@users.route('/todo')
+def todo():
+    return apology('TODO', 'member/layout.html', 403)
 

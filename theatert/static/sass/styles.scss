@@ -49,6 +49,13 @@ $card-height: 100%;
   }
 /* Navbar end*/
 
+.movies-slick .container-card:hover 
+{
+  box-shadow: $box-shadow;
+  border-bottom-left-radius: 0.35em;
+  border-bottom-right-radius: 0.35em;
+}
+
 small .green { 
   background-color: $green-600; 
 }

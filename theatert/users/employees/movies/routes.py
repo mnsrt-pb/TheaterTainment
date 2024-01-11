@@ -310,7 +310,7 @@ def movie(movie_route):
                             Movie.id.in_(subquery)))\
                         .count()
 
-    return render_template('other/movie.html', ext="employee/layout.html", Movie=movie, can_delete=(not bool(can_delete)))
+    return render_template('employee/movie.html', ext="employee/layout.html", Movie=movie, can_delete=(not bool(can_delete)))
 
 
 @movies.route('/<string:movie_route>/update', methods=['GET', 'POST'])

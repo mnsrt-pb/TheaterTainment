@@ -1,0 +1,31 @@
+{% extends "other/movie-layout.html" %}
+
+{% block title %}
+    {{ Movie.title }}
+{% endblock %}
+
+{% block under_details %}
+    <!-- Dates Carousel -->
+    <div class="container mt-5">
+        <h4 class="showtime-date left-align">Showtimes</h4>
+
+        <div class="dates-slick ps-4 me-4">
+            {% for d in dates %}
+                {% if loop.first %}
+                <div class="showtime-date showtime-date-label m-3 pt-3">
+                    <a href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">Today</a>
+                </div>
+                {% else %}    
+                    <a class='m-3' href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">
+                        <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                        <div class="showtime-date-detail">
+                            {{ d.strftime("%m/%d") }}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <hr>
+    </div>
+{% endblock %}
+    
