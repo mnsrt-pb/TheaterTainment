@@ -101,8 +101,8 @@
                     <div class="card">
                         <a href="{{ url_for('employees.movies.movie', movie_route=movie.route) }}" class="movie-link">
                             <img src="https://image.tmdb.org/t/p/original{{movie['poster_path']}}" class="card-img-top" alt="Poster for {{movie['title']}}">
-                        <div class="card-body">
                         </a>
+                        <div class="card-body">
                             <span class="my-tooltip" data-bs-toggle="tooltip" title="{{movie.title}}">
                                 <h6 class="card-title text-truncate">{{ movie.title }}</h6><br>
                             </span>

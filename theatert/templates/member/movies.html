@@ -1,0 +1,84 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Movies 
+{% endblock %}
+
+{% block main %}
+    <div>
+        <div class="d-flex left-align">
+            <div class="h3 p-2 flex-grow-1 fw-bold">{{ type }}</div>
+            <div class="pt-4 mx-2 {{ first }} type-item"><a href="{{ url_for('users.movies' )}}">Now Playing</a></div>
+            <div class="pt-4 mx-2 {{ second }} type-item"><a href="{{ url_for('users.movies_coming_soon' )}}">Coming Soon</a></div>
+          </div>
+    </div>
+{#
+    <div class="border container cont-6 flex-grow-1 rounded shadow mb-5">
+        <h5 class="color-light">Sort By</h5>
+        <select class="form-select" id="select-link">
+            {% if sort_by == 2 %}
+            <option value="">Descending Date</option>
+                <option value="">Alphabetical Order</option>
+            {% else %}
+                <option value="">Alphabetical Order</option>
+                <option value="">Descending Date</option>
+            {% endif %}
+        </select>
+    </div>
+#}
+
+    <!-- Movies -->
+    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mt-4">
+        {% for m in movies %}
+            <div class="col mb-1 pb-3">
+                <div class="card movies">
+                    <a href="{{ url_for('users.movie', movie_route=m.route) }}" class="movie-link">
+                        <img src="https://image.tmdb.org/t/p/original{{ m.poster_path }}" class="card-img-top" alt="Poster for {{ m.title }}">
+                    </a>
+
+                    <!-- Trailer Modal Trigger (1) -->
+                    <img src="../../static/images/play-button.png" alt="Play Trailer" class="play-button" data-bs-toggle="modal" data-bs-target="#modal-trailer"
+                        data-movie-title="{{ m.title }}", data-movie-trailer-path="{{ m.trailer_path }}",
+                        data-movie-poster-path="{{ m.poster_path }}", data-movie-runtime="{{ m.runtime }}",
+                        data-movie-rating="{{ m.rating }}">
+
+                    <div class="card-body">
+                        <span class="my-tooltip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ m.title }}">
+                            <h6 class="card-title-2 text-truncate">{{ m.title }}</h6><br>
+                        </span>
+                    </div>
+
+                    <small class="text-body-secondary watchlist-text-2">
+                        <div class="add-watchlist card-footer bkg-pink text-white watchlist-text">
+                            <span class="heart">&#9825;</span>&emsp; Add to watch list
+                        </div>
+                    </small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Trailer Modal -->
+    <div class="modal" id="modal-trailer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="embed-responsive ratio ratio-16x9">
+                        <iframe id="modal-iframe" class="embed-responsive-item" src="" allowfullscreen allow="autoplay" frameborder="0"></iframe>
+                    </div>
+                    <div class="row row-cols-2 row-cols-sm-2 mt-3">
+                        <div class="col col-3 container mb-3 trailer right-align">
+                            <img src="" alt="" id="modal-poster" class="rounded">
+                        </div>
+                        <div class="col col-4 container left-align">
+                            <label class="mb-0 pb-0 movie-detail-title movie-detail-title-label"><span id="modal-title"></span></label>
+                            <div class="movie-detail pb-5 text-body-secondary"><span id="modal-rating"></span>&emsp; <span id="modal-runtime"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal End -->
+    
+{% endblock %}

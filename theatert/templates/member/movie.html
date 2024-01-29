@@ -4,28 +4,77 @@
     {{ Movie.title }}
 {% endblock %}
 
+{% block watchlist %}
+<div>
+    <a class="add-watchlist">
+        <span class="heart text-primary">&#9825;</span>
+        <span class="text-body-secondary watchlist-text-movie">&ensp;Add to watch list</span>
+    </a>
+</div>
+{% endblock %}
+
+
 {% block under_details %}
     <!-- Dates Carousel -->
     <div class="container mt-5">
         <h4 class="showtime-date left-align">Showtimes</h4>
 
-        <div class="dates-slick ps-4 me-4">
+         <div class="dates-slick ps-4 me-4">
             {% for d in dates %}
                 {% if loop.first %}
-                <div class="showtime-date showtime-date-label m-3 pt-3">
-                    <a href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">Today</a>
-                </div>
-                {% else %}    
-                    <a class='m-3' href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">
-                        <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
-                        <div class="showtime-date-detail">
-                            {{ d.strftime("%m/%d") }}
+                    {% if date.year == d.year and date.month == d.month and date.day == d.day %}
+                        <div class="showtime-date showtime-date-label m-3 pt-3">
+                            <a class="current pb-2" href="{{ url_for('users.movie', movie_route=Movie.route) }}">Today</a>
                         </div>
-                    </a>
+                    {% else %}
+                        <div class="showtime-date showtime-date-label m-3 pt-3">
+                            <a href="{{ url_for('users.movie', movie_route=Movie.route) }}">Today</a>
+                        </div>
+                    {% endif %}
+                {% else %} 
+                    {% if date.year == d.year and date.month == d.month and date.day == d.day %}
+                        <a class="current m-3" href="{{ url_for('users.movie', movie_route=Movie.route, date=d.strftime('%Y-%m-%d')) }}">
+                            <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                            <div class="showtime-date-detail">
+                                {{ d.strftime("%m/%d") }}
+                            </div>
+                        </a>
+                    {% else %}
+                        <a class="m-3" href="{{ url_for('users.movie', movie_route=Movie.route, date=d.strftime('%Y-%m-%d')) }}">
+                            <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                            <div class="showtime-date-detail">
+                                {{ d.strftime("%m/%d") }}
+                            </div>
+                        </a>
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </div>
         <hr>
+
+        <div class="container my-3">
+            <div class="d-flex left-align">
+            {% for s in showtimes %}
+                {% if (s.start_datetime.year == timenow.year and 
+                    s.start_datetime.month == timenow.month and
+                    s.start_datetime.day == timenow.day and
+                    s.start_datetime.hour < timenow.hour) or  
+                    
+                    (s.start_datetime.year == timenow.year and 
+                    s.start_datetime.month == timenow.month and
+                    s.start_datetime.day == timenow.day and
+                    s.start_datetime.hour == timenow.hour and 
+                    s.start_datetime.minute <= timenow.minute) %}
+
+                    <button type="button" class="btn btn-outline-other-darker mt-3 me-3" disabled>{{ s.start_datetime.strftime(" %I:%M %p") }}</button>
+                {% else %}
+                    <button type="button" class="btn btn-outline-other-darker mt-3 me-3">
+                        <a href="{{ url_for('users.ticket_seat_map', showtime_id=s.id ) }}">{{ s.start_datetime.strftime(" %I:%M %p") }}</a>
+                    </button>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}
     

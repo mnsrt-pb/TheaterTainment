@@ -102,7 +102,6 @@ $(document).ready(function(){
   // Fixing tooltips END
 
   $('#select-link').on('change', function (){
-    console.log('HERE')
     window.open(this.value, '_self')
   })
 
@@ -119,11 +118,8 @@ $(document).ready(function(){
 
     if (runtime < 60){
       runtime = runtime + ' min'
-      console.log('HERE1')
     } else {
       runtime = Math.floor(parseInt(runtime)/60) + ' hr ' + parseInt(runtime)%60 + ' min'
-      console.log(runtime)
-      
     }
     // Modal
     var modal = $(this)
@@ -135,6 +131,116 @@ $(document).ready(function(){
     modal.find('#modal-title').text(title);
     modal.find('#modal-rating').text(rating);
     modal.find('#modal-runtime').text(runtime);
+  })
+  
+  $('.add-watchlist').each(function(){
+      $(this).hover(function (){
+        $(this).find('.heart').html("&#9829;")
+      })
+      $(this).mouseleave(function (){
+        $(this).find('.heart').html("&#9825;")
+      })
+  })
+
+  var seats = 0
+  var adult_tickets = 0
+  var child_tickets = 0
+  var senior_tickets = 0
+
+  $('#modal-seat-wheelchair').on('show.bs.modal', function(e){
+    // Modal trigger
+    var trigger = $(e.relatedTarget)
+
+    // Fetch modal data
+    var id = trigger.data('seat-id')
+    var available = trigger.data('available')
+
+    // Replace data
+    $(this).find('.modal-seat').data('seat-id', id);
+    $(this).find('.modal-seat').data('available', available);
+  })
+
+  $('.modal-trigger').on('click', function(){
+    if (!$(this).hasClass('selected')){
+      modal_seat = $($(this).data('bs-target'))
+      $($(this).data('bs-target')).modal('toggle'); 
+
+      // Modal trigger
+      trigger = $(this)
+
+      // Fetch modal data
+      var id = trigger.data('seat-id')
+      var available = trigger.data('available')
+
+      // Replace data
+      modal_seat.modal().find('.modal-seat').data('seat-id', id);
+      modal_seat.modal().find('.modal-seat').data('available', available);
+    } else {
+      id = $(this).data('seat-id')
+
+      $('.seat').each(function(){
+        if ($(this).data('seat-id') == id){
+          seats = seatSelected($(this), seats);
+          checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
+        }
+      })
+    }
+  })
+  
+  $('.modal-seat').on('click', function(){
+    id = $(this).data('seat-id')
+
+    $('.seat').each(function(){
+      if ($(this).data('seat-id') == id){
+        seats = seatSelected($(this), seats);
+        checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
+      }
+    })
+  })
+
+  $('.seat').on('click', function(){
+    if ($(this).data('seat-type') == 'normal'){
+      seats = seatSelected($(this), seats);
+      checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
+    }
+  })
+
+  $('.btn-inc').on('click', function(){
+    curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
+    $('#ticket-selector-' + $(this).data('ticket-type')).text(++curr)
+
+    if (curr == 1){
+      $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", false)
+    }
+
+    if ($(this).data('ticket-type') == 'adult'){
+      adult_tickets = curr
+    } else if ($(this).data('ticket-type') == 'child'){
+      child_tickets = curr
+    } else {
+      senior_tickets = curr
+    }
+    
+    checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
+  })
+
+  $('.btn-dec').on('click', function(){
+    curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
+    $('#ticket-selector-' + $(this).data('ticket-type')).text(--curr)
+
+    if (curr == 0){
+      $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", true)
+    }
+
+    if ($(this).data('ticket-type') == 'adult'){
+      adult_tickets = curr
+    } else if ($(this).data('ticket-type') == 'child'){
+      child_tickets = curr
+    } else {
+      senior_tickets = curr
+    }
+
+    checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
   })
 
 });
@@ -178,4 +284,85 @@ function fixTooltips()
     }
 }
 
+function checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets){
+  if ($('#add-more-warning:hidden')){
+    $('#add-more-warning').prop('hidden', false)
+  }
+  if (!$('#select-seats-button').prop('disabled')){
+    $('#select-seats-button').prop('disabled', true)
+  }
 
+  tickets = adult_tickets + child_tickets + senior_tickets
+  if (tickets == 0){
+    $('.seat-tickets-warning-2').text('Add tickets for your selected seats to continue.')
+  } else {
+    $('.seat-tickets-warning-2').text('')
+  }
+
+  if (tickets < seats){
+    if ((seats - tickets) == 1){
+      $('.seat-tickets-warning').text('1 selected seat has no ticket.')
+    } else {
+      $('.seat-tickets-warning').text((seats - tickets) + ' selected seats have no tickets.')
+    }
+  } else if (tickets > seats){
+    if ((tickets - seats) == 1){
+      $('.seat-tickets-warning').text('1 ticket has no selected seat.')
+    } else {
+      $('.seat-tickets-warning').text((tickets - seats) + ' tickets have no selected seats.')
+    }    
+  } else {
+    $('.seat-tickets-warning').text('')
+    $('#add-more-warning').prop('hidden', true)
+    if (tickets != 0 ){
+      $('#select-seats-button').prop('disabled', false)
+    }
+  }
+}
+
+function seatSelected(t, seats){
+  var seats_selected;
+
+  if (t.data('available') == "True"){
+    if (t.hasClass('selected')){
+      t.removeClass('selected')
+
+      seats_selected = $('#seats-selected').val().split(',')
+      seats_selected = seats_selected.filter(e => e != t.data('seat-id'))
+      $('#seats-selected').val(seats_selected.toString())
+
+      seats -= 1;
+    } else {
+      t.addClass('selected')
+
+      if ($('#seats-selected').val() == ''){
+        seats_selected = []
+      } else {
+        seats_selected = $('#seats-selected').val().split(',')
+      }
+      seats_selected.push(t.data('seat-id'))
+      $('#seats-selected').val(seats_selected.toString())
+
+      seats += 1;
+    }
+  }
+
+  if (seats == 0){
+    $('#select-seats-form').prop("hidden", true)
+    $('#select-seats-message').prop("hidden", false)
+    $('#select-seats-button').prop("disabled", true)
+  } else {
+    if ($('#select-seats-message:visible')){
+      $('#select-seats-message').prop("hidden", true)
+      $('#select-seats-form').prop("hidden", false)
+    }
+
+    if (seats == 1){
+      $('#tickets-amt').text(seats + ' Ticket')
+    } else {
+      $('#tickets-amt').text(seats + ' Tickets')
+    }
+  }
+
+  return seats;
+}

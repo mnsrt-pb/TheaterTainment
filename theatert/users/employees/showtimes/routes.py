@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
-from sqlalchemy import extract
+from sqlalchemy import extract, collate
 from theatert import db
 from theatert.users.employees.showtimes.forms import AddShowtime
 from theatert.models import Auditorium, Change, Movie, Screening, Seat, Ticket
-from theatert.users.utils import login_required
+from theatert.users.utils import date_obj, login_required
 
 showtimes = Blueprint('showtimes', __name__, url_prefix='/showtimes')
 
@@ -22,7 +22,7 @@ def add_showtime():
                             Movie.deleted.is_(False), 
                             Movie.active.is_(True),
                             db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))
-                        )).order_by(Movie.title)
+                        )).order_by(collate(Movie.title, 'NOCASE'))
     
     choices = [(None, 'Select Movie')]
     for m in movies:
@@ -192,7 +192,6 @@ def showtimes_now():
                             choices=choices, auditorium=auditorium, date=date)
                            
 
-
 @showtimes.route('/past-showtimes')
 @login_required(role="EMPLOYEE")
 def past_showtimes():
@@ -236,7 +235,6 @@ def past_showtimes():
                            seats_total=seats_total, total=total,  url='employees.showtimes.past_showtimes', \
                             choices=choices, auditorium=auditorium, date=date)
                            
-
 
 @showtimes.route('/<string:movie_route>')
 @login_required(role="EMPLOYEE")

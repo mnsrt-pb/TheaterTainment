@@ -1,0 +1,252 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Reserve Your Seats
+{% endblock %}
+
+{% block main %}
+    <h2>{{ screening.movie.title }}</h2> 
+    <p class="mb-4">{{ screening.start_datetime.strftime("%A, %B %d, %Y") }}</p><hr>
+    <h5 class="m-4">{{ screening.start_datetime.strftime(" %I:%M %p") }}</h5><hr>
+    
+    <!-- Auditorium -->
+    <div class="container cont-4">
+        <div class="d-flex row justify-content-md-center">
+            {% if screening.auditorium.id == 3 %}
+                <h3 class="screen screen-a my-3">SCREEN</h3>
+            {% elif screening.auditorium.id == 4 %}
+                <h3 class="screen screen-b my-3">SCREEN</h3>
+            {% else %}
+                <h3 class="screen screen-c my-3">SCREEN</h3>
+            {% endif %}
+        </div>
+
+        {% for seat in seats %}
+            {% if (loop.index0 % screening.auditorium.cols) == 0 %}
+                <div class="flex-row flex-nowrap row justify-content-md-center">
+                {% endif %}
+
+                    {% if seat.seat_type == 'normal'%}
+                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                        class="seat available p-2 m-1">{{ seat.row_name }}{{ seat.col }}</button>
+                    {% elif seat.seat_type == 'wheelchair' %}
+                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                        class="modal-trigger seat seat-wheelchair seat-img p-2 m-1" data-bs-target="#modal-seat-wheelchair">
+                            <img src="../../static/images/seat_wheelchair.webp">
+                        </button>
+                    {% elif seat.seat_type == 'companion' %}
+                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                        class="modal-trigger seat seat-companion seat-img p-2 m-1" data-bs-target="#modal-seat-companion">
+                            <img src="../../static/images/seat_companion.webp">
+                        </button>
+                    {% else %}
+                        <div class="seat empty p-2 m-1"></div>
+                    {% endif %}
+
+                {% if (loop.index0 % screening.auditorium.cols) == (screening.auditorium.cols-1) %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="container mt-5 d-flex justify-content-around flex-wrap flex-xxl-wrap">
+        <!-- Seat Legend -->
+        <div class="cont-8 align-self-start rounded shadow left-align mb-5 p-3">
+            <h5 class="fw-bolder">Seat Legend</h5>
+            <small>
+                <div class="d-flex align-items-center">
+                    <div class="seat available p-2 m-1"></div>
+                    <div class="ps-3 pt-2">Available Seat</div>
+                </div><hr>
+            </small>
+            
+            <small>
+                <div class="d-flex align-items-center">
+                    <div class="seat selected p-2 m-1"></div>
+                    <div class="ps-3 pt-2">Selected Seat</div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex align-items-center">
+                    <div class="seat unavailable p-2 m-1"></div>
+                    <div class="ps-3 pt-2">Unavailable</div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex align-items-center flex-nowrap">
+                    <div class="seat seat-wheelchair seat-img p-2 m-1 col-3">
+                        <img src="../../static/images/seat_wheelchair.webp">
+                    </div>
+                    <div class="ps-3 pt-2 flex-grow-1">Wheelchair Space (no seat)</div>
+                    <div class="ps-3 pt-2 fw-bold info"><span data-bs-toggle="modal" data-bs-target="#modal-info-1">Seat Info</span></div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex">
+                    <div class="seat seat-img p-2 m-1 col-3">
+                        <img src="../../static/images/seat_companion.webp">
+                    </div>
+                    <div class="ps-3 pt-2 flex-grow-1">Companion Seat</div>
+                    <div class="ps-3 pt-2 fw-bold info"><span data-bs-toggle="modal" data-bs-target="#modal-info-2">Seat Info</span></div>
+                </div>
+            </small>
+        </div>
+        
+        <!-- Seat Form -->
+        <div class="cont-8 align-self-start rounded shadow mb-5">
+            <form action="" method="POST" class="needs-validation" novalidate>
+                <div id="select-seats-message">
+                    <h5 class="fw-bolder mb-4 mt-3">Tickets {{ "$%.2f"|format(screening.adult_price)}}</h5>
+                    <hr>
+                    <span><h5 class="fw-bolder m-5 p-4">Select your seats<br>to see ticket options.</h5></span>
+                </div>
+                <div id="select-seats-form" hidden>
+                    <input type="hidden" id="seats-selected" value="">
+
+                    <h5 class="fw-bolder mb-4 mt-3">Select <span id="tickets-amt"></span></h5><hr>
+                    <div class="container col-4 ">
+                        Adult {{ "$%.2f"|format(screening.adult_price)}}
+                        <div class="my-3" id="adult">
+                            <button type="button" class="btn btn-dark btn-sm round btn-dec" data-ticket-type="adult" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8"/>
+                                </svg>
+                            </button>
+                            <span id="ticket-selector-adult" class="px-3">0</span>
+                            <button type="button" class="btn btn-dark btn-sm round btn-inc" data-ticket-type="adult">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <hr>
+
+                        Child {{ "$%.2f"|format(screening.child_price)}}<br>
+                        <small class="my-small2">Child (1-11)</small>
+                        <div class="my-3" id="child">
+                            <button type="button" class="btn btn-dark btn-sm round btn-dec" data-ticket-type="child" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8"/>
+                                </svg>
+                            </button>
+                            <span id="ticket-selector-child" class="px-3">0</span>
+                            <button type="button" class="btn btn-dark btn-sm round btn-inc" data-ticket-type="child">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <hr>
+
+                        Senior {{ "$%.2f"|format(screening.senior_price)}}<br>
+                        <small class="my-small2">Senior (62+)</small>
+                        <div class="my-3" id="senior">
+                            <button type="button" class="btn btn-dark btn-sm round btn-dec" data-ticket-type="senior" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8"/>
+                                </svg>
+                            </button>
+                            <span id="ticket-selector-senior" class="px-3">0</span>
+                            <button type="button" class="btn btn-dark btn-sm round btn-inc" data-ticket-type="senior">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <hr>
+                <div id="add-more-warning" hidden>
+                    <span class="seat-tickets-warning fw-bold my-small2"></span><br>
+                    <span class="seat-tickets-warning-2"></span>
+                </div>
+                <div class="d-grid gap-2 col-6 mx-auto">
+                    <button id="select-seats-button" type="button" class="btn btn-primary btn-rounded my-3" disabled>Checkout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Modals -->
+    <div class="modal fade" id="modal-info-1" tabindex="-1" aria-labelledby="modal-info-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-body left-align">
+                <div class="d-flex justify-content-between">
+                    <h5 class="modal-title fw-bolder" id="modal-info-1">Wheelchair Space (no seat)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="mt-5">
+                    This is a wheelchair space, it is not a seat.
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-info-2" tabindex="-1" aria-labelledby="modal-info-2" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-body left-align">
+                <div class="d-flex justify-content-between">
+                    <h5 class="modal-title fw-bolder" id="modal-info-2">Companion Seat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="mt-5">
+                    This seat is only available for a guest accompanying a guest who has purchased a wheelchair seat.
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Seat Modals -->
+    <div class="modal fade" id="modal-seat-wheelchair" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-body left-align">
+                <div class="d-flex justify-content-between">
+                    <h5 class="modal-title fw-bolder">Warning - Not a Seat</h5>
+                </div>
+                <div class="mt-3">
+                    This is a wheelchair space, it is not a seat. This space is available only to guests requiring a wheelchair space.
+                </div>
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary btn-rounded btn-sm cont-10 modal-seat" data-seat-id="" data-available" data-bs-dismiss="modal">Continue with Selection</button>
+                    <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm cont-10" data-bs-dismiss="modal">Select Another Seat</button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-seat-companion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-body left-align">
+                <div class="d-flex justify-content-between">
+                    <h5 class="modal-title fw-bolder">Warning - Special Needs Seat</h5>
+                </div>
+                <div class="mt-3">
+                    This is a companion seat for wheelchair space. You may be asked to move in the event this seat is needed for a companion of a guest in a wheelchair.
+                </div>
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary btn-rounded btn-sm cont-10 modal-seat" data-seat-id="" data-available="" data-bs-dismiss="modal">Continue with Selection</button>
+                    <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm cont-10" data-bs-dismiss="modal">Select Another Seat</button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+{% endblock %}

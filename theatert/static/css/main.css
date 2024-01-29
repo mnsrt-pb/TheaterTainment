@@ -22,6 +22,8 @@ button#action {
     width: 100%;
 }
 
+.btn-rounded {border-radius: 24px;}
+
 .card-img-top {
     border-top-left-radius: 0px !important;
     border-top-right-radius: 0px !important;
@@ -52,9 +54,21 @@ button#action {
 
 .cont-5 { width: 200px; }
 
-.cont-6 { width: 300px; }
+.cont-6 { 
+    width: 300px;
+    height: 130px
+}
 
 .cont-7 { width: 300px !important; }
+
+.cont-8 {width: 40%; }
+
+.cont-9 {width: 60%; }
+
+.cont-10 {
+    width: 48%; 
+    padding: 10px;
+}
 
 .col-1 { width: 30%; }
 
@@ -72,6 +86,11 @@ button#action {
 .font-bold { font-weight: bold; }
 .font-sm { font-size: .9em; }
 
+.heart { 
+    font-size: 1.3em;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: 700 !important;
+}
 .hide-info { display: none; }
 
 .left-align { text-align: left; }
@@ -90,11 +109,17 @@ button#action {
     td {
         white-space: nowrap;
     }
+    .cont-8 {
+        width: 100%;
+    }
 }
 
 @media screen and (max-width: 300px) {
     .cont-2 {
         width: 100%;
+    }
+    .movie-top {
+        padding-top: 40px;
     }
 }
 
@@ -110,10 +135,11 @@ button#action {
     .backdrop > img:not(.play-button) { 
         width: 150%; 
     }
-    .play-button { 
-        top: 50%; 
-        left: 75%; 
+    .backdrop > .play-button { 
+        top: 50% !important; 
+        left: 75% !important; 
     }
+    .movie-detail-title-label { font-size: 1em !important}
 }
 
 
@@ -163,6 +189,10 @@ button#action {
 }
 
 .card-slick .play-button {
+    top: 35%; left: 50%;
+}
+
+.movies .play-button {
     top: 40%; left: 50%;
 }
 
@@ -171,9 +201,23 @@ button#action {
     transition: opacity .2s ease-in-out
 }
 
-.row {
-    overflow: auto; 
+.movies-slick, .dates-slick {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out;
+    -webkit-transition: opacity 1s ease-in-out;
 }
+
+.movies-slick.slick-initialized, .dates-slick.slick-initialized {
+    visibility: visible;
+    opacity: 1;    
+}
+
+/* .row {
+    overflow: auto; 
+} */
+
+.round { border-radius: 50% !important; }
 
 .screen {
     border-top: 10px solid black; 
@@ -196,6 +240,8 @@ button#action {
 }
 
 /* SEAT start */
+button.seat { border:none; }
+
 .seat {
     color: white;
     font-size: .7em;
@@ -203,12 +249,16 @@ button#action {
     height: 3em;
     border-radius: 15%;
     display: inline-block;
-
 }
+
+.seat:not(.empty){ cursor: pointer;}
+.empty{ cursor:default; }
 
 .available:hover { background-color: rgba(44, 104, 22, 1); }
 .available { background-color: rgba(44, 104, 22, .7); }
 .empty { color:transparent; }
+.unavailable { background-color: rgba(0,0,0,.2) !important; }
+.selected { background-color: black !important; }
 
 .seat-img:hover { background-color: rgba(0, 61, 165, 1); }
 .seat-img { background-color: rgba(0, 61, 165, .7); }
@@ -237,3 +287,10 @@ button#action {
     width: 70px;
 }
 
+.watchlist-text-movie {
+    font-size: .7em;
+}
+
+.watchlist-text-2 {
+    font-size: .7em !important;
+}

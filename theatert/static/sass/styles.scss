@@ -26,15 +26,16 @@ $card-height: 100%;
 
 .bkg-pink { background-color: rgba($pink-700, .35) !important; }
 
+
 /* Navbar Start */
   /* + Colors for brand */
-  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light
+  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light, .info
   {
     // color: #a27880;
     color: rgba($pink-700, .55);
   }
 
-  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover
+  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover, .info:hover
   {
     // color: #590d22;
     color: $pink-700;
@@ -107,33 +108,75 @@ $theme-colors: map-merge($theme-colors, (
 $navbar-light-color: rgba($pink-700, .55);
 $navbar-light-hover-color: rgba($pink-700, .9);
 
-.watchlist-text
-{
+.watchlist-text {
   font-size: 1em;
 
-  @media (max-width: 575px) {  
-    font-size: .9em;
-  }
-  
-  @media (max-width: 540px) {  
+  @media (max-width: 991px) {  
     font-size: .7em;
   }
 
-  @media (max-width: 495px) {  
+  @media (max-width: 545px) {  
     font-size: .6em;
+  }
+  
+  @media (max-width: 509px) {  
+    font-size: .5em;
   }
 
   @media (max-width: 478px) {  
-    font-size: .9em;
-  }
-
-  @media (max-width: 437px) {  
     font-size: .7em;
   }
 
-  @media (max-width: 390px) {  
+  @media (max-width: 438px) {  
+    font-size: .6em;
+  }
+  
+  @media (max-width: 438px) {  
+    font-size: .9em;
+  }
+
+  @media (max-width: 313px) {  
+    font-size: .8em;
+  }
+
+}
+
+.card-title {
+  font-size: 1em;
+
+  @media (max-width: 991px) {  
+    font-size: .9em;
+  }
+
+  @media (max-width: 545px) {  
+    font-size: .8em;
+  }
+  
+  @media (max-width: 509px) {  
+    font-size: .7em;
+  }
+
+  @media (max-width: 478px) {  
+    font-size: .8em;
+  }
+
+  @media (max-width: 388px) {  
     font-size: 1em;
   }
+}
+
+.current {
+  color: rgba($pink-700, .9) !important;
+  border-bottom: 5px solid rgba($pink-700, .9);
+}
+
+.type-selected {
+  color: rgba($pink-700, .9) !important;
+  border-bottom: 2px solid rgba($pink-700, .9);
+}
+
+.type-item:hover:not(.type-selected) {
+  border-bottom: 2px solid rgba($gray-700, .9);
 }
 
 /* import bootstrap */

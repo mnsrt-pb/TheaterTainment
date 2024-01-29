@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user, login_user, logout_user
-from sqlalchemy import extract
+from sqlalchemy import extract, collate
 from theatert import bcrypt, db
-from theatert.models import Auditorium, Employee, Movie, Screening
+from theatert.models import Auditorium, Employee, Movie, Screening, Seat
 from theatert.users.employees.forms import LoginForm
 from theatert.users.utils import apology, date_obj
 
@@ -39,9 +39,9 @@ def employee_login():
 def home():
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 41
-    date if date <= datetime.today() + timedelta(days=max_days) else datetime.today()
+    date = date if (date <= (datetime.today() + timedelta(days=max_days))) and (date >= datetime.today()) else datetime.today()
 
-    movies = Movie.query.filter_by(deleted=False, active=True).order_by(Movie.title)
+    movies = Movie.query.filter_by(deleted=False, active=True).order_by(collate(Movie.title, 'NOCASE'))
     dates =[datetime.today() + timedelta(days=x) for x in range(max_days)]
 
     # movies with showtimes for given date
@@ -51,7 +51,7 @@ def home():
                 extract('year', Screening.start_datetime).is_(date.year),
                 extract('month', Screening.start_datetime).is_(date.month),
                 extract('day', Screening.start_datetime).is_(date.day),
-            )).group_by(Screening.movie_id).order_by(Movie.title)
+            )).group_by(Screening.movie_id).order_by(collate(Movie.title, 'NOCASE'))
     
     # showtimes for each movie
     s_showtimes = []
@@ -66,15 +66,15 @@ def home():
             )).order_by(Screening.start_datetime)
         s_showtimes.append(st)
 
-    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes)
+    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes, timenow=datetime.now(), date=date)
 
 
-@users.route('/movies/<string:movie_route>')
+@users.route('/movie/<string:movie_route>')
 def movie(movie_route):
     '''Display movie info like it'll be displayed to members/guests.'''
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 12
-    date if date <= datetime.today() + timedelta(days=max_days) else datetime.today()
+    date = date if (date <= (datetime.today() + timedelta(days=max_days))) and (date >= datetime.today()) else datetime.today()
 
     movie = Movie.query.filter_by(route = movie_route, deleted=False, active=True).first_or_404()
     dates =[datetime.now() + timedelta(days=x) for x in range(max_days)]
@@ -88,8 +88,25 @@ def movie(movie_route):
             extract('day', Screening.start_datetime).is_(date.day),
         )).order_by(Screening.start_datetime)
 
-    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, Showtimes=showtimes)
+    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, showtimes=showtimes, date=date, timenow=datetime.now())
 
+
+@users.route('/movies')
+def movies():
+    movies = Movie.query.filter(
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+            
+    return render_template('member/movies.html', type='Now Playing', first='type-selected', movies=movies)
+
+
+@users.route('/movies/coming-soon')
+def movies_coming_soon():
+    movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
+                db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+    return render_template('member/movies.html', type='Coming Soon', second='type-selected', movies=movies)
 
 
 @users.route('/logout')
@@ -102,7 +119,24 @@ def logout():
     return redirect(url_for('users.home'))
 
 
+@users.route('/ticket-seat-map/<int:showtime_id>')
+def ticket_seat_map(showtime_id):
+    screening = Screening.query.join(Movie).join(Auditorium) \
+        .filter(Screening.id.is_(showtime_id)) \
+        .first_or_404()
+    
+    seats = Seat.query.filter_by(auditorium_id = screening.auditorium.id).order_by(Seat.id) 
+    
+    return render_template('/guest/map.html', screening=screening, seats=seats)
+
+
 @users.route('/todo')
 def todo():
     return apology('TODO', 'member/layout.html', 403)
 
+
+'''  
+Note: 
+Purchase ticket: Cannot purchase a ticket for a movie that's already playing or has played
+Links to these tickets must become unavailable if the movie has played or is currently playing
+'''

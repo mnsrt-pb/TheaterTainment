@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
+from sqlalchemy import collate
 from theatert import db
 from theatert.users.employees.movies.forms import SearchMovieForm, AddMovieForm, ActivateForm, InactivateForm, UpdateMovieForm
 from theatert.models import Change, Movie, Screening
@@ -122,7 +123,7 @@ def all_movies():
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
     else:
-        movies = Movie.query.filter_by(deleted=False).order_by(Movie.title)
+        movies = Movie.query.filter_by(deleted=False).order_by(collate(Movie.title, 'NOCASE'))
         
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10) 
@@ -137,7 +138,7 @@ def all_movies():
                             Movie.trailer_path.is_not(None),
                             Movie.active.is_(False), 
                             Movie.deleted.is_(False)))\
-                    .order_by(Movie.title)
+                    .order_by(collate(Movie.title, 'NOCASE'))
     choices = [(None, 'Select Movie')]
     for m in inactive:
         choices.append((m.id, m.title))
@@ -153,7 +154,7 @@ def all_movies():
                             Movie.active.is_(True), 
                             Movie.deleted.is_(False),
                             Movie.id.not_in(subquery)))\
-                        .order_by(Movie.title)
+                        .order_by(collate(Movie.title, 'NOCASE'))
     
     choices = [(None, 'Select Movie')]
     for m in active:
@@ -222,7 +223,7 @@ def coming_soon():
     else:
         movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
                                     db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
-                            .order_by(Movie.title)
+                            .order_by(collate(Movie.title, 'NOCASE'))
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
         
@@ -278,15 +279,18 @@ def now_playing():
 
     if sort_by == 2:
         movies = Movie.query.filter(
-                    db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                        .order_by(Movie.release_date.desc())
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                .order_by(Movie.release_date.desc())
         
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
     else:
         movies = Movie.query.filter(
-                    db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
-                        .order_by(Movie.title)
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+        
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
         

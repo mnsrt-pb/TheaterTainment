@@ -25,11 +25,11 @@ a.page-current:link {
 
 /* Navbar Start */
 /* + Colors for brand */
-nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light {
+nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light, .info {
   color: rgba(128, 31, 79, 0.55);
 }
 
-nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover {
+nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover, .info:hover {
   color: #801f4f;
 }
 
@@ -92,35 +92,83 @@ small .update:hover, .small .update:hover {
 .watchlist-text {
   font-size: 1em;
 }
-@media (max-width: 575px) {
-  .watchlist-text {
-    font-size: 0.9em;
-  }
-}
-@media (max-width: 540px) {
+@media (max-width: 991px) {
   .watchlist-text {
     font-size: 0.7em;
   }
 }
-@media (max-width: 495px) {
+@media (max-width: 545px) {
   .watchlist-text {
     font-size: 0.6em;
   }
 }
-@media (max-width: 478px) {
+@media (max-width: 509px) {
   .watchlist-text {
-    font-size: 0.9em;
+    font-size: 0.5em;
   }
 }
-@media (max-width: 437px) {
+@media (max-width: 478px) {
   .watchlist-text {
     font-size: 0.7em;
   }
 }
-@media (max-width: 390px) {
+@media (max-width: 438px) {
   .watchlist-text {
+    font-size: 0.6em;
+  }
+}
+@media (max-width: 438px) {
+  .watchlist-text {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 313px) {
+  .watchlist-text {
+    font-size: 0.8em;
+  }
+}
+
+.card-title {
+  font-size: 1em;
+}
+@media (max-width: 991px) {
+  .card-title {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 545px) {
+  .card-title {
+    font-size: 0.8em;
+  }
+}
+@media (max-width: 509px) {
+  .card-title {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 478px) {
+  .card-title {
+    font-size: 0.8em;
+  }
+}
+@media (max-width: 388px) {
+  .card-title {
     font-size: 1em;
   }
+}
+
+.current {
+  color: rgba(128, 31, 79, 0.9) !important;
+  border-bottom: 5px solid rgba(128, 31, 79, 0.9);
+}
+
+.type-selected {
+  color: rgba(128, 31, 79, 0.9) !important;
+  border-bottom: 2px solid rgba(128, 31, 79, 0.9);
+}
+
+.type-item:hover:not(.type-selected) {
+  border-bottom: 2px solid rgba(73, 80, 87, 0.9);
 }
 
 /* import bootstrap */

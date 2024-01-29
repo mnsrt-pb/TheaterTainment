@@ -6,7 +6,7 @@
 
 {% block main %}
     <div >
-        {% for a in auditorium.items %} {# only one auditorium #}
+        {% for a in auditorium.items %} {# only one auditorium in auditorium.items #}
         <h3 class="color-dark">Auditorium {{ a.id }} </h3> 
         <h5 class="color-light">{{seats_total}} seats</h5>
     
