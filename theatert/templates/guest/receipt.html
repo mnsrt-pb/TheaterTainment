@@ -1,0 +1,128 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Purchased!
+{% endblock %}
+
+{% block main %}
+<div class="container left-align">
+    <h3 class="fw-bold mb-4 mt-3">Order Details</h3>
+    <div class="d-flex justify-content-between">
+        <h5 class="fw-bold">Thank you for your purchase</h5>
+        <div>
+            <h6 class="fw-bold">Confirmation Token</h6>
+            <p class="my-small2 mb-5">{{ purchase.confirmation }}</p>
+        </div>
+    </div>
+
+
+    <div class="d-flex flex-wrap flex-sm-nowrap flex-md-nowrap flex-lg-nowrap rounded shadow p-3 mb-5">
+        <div class="showtime left-align me-4">
+            <img src="https://image.tmdb.org/t/p/original{{screening.movie.poster_path}}" alt="Poster for {{screening.movie.title}}" class="rounded">
+        </div>
+        <div class="flex-lg-grow-1">
+            <h3 class="movie-title">{{ screening.movie.title }}</h3>
+            <p class="mb-4">{{ screening.start_datetime.strftime("%A, %B %d") }} at {{ screening.start_datetime.strftime(" %I:%M %p") }}</p>
+            <p>
+                <span class="fs-6 fw-bolder">Tickets ({{ total }})</span>
+                <br>
+                Seats:
+                {% for t in tickets %}
+                    {% if loop.last %}
+                        {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }}
+                    {% else %}
+                        {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }},
+                    {% endif %}
+                {% endfor %}
+                <br>
+                <span class="my-small2 text-body-secondary">Auditorium {{ screening.auditorium.id }}</span>
+            </p>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">Transactions</h4>
+    <h6 class="fw-bold mb-3">{{ purchase.datetime.strftime("%B %d") }} Purchase Summary&emsp;
+        <span class="info"  data-bs-toggle="modal" data-bs-target="#modal-details">View Details</span>
+    </h6>
+    <div class="d-flex justify-content-between">
+        <p>{{purchase.card.card_type}} ... {{ (purchase.card.card_num| string)[-4:]  }}</p>
+        <p>{{ "$%.2f"|format(
+            screening.adult_price * purchase.adult_tickets +
+            screening.child_price * purchase.child_tickets +
+            screening.senior_price * purchase.senior_tickets)}}</p>
+    </div>
+    <div class="d-flex justify-content-between fw-bold">
+        <p>Total</p>
+        <p>{{ "$%.2f"|format(
+            screening.adult_price * purchase.adult_tickets +
+            screening.child_price * purchase.child_tickets +
+            screening.senior_price * purchase.senior_tickets)}}</p>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="modal-details" tabindex="-1" aria-labelledby="modal-details" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="fw-bold">{{ purchase.datetime.strftime("%B %d, %Y") }} Purchase</h4>
+        </div>
+        <div class="modal-body left-align">
+            <h5 class="movie-title mb-3">{{ screening.movie.title }}</h5>
+            {% if purchase.adult_tickets != 0 %}
+                <div class="d-flex justify-content-between">
+                    <div>Adult Tickets ({{purchase.adult_tickets}})</div>
+                    <div>{{ "$%.2f"|format(screening.adult_price * purchase.adult_tickets)}}</div>
+                </div>
+            {% endif %}
+            {% if purchase.child_tickets != 0 %}
+                <div class="d-flex justify-content-between">
+                    <div>Child Tickets ({{purchase.child_tickets}})</div>
+                    <div>{{ "$%.2f"|format(screening.child_price * purchase.child_tickets)}}</div>
+                </div>
+            {% endif %}
+            {% if purchase.senior_tickets != 0 %}
+                <div class="d-flex justify-content-between">
+                    <div>Senior Tickets ({{purchase.senior_tickets}})</div>
+                    <div>{{ "$%.2f"|format(screening.senior_price * purchase.senior_tickets)}}</div>
+                </div>
+            {% endif %}
+            <p class="my-small2 mt-3">
+                Seats:
+                {% for t in tickets %}
+                    {% if loop.last %}
+                        {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }}
+                    {% else %}
+                        {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }},
+                    {% endif %}
+                {% endfor %}
+            </p>
+
+            <hr>
+            <div class="d-flex justify-content-between">
+                <h5 class="movie-title">Purchase Total</h5>
+                <h5>
+                    {{ "$%.2f"|format(
+                        screening.adult_price * purchase.adult_tickets +
+                        screening.child_price * purchase.child_tickets +
+                        screening.senior_price * purchase.senior_tickets)}}
+                </h5>
+            </div>
+
+            <hr>
+            <h5 class="movie-title mb-3">Payments</h5>
+            <p class="my-small2">Your payment was successfully charged on {{ purchase.datetime.strftime("%m/%d/%Y") }} 
+                at {{ purchase.datetime.strftime(" %I:%M %p") }}</p>
+
+            <div class="d-flex justify-content-between my-small2">
+                <p>{{purchase.card.card_type}} ... {{ (purchase.card.card_num| string)[-4:]  }}</p>
+                <p>{{ "$%.2f"|format(
+                    screening.adult_price * purchase.adult_tickets +
+                    screening.child_price * purchase.child_tickets +
+                    screening.senior_price * purchase.senior_tickets)}}</p>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}

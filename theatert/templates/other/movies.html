@@ -14,7 +14,7 @@
             <h5 class="color-light">Sort By</h5>
             <select class="form-select" id="select-link">
                 {% if sort_by == 2 %}
-                <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
+                    <option value="{{ url_for(url, sort_by=2) }}">Descending Date</option>
                     <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>
                 {% else %}
                     <option value="{{ url_for(url, sort_by=1) }}">Alphabetical Order</option>

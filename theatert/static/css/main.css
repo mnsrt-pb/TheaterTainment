@@ -93,6 +93,49 @@ button#action {
 }
 .hide-info { display: none; }
 
+.info {cursor: pointer; }
+
+/* Credit Card Imgs Start */
+#cc_holder {
+    max-width: 250px;
+    display: block;
+}
+
+#cc_holder div {
+    background: #fff;
+    width: calc(25% - 15px);
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,.2);
+}
+
+.img-responsive {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+#cc_holder.Visa .mastercard img, #cc_holder.Visa .amex img, #cc_holder.Visa .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Mastercard .visa img, #cc_holder.Mastercard .amex img, #cc_holder.Mastercard .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.AmericanExpress .mastercard img, #cc_holder.AmericanExpress .visa img, #cc_holder.AmericanExpress .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Discover .mastercard img, #cc_holder.Discover .amex img, #cc_holder.Discover .visa img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Visa .visa, #cc_holder.Mastercard .mastercard, 
+#cc_holder.AmericanExpress .amex, #cc_holder.Discover .discover {
+    box-shadow: 2px 2px 5px rgba(0,0,0,.12);
+}
+/* Credit Card Imgs End */
+
 .left-align { text-align: left; }
 .right-align { text-align: right; }
 
@@ -109,7 +152,7 @@ button#action {
     td {
         white-space: nowrap;
     }
-    .cont-8 {
+    .cont-8, .cont-10 {
         width: 100%;
     }
 }
@@ -213,6 +256,15 @@ button#action {
     opacity: 1;    
 }
 
+.more {
+    background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
 /* .row {
     overflow: auto; 
 } */
@@ -253,6 +305,7 @@ button.seat { border:none; }
 
 .seat:not(.empty){ cursor: pointer;}
 .empty{ cursor:default; }
+.unavailable{ cursor:default !important }
 
 .available:hover { background-color: rgba(44, 104, 22, 1); }
 .available { background-color: rgba(44, 104, 22, .7); }

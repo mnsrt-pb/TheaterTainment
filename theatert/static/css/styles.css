@@ -48,6 +48,14 @@ nav a.dropdown-item, nav button.dropdown-item {
   border-bottom-right-radius: 0.35em;
 }
 
+.my-border {
+  border-color: rgba(128, 31, 79, 0.55);
+}
+
+.my-border:hover {
+  border-color: #801f4f;
+}
+
 small .green, .small .green {
   background-color: #146c43;
 }

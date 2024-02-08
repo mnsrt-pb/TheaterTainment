@@ -1,4 +1,4 @@
-/* The following code fixes bootstrap's truncated text's tooltip */
+var valid = require("card-validator");
 
 let titles = [];
 
@@ -90,7 +90,6 @@ $(document).ready(function(){
     })
   );
 
-
   // Fixing tooltips START
   $('.my-tooltip').map(function() {
     titles.push($(this).attr('title'));
@@ -142,6 +141,50 @@ $(document).ready(function(){
       })
   })
 
+  ticket_seat_map();
+  checkout_form_control();
+});
+
+
+// Shows toottips only for movies whose titles were ellipsed (fixes bootstrap's truncated text's tooltip)
+function fixTooltips()
+{
+    function checkEllipsis(el){
+        const styles = getComputedStyle(el);
+        const widthEl = parseFloat(styles.width);
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = `${styles.fontSize} ${styles.fontFamily}`;
+        const text = ctx.measureText(el.innerText);
+        
+        let extra = 0;
+        extra += parseFloat(styles.getPropertyValue('border-left-width'));
+        extra += parseFloat(styles.getPropertyValue('border-right-width'));
+        extra += parseFloat(styles.getPropertyValue('padding-left'));
+        extra += parseFloat(styles.getPropertyValue('padding-right'));
+        return text.width > (widthEl - extra);
+    } // https://stackoverflow.com/questions/7738117/html-text-overflow-ellipsis-detection
+
+    let hasEllipses = [];
+
+    var items = document.getElementsByClassName('text-truncate');
+    for (let i = 0, len = items.length; i < len; i++){  
+        if (!checkEllipsis(items[i])){
+            hasEllipses.push(i);
+        }
+    }
+
+    var tooltips = document.getElementsByClassName('my-tooltip');
+    for (let i = 0, len = tooltips.length; i < len; i++){
+        if (hasEllipses.includes(i)){
+            tooltips[i].setAttribute('title', '');
+        }
+        else {
+            tooltips[i].setAttribute('title', titles[i])
+        }
+    }
+}
+
+function ticket_seat_map(){
   var seats = 0
   var adult_tickets = 0
   var child_tickets = 0
@@ -201,6 +244,16 @@ $(document).ready(function(){
   $('.seat').on('click', function(){
     if ($(this).data('seat-type') == 'normal'){
       seats = seatSelected($(this), seats);
+
+      if (seats == 0){
+        adult_tickets = 0
+        child_tickets = 0
+        senior_tickets = 0
+        $('#ticket-selector-adult').text(0)
+        $('#ticket-selector-child').text(0)
+        $('#ticket-selector-senior').text(0)
+      }
+
       checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
     }
   })
@@ -208,6 +261,7 @@ $(document).ready(function(){
   $('.btn-inc').on('click', function(){
     curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
     $('#ticket-selector-' + $(this).data('ticket-type')).text(++curr)
+    $('#' + $(this).data('ticket-type') + '-tickets').val(curr)
 
     if (curr == 1){
       $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", false)
@@ -227,6 +281,7 @@ $(document).ready(function(){
   $('.btn-dec').on('click', function(){
     curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
     $('#ticket-selector-' + $(this).data('ticket-type')).text(--curr)
+    $('#' + $(this).data('ticket-type') + '-tickets').val(curr)
 
     if (curr == 0){
       $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", true)
@@ -242,47 +297,264 @@ $(document).ready(function(){
 
     checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
   })
-
-});
-
-
-// Shows toottips only for movies whose titles were ellipsed
-function fixTooltips()
-{
-    function checkEllipsis(el){
-        const styles = getComputedStyle(el);
-        const widthEl = parseFloat(styles.width);
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = `${styles.fontSize} ${styles.fontFamily}`;
-        const text = ctx.measureText(el.innerText);
-        
-        let extra = 0;
-        extra += parseFloat(styles.getPropertyValue('border-left-width'));
-        extra += parseFloat(styles.getPropertyValue('border-right-width'));
-        extra += parseFloat(styles.getPropertyValue('padding-left'));
-        extra += parseFloat(styles.getPropertyValue('padding-right'));
-        return text.width > (widthEl - extra);
-    } // https://stackoverflow.com/questions/7738117/html-text-overflow-ellipsis-detection
-
-    let hasEllipses = [];
-
-    var items = document.getElementsByClassName('text-truncate');
-    for (let i = 0, len = items.length; i < len; i++){  
-        if (!checkEllipsis(items[i])){
-            hasEllipses.push(i);
-        }
-    }
-
-    var tooltips = document.getElementsByClassName('my-tooltip');
-    for (let i = 0, len = tooltips.length; i < len; i++){
-        if (hasEllipses.includes(i)){
-            tooltips[i].setAttribute('title', '');
-        }
-        else {
-            tooltips[i].setAttribute('title', titles[i])
-        }
-    }
 }
+
+
+function checkout_form_control(){
+  $('#guest-checkout').on('click', function(){
+    $('#checkout-selection').prop('hidden', true)
+    $('#checkout-form').prop('hidden', false)
+  })
+
+  // If user edits email field, remove is-invalid
+  $('#email').on('keypress', function(){
+    if ($('#email').hasClass('is-invalid')){
+      $('#email-e').text('')
+      $('#email').removeClass('is-invalid')
+    }
+  })
+
+  /* Validate string length */
+  // Check card_type and validate card
+  $('#card-number').on('focusout', function(){
+    number = valid.number($(this).val())
+    if (number.card != null){
+      if (number.card.type == 'visa' || number.card.type == 'mastercard'  || number.card.type == 'discover'){
+        $('#cc_holder').removeClass('Visa')
+        $('#cc_holder').removeClass('Mastercard')
+        $('#cc_holder').removeClass('Discover')
+        $('#cc_holder').removeClass('AmericanExpress')
+        $('#cc_holder').addClass(number.card.niceType)
+      } else if (number.card.type == 'american-express'){
+        $('#cc_holder').removeClass('Visa')
+        $('#cc_holder').removeClass('Mastercard')
+        $('#cc_holder').removeClass('Discover')
+        $('#cc_holder').addClass('AmericanExpress')
+      }
+
+      // Validate
+      if (!($(this).val().length >= 8 && $(this).val().length <= 19)){
+        $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+        $('#card-number').addClass('is-invalid')
+      } else {
+        if (number.isValid){
+          $('#card-number-e').text('')
+          $('#card-number').removeClass('is-invalid')
+        } else {
+          $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+          $('#card-number').addClass('is-invalid')
+        }
+      }
+    } else {
+      if ($(this).val().length == 0){
+        $('#card-number-e').text('The Card Number field is required.')
+        $('#card-number').addClass('is-invalid')
+      } else {
+        $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+        $('#card-number').addClass('is-invalid')
+      }
+    }
+
+    if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+    || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+    && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+    && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+      if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
+        $('#exp-month-e').text('The Month field is invalid.')
+        $('#exp-month').addClass('is-invalid')
+      } else {
+        $('#exp-month-e').text('')
+        $('#exp-month').removeClass('is-invalid')
+        $('#checkout-button').prop('hidden', false)
+      }
+    } else {
+      $('#checkout-button').prop('hidden', true)
+    }
+  })
+
+  // FIXME: After uncommenting code that disables copy/paste remove this code
+  $('#card-number').on('change', function(){
+    $('#card_type').val(valid.number($(this).val()).card.niceType)
+  })
+
+  $('#zip-code').on('focusout', function(){
+    if ($(this).val().length == 0){
+      $('#zip-code-e').text('The Billing ZIP Code field is required.')
+      $('#zip-code').addClass('is-invalid')
+    } else if ($(this).val().length != 5){
+      $('#zip-code-e').text('The value for the Billing Zip Code field is invalid.')
+      $('#zip-code').addClass('is-invalid')
+
+    } else {
+      $('#zip-code-e').text('')
+      $('#zip-code').removeClass('is-invalid')
+    }
+
+    if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+    || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+    && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+    && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+      if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
+        $('#exp-month-e').text('The Month field is invalid.')
+        $('#exp-month').addClass('is-invalid')
+      } else {
+        $('#exp-month-e').text('')
+        $('#exp-month').removeClass('is-invalid')
+        $('#checkout-button').prop('hidden', false)
+      }
+    } else {
+      $('#checkout-button').prop('hidden', true)
+    }
+  })
+  
+  $('#sec-code').on('focusout', function(){
+    if ($(this).val().length == 0){
+      $('#sec-code-e').text('The Card Security Code field is required.')
+      $('#sec-code').addClass('is-invalid')
+    } else if (!($(this).val().length >= 3 && $(this).val().length <= 4)){
+      $('#sec-code-e').text('The Card Security Code field is not a valid credit card security code.')
+      $('#sec-code').addClass('is-invalid')
+
+    } else {
+      $('#sec-code-e').text('')
+      $('#sec-code').removeClass('is-invalid')
+    }
+
+    if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+    || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+    && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+    && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+      if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
+        $('#exp-month-e').text('The Month field is invalid.')
+        $('#exp-month').addClass('is-invalid')
+      } else {
+        $('#exp-month-e').text('')
+        $('#exp-month').removeClass('is-invalid')
+        $('#checkout-button').prop('hidden', false)
+      }
+    } else {
+      $('#checkout-button').prop('hidden', true)
+    }
+  })
+
+  $('#email').on('focusout', function(){
+    if ($(this).val().length == 0){
+      $('#email-e').text('The Email Address field is required.')
+      $('#email').addClass('is-invalid')
+    } else {
+      $('#email-e').text('')
+      $('#email').removeClass('is-invalid')
+    }
+
+    if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+    || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+    && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+    && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+      if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
+        $('#exp-month-e').text('The Month field is invalid.')
+        $('#exp-month').addClass('is-invalid')
+      } else {
+        $('#exp-month-e').text('')
+        $('#exp-month').removeClass('is-invalid')
+        $('#checkout-button').prop('hidden', false)
+      }
+    } else {
+      $('#checkout-button').prop('hidden', true)
+    }
+  })
+
+  /* zip-code, sec-code, card-number inputs must be number keys */
+  $('#card-number').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    $('#card_type').val(valid.number($(this).val()).card.niceType)
+    return true; 
+  })
+
+  $('#zip-code').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true; 
+  })
+
+  $('#sec-code').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true; 
+  })
+
+  /* Validate Date */
+  $('#exp-month').on('change', function(){
+    if (!valid.expirationDate($(this).val() + '/' + $('#exp-year').val()).isValid){
+      $('#exp-month-e').text('The Month field is invalid.')
+      $('#exp-month').addClass('is-invalid')
+      $('#checkout-button').prop('hidden', true)
+    } else {
+      $('#exp-month-e').text('')
+      $('#exp-month').removeClass('is-invalid')
+
+      if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+      || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+      && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+      && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+        $('#checkout-button').prop('hidden', false)
+      } else {
+        $('#checkout-button').prop('hidden', true)
+      }
+    }
+  })
+
+  $('#exp-year').on('change', function(){
+    console.log(valid.expirationDate($('#exp-month').val() + '/' + $(this).val()).isValid)
+    if (!valid.expirationDate($('#exp-month').val() + '/' + $(this).val()).isValid){
+      $('#exp-month-e').text('The Month field is invalid.')
+      $('#exp-month').addClass('is-invalid')
+      $('#checkout-button').prop('hidden', true)
+    } else {
+      $('#exp-month-e').text('')
+      $('#exp-month').removeClass('is-invalid')
+      if (!($('#card-number').hasClass('is-invalid') || $('#zip-code').hasClass('is-invalid') 
+      || $('#sec-code').hasClass('is-invalid') || ($('#email').hasClass('is-invalid')))
+      && ($('#card-number').val().length != 0) && ($('#zip-code').val().length != 0) 
+      && ($('#sec-code').val().length != 0) && ($('#email').val().length != 0)){
+        $('#checkout-button').prop('hidden', false)
+      } else {
+        $('#checkout-button').prop('hidden', true)
+      }
+    }
+  })
+
+  /* Disable paste and copy */
+  /*
+  $('#card-number').on("paste", function(e) { 
+    return false;
+  }); 
+
+  $('#zip-code').on("paste", function(e) { 
+    return false;
+  }); 
+  
+  $('#sec-code').on("paste", function(e) { 
+    return false;
+  }); 
+
+  $('#card-number').on("copy", function(e) { 
+    return false;
+  }); 
+
+  $('#zip-code').on("copy", function(e) { 
+    return false;
+  }); 
+
+  $('#sec-code').on("copy", function(e) { 
+    return false;
+  }); 
+  */
+}
+
 
 function checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets){
   if ($('#add-more-warning:hidden')){
@@ -319,6 +591,7 @@ function checkTicketChanges(seats, adult_tickets, child_tickets, senior_tickets)
     }
   }
 }
+
 
 function seatSelected(t, seats){
   var seats_selected;

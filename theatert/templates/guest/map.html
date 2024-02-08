@@ -27,16 +27,32 @@
                 {% endif %}
 
                     {% if seat.seat_type == 'normal'%}
-                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
-                        class="seat available p-2 m-1">{{ seat.row_name }}{{ seat.col }}</button>
+                        {% if seat.id in purchased_seats %}
+                            <button data-available="False" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="seat unavailable p-2 m-1">
+                        {% else %}    
+                            <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="seat available p-2 m-1">
+                        {% endif %}
+                        {{ seat.row_name }}{{ seat.col }}</button>
                     {% elif seat.seat_type == 'wheelchair' %}
-                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
-                        class="modal-trigger seat seat-wheelchair seat-img p-2 m-1" data-bs-target="#modal-seat-wheelchair">
+                        {% if seat.id in purchased_seats %}
+                            <button data-available="False" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="seat unavailable seat-wheelchair seat-img p-2 m-1">
+                        {% else %}    
+                            <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="modal-trigger seat seat-wheelchair seat-img p-2 m-1" data-bs-target="#modal-seat-wheelchair">
+                        {% endif %}
                             <img src="../../static/images/seat_wheelchair.webp">
                         </button>
                     {% elif seat.seat_type == 'companion' %}
-                        <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
-                        class="modal-trigger seat seat-companion seat-img p-2 m-1" data-bs-target="#modal-seat-companion">
+                        {% if seat.id in purchased_seats %}
+                            <button data-available="False" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="seat unavailable seat-companion seat-img p-2 m-1">
+                        {% else %}    
+                            <button data-available="True" data-seat-id="{{ seat.id }}" data-showtime-id="{{ screening.id }}" data-seat-type="{{ seat.seat_type }}" 
+                            class="modal-trigger seat seat-img p-2 m-1" data-bs-target="#modal-seat-companion">
+                        {% endif %}
                             <img src="../../static/images/seat_companion.webp">
                         </button>
                     {% else %}
@@ -97,14 +113,18 @@
         
         <!-- Seat Form -->
         <div class="cont-8 align-self-start rounded shadow mb-5">
-            <form action="" method="POST" class="needs-validation" novalidate>
+            <form action="{{ url_for('users.checkout') }}" method="POST">
                 <div id="select-seats-message">
                     <h5 class="fw-bolder mb-4 mt-3">Tickets {{ "$%.2f"|format(screening.adult_price)}}</h5>
                     <hr>
                     <span><h5 class="fw-bolder m-5 p-4">Select your seats<br>to see ticket options.</h5></span>
                 </div>
                 <div id="select-seats-form" hidden>
-                    <input type="hidden" id="seats-selected" value="">
+                    <input type="hidden" name="screening-id" value="{{ screening.id }}">
+                    <input type="hidden" id="seats-selected" name="seats-selected" value="">
+                    <input type="hidden" id="adult-tickets" name="adult-tickets" value="0">
+                    <input type="hidden" id="child-tickets" name="child-tickets" value="0">
+                    <input type="hidden" id="senior-tickets" name="senior-tickets" value="0">
 
                     <h5 class="fw-bolder mb-4 mt-3">Select <span id="tickets-amt"></span></h5><hr>
                     <div class="container col-4 ">
@@ -167,7 +187,7 @@
                     <span class="seat-tickets-warning-2"></span>
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto">
-                    <button id="select-seats-button" type="button" class="btn btn-primary btn-rounded my-3" disabled>Checkout</button>
+                    <button id="select-seats-button" type="submit" class="btn btn-primary btn-rounded my-3" disabled>Checkout</button>
                 </div>
             </form>
         </div>

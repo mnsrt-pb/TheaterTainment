@@ -3,7 +3,7 @@
 <html lang="en" class="h-100">
 
     <head>
-
+        
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, width=device-width">
 
@@ -12,7 +12,7 @@
 
         <!-- Contians bootstrap -->
         <link href="/../../static/css/styles.css" rel="stylesheet">
-        <script src="../../static/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../../static/javascript/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
         <!-- Font -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,8 @@
 
         <!-- My css and bootstrap -->
         <link href="../../static/css/main.css" rel="stylesheet">
-        <script src="../../static/javascript/main.js" rel="stylesheet"></script>
+        <!-- <script src="../../static/javascript/main.js" rel="stylesheet"></script> -->
+        <script src="../../static/javascript/bundle.js" rel="stylesheet"></script>
 
         <title> TheaterTainment | {% block title %}{% endblock %}</title>
 
@@ -61,31 +62,20 @@
             </div>
         </nav>
 
-        {% if get_flashed_messages() %}
-            <header class="mt-4">
-                {% if link and failure %}
-                <div class="alert alert-danger mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} Try <a href="#" class="alert-link">logging</a> in.
-                </div>
-
-                {% elif failure %}
-                <div class="alert alert-danger mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} 
-                </div>
-
-                {% else %}
-                <div class="alert alert-success mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }} 
-                </div>
-                
-                {% endif %}
-            </header>
-        {% endif %}
+        {% with messages =  get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <header class="mt-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{category}} mb-0 text-center" role="alert">
+                            {{ message }} 
+                        </div>
+                    {% endfor %}
+                </header>
+            {% endif %}
+        {% endwith %}
         
         <main class="container-fluid py-5 text-center flex-shrink-0">
-            <div class="container">
-                {% block main %}{% endblock %}
-            </div>
+            {% block main %}{% endblock %}
         </main>
 
         <footer class="footer mt-auto py-3 my-1">
