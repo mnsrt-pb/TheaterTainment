@@ -7,6 +7,30 @@
 {% block main %}
     {% if total == 0 %}
         <h3 class="color-dark mb-3">{{ title }}</h3>
+
+        <div class="border container cont-2 rounded shadow mb-4">
+            <form action="" method="GET" class="needs-validation" novalidate>
+                <h5 class="color-light">Filter Showtimes</h5>
+
+                <div class="form-floating">
+                    <select class="form-select mb-3" id="select-auditoriums" name="auditorium">
+                        <option value="">Select Auditorium</option>
+                        {% for c in choices %}    
+                            <option value="{{ c[0] }}">{{ c[1] }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="select-auditoriums">Auditorium</label>
+                </div>
+
+                <div class="left-align mb-3">
+                    <label class="font-bold form-label font-sm mx-auto w-auto">Date</label>
+                    <input type="date" class="form-control" name="date"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+
         <h6 class="text-body-secondary my-4">There are no showtimes.</h6>
     {% else %}
         <h3 class="color-dark mb-3">{{ title }} <span class="my-small color-light">({{ total }})</span></h3>
@@ -20,10 +44,33 @@
                 {% endfor %}
             </select>
         </div>
+        
+        <div class="border container cont-2 rounded shadow mb-4">
+            <form action="" method="GET" class="needs-validation" novalidate>
+                <h5 class="color-light">Filter Showtimes</h5>
+
+                <div class="form-floating">
+                    <select class="form-select mb-3" id="select-auditoriums" name="auditorium">
+                        <option value="">Select Auditorium</option>
+                        {% for c in choices %}    
+                            <option value="{{ c[0] }}">{{ c[1] }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="select-auditoriums">Auditorium</label>
+                </div>
+
+                <div class="left-align mb-3">
+                    <label class="font-bold form-label font-sm mx-auto w-auto">Date</label>
+                    <input type="date" class="form-control" name="date"/>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
 
         <div class="container mb-3"><small class="fst-italic text-body-secondary">Note: Click on tickets to view tickets' info for that showtime.</small></div>
 
-        <div class="table-responsive-md">
+        <div class="table-responsive-xl mt-5">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -68,9 +115,9 @@
             {% for pg_num in screenings.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                     {% if pg_num %}
                         {% if screenings.page == pg_num %}
-                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                            <a class="page-current me-3" href="{{ url_for(url, page=pg_num, auditorium=auditorium, date=date) }}">{{ pg_num }}</a>
                         {% else %}
-                            <a class="page me-3" href="{{ url_for(url, page=pg_num) }}">{{ pg_num }}</a>
+                            <a class="page me-3" href="{{ url_for(url, page=pg_num, auditorium=auditorium, date=date) }}">{{ pg_num }}</a>
                         {% endif %}
                     {% else %}
                         <span class="me-3">...</span>

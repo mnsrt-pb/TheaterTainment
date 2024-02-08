@@ -5,33 +5,21 @@
 {% endblock %}
 
 {% block main %}
-    <div class="row row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 cont-light pb-4">
-        <div class="col col-1 container my-5">
+    <div class="row row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 pb-4 movie-top">
+        <div class="col col-1 container mt-4">
             <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded mb-3">
-            <p class="fst-italic my-small2 my-font text-body-secondary">Note: Only movies without showtimes can be deleted.</p>
-            <div class="btn-group movie-action" role="group">
-                <button id="movie-action" type="button" class="btn btn-outline-other-darker dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  Action
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="movie-action">
-                    <li><a href="{{ url_for('employees.movies.update_movie', movie_route=Movie.route) }}" class="dropdown-item">Update</a></li>
-                    <li><a href="{{ url_for('employees.showtimes.movie', movie_route=Movie.route) }}" class="dropdown-item">Showtimes</a></li>
-                    {% if can_delete %}
-                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-delete">Delete</button></li>
-                    {% endif %}
-                </ul>
-            </div>
+            {% block under_img %}{% endblock %}
         </div>
 
-        <!-- Trailer Modal Trigger -->
         <div class="col col-2">
+            <!-- Trailer Modal Trigger -->
             {% if Movie.trailer_path and Movie.backdrop_path %}
-            <div id="trailer" data-bs-toggle="modal" data-bs-target="#modal-trailer">
-                <div class="backdrop">
-                    <img src="https://image.tmdb.org/t/p/original{{Movie.backdrop_path}}" alt="Backdrop for {{Movie.title}}">
-                    <img src="../../static/images/play-button.png" alt="Play Trailer" class="play-button">
+                <div id="trailer" data-bs-toggle="modal" data-bs-target="#modal-trailer">
+                    <div class="backdrop">
+                        <img src="https://image.tmdb.org/t/p/original{{Movie.backdrop_path}}" alt="Backdrop for {{Movie.title}}">
+                        <img src="../../static/images/play-button.png" alt="Play Trailer" class="play-button">
+                    </div>
                 </div>
-            </div>
             {% endif %}
 
             <!-- Modals -->
@@ -42,27 +30,26 @@
                             <div class="embed-responsive ratio ratio-16x9">
                                 <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{Movie.trailer_path}}?autoplay=1&mute=1" allowfullscreen allow="autoplay" frameborder="0"></iframe>
                             </div>
-                        </div>
-                        <div class="row row-cols-2 row-cols-sm-2">
-                            <div class="col col-3 container mb-3 trailer right-align">
-                                <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded">
+                            <div class="row row-cols-2 row-cols-sm-2 mt-3">
+                                <div class="col col-3 container mb-3 trailer right-align">
+                                    <img src="https://image.tmdb.org/t/p/original{{Movie.poster_path}}" alt="Poster for {{Movie.title}}" class="rounded">
+                                </div>
+                                <div class="col col-4 container left-align">
+                                    <label class="mb-0 pb-0 movie-detail-title movie-detail-title-label">{{ Movie.title }}</label>
+                                    {% if Movie.runtime < 60 %}
+                                        {% set runtime = (Movie.runtime)|string + ' min' %}
+                                    {% else %}
+                                        {% set runtime = (Movie.runtime // 60)|string + ' hr ' + (Movie.runtime % 60)|string + ' min' %}
+                                    {% endif %}
+    
+                                    {% if Movie.rating %}
+                                        <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ Movie.rating }} &emsp; {{ runtime }}</div>
+                                    {% else %}
+                                        <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ runtime }}</div>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="col col-4 container left-align">
-                                <label class="mb-0 pb-0 movie-detail-title movie-detail-title-label">{{ Movie.title }}</label>
-                                {% if Movie.runtime < 60 %}
-                                    {% set runtime = (Movie.runtime)|string + ' min' %}
-                                {% else %}
-                                    {% set runtime = (Movie.runtime // 60)|string + ' hr ' + (Movie.runtime % 60)|string + ' min' %}
-                                {% endif %}
-
-                                {% if Movie.rating %}
-                                    <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ Movie.rating }} &emsp; {{ runtime }}</div>
-                                {% else %}
-                                    <div class="movie-detail pb-5 ps-3 text-body-secondary">{{ runtime }}</div>
-                                {% endif %}
-                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -83,9 +70,13 @@
                     </div>
                 </div>
             </div>
-            <!-- Modal End -->
+            <!-- Modals End -->
 
-            <h2 class="movie-detail-title left-align mt-5">{{ Movie.title }}</h2>
+            <div class="left-align mt-5">
+                <label><h2 class="movie-detail-title">{{ Movie.title }}</h2></label>
+                {% block watchlist %}
+                {% endblock %}
+            </div>
             <div class="d-sm-flex flex-row mt-5 left-align">
                 {% if Movie.rating %}
                     <div class="me-3">
@@ -121,6 +112,7 @@
             <div class="movie-detail left-align mt-5 pe-5">
                 {{ Movie.overview }}
             </div>
+            {% block under_details %}{% endblock %}
         </div>
     </div>
 {% endblock %}

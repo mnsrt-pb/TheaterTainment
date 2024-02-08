@@ -1,6 +1,7 @@
 from datetime import datetime 
 from theatert import db, login_manager
 from flask_login import UserMixin
+from secrets import token_urlsafe
 
 
 @login_manager.user_loader
@@ -36,9 +37,11 @@ class Employee(User):
 
 class Member(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    email = db.Column(db.String(120), unique = True, nullable=False)
-    f_name = db.Column(db.String(20), nullable=False)
-    l_name = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String, unique = True, nullable=False)
+    f_name = db.Column(db.String, nullable=False)
+    l_name = db.Column(db.String, nullable=False)
+
+    cards = db.relationship('Cards', backref='member', lazy=True) # Can have many cards
 
     __mapper_args__ = {
         'polymorphic_identity': 'MEMBER',
@@ -152,5 +155,67 @@ class Ticket(db.Model):
     screening_id = db.Column(db.Integer, db.ForeignKey('screening.id'), nullable=False) # Has one screening
     seat_id = db.Column(db.Integer, db.ForeignKey('seat.id'), nullable=False) # Has one seat
 
+    purchased = db.relationship('Purchased_Ticket', backref='ticket', lazy=True) # Can have many tickets
+
     def __repr__(self): 
         return f"Ticket({self.id}, Screening: {self.screening_id}, Seat: {self.seat_id})"
+
+
+# Purchasing Tickets
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+    card_num = db.Column(db.Integer, nullable=False) 
+    sec_code = db.Column(db.String(10), nullable=False)
+    exp_date = db.Column(db.Date, nullable=False)
+    card_type = db.Column(db.String(10), nullable=False)
+    billing_zip = db.Column(db.Integer, nullable=False) 
+    guest = db.Column(db.Boolean, default=True, nullable=False) 
+    # An instance of this card should at most appear twice
+    # Once for members and once for guests
+
+    cards_id = db.relationship('Cards', backref='card', lazy=True) # Can be a part of many card groups
+    purchase_id = db.relationship('Purchase', backref='card', lazy=True) # Can be a part of many card groups
+
+    def __repr__(self): 
+        return f"Card({self.id}, Num:{self.card_num}, Sec:{self.sec_code}, {self.exp_date}, {self.billing_zip}, {self.card_type}, {self.guest})"
+
+
+class Cards(db.Model): 
+    id = db.Column(db.Integer, primary_key=True) 
+    active = db.Column(db.Boolean, default=True, nullable=False)
+
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False) # Has one member
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False) # Has one card
+
+    def __repr__(self): 
+        return f"Cards({self.id}, {self.active}, Member: {self.member_id}, Card: {self.card_id})"
+
+
+class Purchase(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+    confirmation = db.Column(db.String, unique = True, default=token_urlsafe(16))
+
+    email = db.Column(db.String, nullable=False)
+    datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    adult_tickets = db.Column(db.Integer, nullable=False)
+    child_tickets = db.Column(db.Integer, nullable=False)
+    senior_tickets = db.Column(db.Integer, nullable=False)
+
+    card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False) # Has one card
+    purchased_ticket_id = db.relationship('Purchased_Ticket', backref='purchase', lazy=True) # Can have many purchased tickets
+
+    def __repr__(self): 
+        return f"Purchase({self.id}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
+
+
+
+class Purchased_Ticket(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+
+    ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False) # Has one ticket
+    purchase_id = db.Column(db.Integer, db.ForeignKey('purchase.id'), nullable=False) # Has one purchase group
+
+    def __repr__(self): 
+        return f"Purchased Ticket({self.id}, Ticket: {self.ticket_id}, Purchase Group: {self.purchase_id})"
+

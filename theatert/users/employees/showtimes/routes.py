@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
+from sqlalchemy import extract, collate
 from theatert import db
 from theatert.users.employees.showtimes.forms import AddShowtime
 from theatert.models import Auditorium, Change, Movie, Screening, Seat, Ticket
-from theatert.users.utils import apology, login_required
+from theatert.users.utils import date_obj, login_required
 
 showtimes = Blueprint('showtimes', __name__, url_prefix='/showtimes')
 
@@ -21,7 +22,7 @@ def add_showtime():
                             Movie.deleted.is_(False), 
                             Movie.active.is_(True),
                             db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))
-                        )).order_by(Movie.title)
+                        )).order_by(collate(Movie.title, 'NOCASE'))
     
     choices = [(None, 'Select Movie')]
     for m in movies:
@@ -104,13 +105,30 @@ def add_showtime():
     return render_template('employee/add-showtime.html', form=form)
 
 
-@showtimes.route('/all-showtimes')
+@showtimes.route('/all-showtimes', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def all_showtimes():
     page = request.args.get('page', 1, type=int)
 
-    screenings = Screening.query.join(Movie).join(Auditorium) \
-        .order_by(Screening.start_datetime.desc())
+    auditoriums = Auditorium.query.all()
+    choices = []
+    for a in auditoriums:
+        choices.append((a.id, a.id))
+
+    auditorium = request.args.get('auditorium', None, type=int)
+    date = request.args.get('date', None, type=date_obj)
+    screenings = Screening.query.join(Movie).join(Auditorium)
+
+    screenings = screenings.filter(
+        db.and_(
+            extract('year', Screening.start_datetime).is_(date.year),
+            extract('month', Screening.start_datetime).is_(date.month),
+            extract('day', Screening.start_datetime).is_(date.day)
+    )) if date else screenings
+    
+    screenings = screenings.filter(Auditorium.id.is_(auditorium)) if auditorium else screenings
+
+    screenings = screenings.order_by(Screening.start_datetime.desc())
     
     total = screenings.count()
     movies = screenings.group_by(Movie.id)
@@ -125,8 +143,9 @@ def all_showtimes():
                         Seat.seat_type.is_not('empty'))).count())
     
     return render_template('employee/showtimes.html', title='All Showtimes', \
-                           screenings=screenings, movies=movies, \
-                           seats_total=seats_total, total=total, url='employees.showtimes.all_showtimes')
+                            screenings=screenings, movies=movies, \
+                            seats_total=seats_total, total=total, url='employees.showtimes.all_showtimes', \
+                            choices=choices, auditorium=auditorium, date=date)
 
 
 @showtimes.route('/showtimes-now')
@@ -134,8 +153,25 @@ def all_showtimes():
 def showtimes_now():
     page = request.args.get('page', 1, type=int)
 
-    screenings = Screening.query.join(Movie).join(Auditorium) \
-        .filter(db.ColumnOperators.__ge__(Screening.end_datetime, datetime.now())) \
+    auditoriums = Auditorium.query.all()
+    choices = []
+    for a in auditoriums:
+        choices.append((a.id, a.id))
+
+    auditorium = request.args.get('auditorium', None, type=int)
+    date = request.args.get('date', None, type=date_obj)
+    screenings = Screening.query.join(Movie).join(Auditorium)
+
+    screenings = screenings.filter(
+        db.and_(
+            extract('year', Screening.start_datetime).is_(date.year),
+            extract('month', Screening.start_datetime).is_(date.month),
+            extract('day', Screening.start_datetime).is_(date.day)
+    )) if date else screenings
+    
+    screenings = screenings.filter(Auditorium.id.is_(auditorium)) if auditorium else screenings
+
+    screenings = screenings.filter(db.ColumnOperators.__ge__(Screening.end_datetime, datetime.now())) \
         .order_by(Screening.start_datetime.desc()) 
         
     total = screenings.count()
@@ -151,23 +187,41 @@ def showtimes_now():
                         Seat.seat_type.is_not('empty'))).count())
     
     return render_template('employee/showtimes.html', title='Showtimes Now', \
-                           screenings=screenings, movies=movies, \
-                           seats_total=seats_total, total=total,  url='employees.showtimes.showtimes_now')
-
+                            screenings=screenings, movies=movies, \
+                            seats_total=seats_total, total=total,  url='employees.showtimes.showtimes_now', \
+                            choices=choices, auditorium=auditorium, date=date)
+                           
 
 @showtimes.route('/past-showtimes')
 @login_required(role="EMPLOYEE")
 def past_showtimes():
     page = request.args.get('page', 1, type=int)
 
-    screenings = Screening.query.join(Movie).join(Auditorium) \
-        .filter(db.ColumnOperators.__lt__(Screening.end_datetime, datetime.now())) \
+    auditoriums = Auditorium.query.all()
+    choices = []
+    for a in auditoriums:
+        choices.append((a.id, a.id))
+
+    auditorium = request.args.get('auditorium', None, type=int)
+    date = request.args.get('date', None, type=date_obj)
+    screenings = Screening.query.join(Movie).join(Auditorium)
+
+    screenings = screenings.filter(
+        db.and_(
+            extract('year', Screening.start_datetime).is_(date.year),
+            extract('month', Screening.start_datetime).is_(date.month),
+            extract('day', Screening.start_datetime).is_(date.day)
+    )) if date else screenings
+    
+    screenings = screenings.filter(Auditorium.id.is_(auditorium)) if auditorium else screenings
+
+    screenings = screenings.filter(db.ColumnOperators.__lt__(Screening.end_datetime, datetime.now())) \
         .order_by(Screening.start_datetime.desc()) 
         
     total = screenings.count()
     movies = screenings.group_by(Movie.id)
 
-    screenings = screenings.paginate(page=page, per_page=10)
+    screenings = screenings.paginate(page=page, per_page=1)
 
     seats_total = []
     for s in screenings:
@@ -178,19 +232,37 @@ def past_showtimes():
     
     return render_template('employee/showtimes.html', title='Past Showtimes', \
                            screenings=screenings, movies=movies, \
-                           seats_total=seats_total, total=total,  url='employees.showtimes.past_showtimes')
-
+                           seats_total=seats_total, total=total,  url='employees.showtimes.past_showtimes', \
+                            choices=choices, auditorium=auditorium, date=date)
+                           
 
 @showtimes.route('/<string:movie_route>')
 @login_required(role="EMPLOYEE")
 def movie(movie_route):
     '''Display movie's showtimes.'''
     page = request.args.get('page', 1, type=int)
-
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
-    screenings = Screening.query.join(Movie).join(Auditorium) \
-        .filter(Movie.id.is_(movie.id)) \
-        .order_by(Screening.start_datetime.desc())
+
+    auditoriums = Auditorium.query.all()
+    choices = []
+    for a in auditoriums:
+        choices.append((a.id, a.id))
+
+    auditorium = request.args.get('auditorium', None, type=int)
+    date = request.args.get('date', None, type=date_obj)
+    screenings = Screening.query.join(Movie).join(Auditorium).filter(Movie.id.is_(movie.id))
+
+    screenings = screenings.filter(
+        db.and_(
+            extract('year', Screening.start_datetime).is_(date.year),
+            extract('month', Screening.start_datetime).is_(date.month),
+            extract('day', Screening.start_datetime).is_(date.day)
+    )) if date else screenings
+    
+    screenings = screenings.filter(Auditorium.id.is_(auditorium)) if auditorium else screenings
+
+
+    screenings = screenings.order_by(Screening.start_datetime.desc())
     total = screenings.count()
 
     screenings = screenings.paginate(page=page, per_page=10)
@@ -203,5 +275,8 @@ def movie(movie_route):
                         Seat.seat_type.is_not('empty'))).count())
     
     return render_template('employee/showtimes-movie.html', title=movie.title, screenings=screenings, \
-                           seats_total=seats_total, total=total, url='employees.showtimes.movie', movie_route=movie_route)
+                           seats_total=seats_total, total=total, url='employees.showtimes.movie', \
+                            movie_route=movie_route, choices=choices, auditorium=auditorium, date=date)
 
+
+# TODO: add showtime(date)

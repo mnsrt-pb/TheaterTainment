@@ -1,39 +1,39 @@
-a 
-{
+a  {
     text-decoration: none;
     color: inherit;
 }
 
-a .movie-link
-{
+a .movie-link {
     display:block;
     text-decoration: none;
 }
 
-.action 
-{ 
+.action  { 
     width: 100%;
 }
 
-button#action
-{ 
+button#action { 
     border-radius: 0 !important;
     padding: 8px 16px !important
 }
 
-.backdrop > img:not(.play-button)
-{
+.backdrop > img:not(.play-button) {
     height: 100%;
     width: 100%;
 }
 
-.col-1 > img
-{
+.btn-rounded {border-radius: 24px;}
+
+.card-img-top {
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
+
+.col-1 > img {
     width: 80%;
 }
 
-.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6
-{
+.cont-1, .cont-2, .cont-3, .cont-4, .cont-5, .cont-6, .cont-7 {
     /* border: 1px solid black; */
     border-radius: 25px;
     margin-top: 3vh;
@@ -47,15 +47,28 @@ button#action
 
 .cont-3 { width: 90vw; }
 
-.cont-4 
-{
+.cont-4 {
     width: 100%;
     overflow: auto;
 }
 
 .cont-5 { width: 200px; }
 
-.cont-6 { width: 300px; }
+.cont-6 { 
+    width: 300px;
+    height: 130px
+}
+
+.cont-7 { width: 300px !important; }
+
+.cont-8 {width: 40%; }
+
+.cont-9 {width: 60%; }
+
+.cont-10 {
+    width: 48%; 
+    padding: 10px;
+}
 
 .col-1 { width: 30%; }
 
@@ -63,37 +76,153 @@ button#action
 
 .col-3 { width: 20%; }
 
-.col-4 { width: 80% }
+.col-4 { width: 80%; }
+
+.col-5 { width: 15%; }
+
+.col-6 { width: 85% }
 
 
-.my-font {font-family: 'Work Sans', sans-serif!important;}
+.font-bold { font-weight: bold; }
+.font-sm { font-size: .9em; }
 
-.movie-detail
+.heart { 
+    font-size: 1.3em;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: 700 !important;
+}
+.hide-info { display: none; }
+
+.info {cursor: pointer; }
+
+/* Credit Card Imgs Start */
+#cc_holder {
+    max-width: 250px;
+    display: block;
+}
+
+#cc_holder div {
+    background: #fff;
+    width: calc(25% - 15px);
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,.2);
+}
+
+.img-responsive {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+#cc_holder.Visa .mastercard img, #cc_holder.Visa .amex img, #cc_holder.Visa .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Mastercard .visa img, #cc_holder.Mastercard .amex img, #cc_holder.Mastercard .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.AmericanExpress .mastercard img, #cc_holder.AmericanExpress .visa img, #cc_holder.AmericanExpress .discover img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Discover .mastercard img, #cc_holder.Discover .amex img, #cc_holder.Discover .visa img {
+    filter: grayscale(100%) opacity(35%);
+}
+
+#cc_holder.Visa .visa, #cc_holder.Mastercard .mastercard, 
+#cc_holder.AmericanExpress .amex, #cc_holder.Discover .discover {
+    box-shadow: 2px 2px 5px rgba(0,0,0,.12);
+}
+/* Credit Card Imgs End */
+
+.left-align { text-align: left; }
+.right-align { text-align: right; }
+
+@media screen and (min-width: 750px) {
+    .cont-1 {
+        width: 35vw;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .cont-2 {
+        width: 250px;
+    }
+    td {
+        white-space: nowrap;
+    }
+    .cont-8, .cont-10 {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .cont-2 {
+        width: 100%;
+    }
+    .movie-top {
+        padding-top: 40px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .col-1 { width: 80%; }
+    .col-2 { width: 100%; }
+    .col-3 { width: 30%; }
+    .col-4 { width: 70%; }
+    
+    .trailer > img { 
+        width: 70px; 
+    }
+    .backdrop > img:not(.play-button) { 
+        width: 150%; 
+    }
+    .backdrop > .play-button { 
+        top: 50% !important; 
+        left: 75% !important; 
+    }
+    .movie-detail-title-label { font-size: 1em !important}
+}
+
+
+.modal-trailer {
+    width: 100vw;
+}
+
+.movie-detail, .showtime-date-detail
 {
     font-family: 'Work Sans', sans-serif!important; 
     font-weight: 400!important;
 }
 
-.movie-detail-label
-{ 
+.movie-detail-label { 
     font-size: .7em;
     font-family: 'Work Sans', sans-serif!important; 
     font-weight: 700!important;
 }
 
-.movie-detail-title 
-{ 
+.movie-detail-title, .showtime-date { 
     font-family: 'Work Sans', sans-serif!important; 
     font-weight: 700!important;
 }
 
-.movie-detail-title-label 
-{ 
-    font-size: 1.3em;
+.movie-detail-title-label { font-size: 1.3em; }
+.showtime-date-label {font-size: 1em; }
+
+.movies-slick .card {
+    border: none;
+    border-radius: 100%;
 }
 
-.play-button
-{
+.movie-title {font-weight: 600!important;}
+
+.my-font {font-family: 'Work Sans', sans-serif!important;}
+.my-small {font-size: medium;}
+.my-small2 {font-size: small;}
+.no-borders *{border: none !important;}
+
+.play-button {
     width: 50px;
     position: absolute;
     top: 50%; left: 50%;
@@ -102,142 +231,119 @@ button#action
     transition: opacity .2s ease-in-out
 }
 
-.play-button:hover
-{
+.card-slick .play-button {
+    top: 35%; left: 50%;
+}
+
+.movies .play-button {
+    top: 40%; left: 50%;
+}
+
+.play-button:hover {
     opacity: 1;
     transition: opacity .2s ease-in-out
 }
 
-
-.font-bold { font-weight: bold; }
-.font-sm { font-size: .9em; }
-
-.hide-info { display: none; }
-
-.left-align { text-align: left; }
-.right-align { text-align: right; }
-
-@media screen and (min-width: 750px)
-{
-    .cont-1 
-    {
-        width: 35vw;
-    }
+.movies-slick, .dates-slick {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out;
+    -webkit-transition: opacity 1s ease-in-out;
 }
 
-@media screen and (max-width: 750px)
-{
-    .cont-2
-    {
-        width: 250px;
-    }
-    td 
-    {
-        white-space: nowrap;
-    }
+.movies-slick.slick-initialized, .dates-slick.slick-initialized {
+    visibility: visible;
+    opacity: 1;    
 }
 
-@media screen and (max-width: 300px)
-{
-    .cont-2
-    {
-        width: 100%;
-    }
+.more {
+    background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
 }
 
-@media screen and (max-width: 500px)
-{
-    .col-1 { width: 80%; }
-    .col-2 { width: 100%; }
-    .col-3 { width: 30%; }
-    .col-4 { width: 70%; }
-    
-    .trailer > img 
-    { 
-        width: 70px; 
-    }
-    .backdrop > img:not(.play-button) 
-    { 
-        width: 150%; 
-    }
-    .play-button 
-    { 
-        top: 50%; 
-        left: 75%; 
-    }
-}
-
-
-.modal-trailer
-{
-    width: 100vw;
-}
-
-.my-small {font-size: medium;}
-.my-small2 {font-size: small;}
-
-row 
-{
+/* .row {
     overflow: auto; 
-}
+} */
 
-.screen
-{
+.round { border-radius: 50% !important; }
+
+.screen {
     border-top: 10px solid black; 
     border-radius: 50%; 
     position: inherit; 
 }
-.screen-a
-{
+.screen-a {
     width: 800px; 
     min-width: 800px; 
 }
-.screen-b
-{
+
+.screen-b {
     width: 450px;  
     min-width: 450px;
 }
-.screen-c
-{
+
+.screen-c {
     width: 520px; 
     min-width: 520px; 
 }
 
 /* SEAT start */
-.seat
-{
+button.seat { border:none; }
+
+.seat {
     color: white;
     font-size: .7em;
     width: 3em;
     height: 3em;
     border-radius: 15%;
     display: inline-block;
-
 }
+
+.seat:not(.empty){ cursor: pointer;}
+.empty{ cursor:default; }
+.unavailable{ cursor:default !important }
 
 .available:hover { background-color: rgba(44, 104, 22, 1); }
 .available { background-color: rgba(44, 104, 22, .7); }
 .empty { color:transparent; }
+.unavailable { background-color: rgba(0,0,0,.2) !important; }
+.selected { background-color: black !important; }
 
 .seat-img:hover { background-color: rgba(0, 61, 165, 1); }
 .seat-img { background-color: rgba(0, 61, 165, .7); }
 
 .seat-wheelchair { border-radius: 40%; }
 
-.seat-img > img 
-{
+.seat-img > img  {
     width: 100%;
     height: 100%;
 }
 /* SEAT end */
 
-#trailer 
-{
+.showtime > img, .showtime > div {
+    width: 150px;
+    font-size: .8em;
+}
+
+.showtime > div { border-radius: 0.35em; }
+
+#trailer  {
     width: 60%;
     position: relative
 }
 
-.trailer > img
-{
+.trailer > img {
     width: 70px;
+}
+
+.watchlist-text-movie {
+    font-size: .7em;
+}
+
+.watchlist-text-2 {
+    font-size: .7em !important;
 }

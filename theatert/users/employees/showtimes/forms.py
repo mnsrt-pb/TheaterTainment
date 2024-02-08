@@ -41,7 +41,6 @@ class AddShowtime(FlaskForm):
     
     def validate_date_time(self, date_time):
         '''Ensure the date has not passed and time is within screening hours.'''
-
         if date_time.data < datetime.now():
             raise ValidationError('This date/time has passed!')
         elif date_time.data < datetime(date_time.data.year, date_time.data.month, date_time.data.day, 10, 00):
@@ -53,12 +52,9 @@ class AddShowtime(FlaskForm):
     m_id = SelectField('Movie', validators=[DataRequired()]) 
     a_id = SelectField('Auditorium', validators=[DataRequired()]) 
 
-    date_time = DateTimeLocalField('Date and Time ')
+    date_time = DateTimeLocalField('Date and Time ', validators=[DataRequired()])
 
     adult_price = DecimalField('Adult Price', places=2, validators=[DataRequired(), price(), places()])
     child_price = DecimalField('Child Price', places=2, validators=[DataRequired(), price(), places()])
     senior_price = DecimalField('Senior Price', places=2, validators=[DataRequired(), price(), places()])
     submit = SubmitField('Add Showtime')
-
-
-

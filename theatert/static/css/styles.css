@@ -1,4 +1,16 @@
 @charset "UTF-8";
+a.page:link {
+  color: #801f4f;
+}
+
+a.page-current:link {
+  border: solid #801f4f 1px;
+  border-radius: 50%;
+  padding: 5px 10px;
+  color: white;
+  background-color: #801f4f;
+}
+
 .color-a {
   color: #6c757d;
 }
@@ -7,13 +19,17 @@
   background-color: rgba(233, 236, 239, 0.5);
 }
 
+.bkg-pink {
+  background-color: rgba(128, 31, 79, 0.35) !important;
+}
+
 /* Navbar Start */
 /* + Colors for brand */
-nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, h5.color-light, .color-light.h5, h3.color-light, .color-light.h3, a.color-light, span.color-light {
+nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light, .info {
   color: rgba(128, 31, 79, 0.55);
 }
 
-nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, h5.color-dark, .color-dark.h5, h3.color-dark, .color-dark.h3, a.nav-link:hover, span.color-dark {
+nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover, .info:hover {
   color: #801f4f;
 }
 
@@ -26,6 +42,20 @@ nav a.dropdown-item, nav button.dropdown-item {
 }
 
 /* Navbar end*/
+.movies-slick .container-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-bottom-left-radius: 0.35em;
+  border-bottom-right-radius: 0.35em;
+}
+
+.my-border {
+  border-color: rgba(128, 31, 79, 0.55);
+}
+
+.my-border:hover {
+  border-color: #801f4f;
+}
+
 small .green, .small .green {
   background-color: #146c43;
 }
@@ -42,20 +72,113 @@ small .update:hover, .small .update:hover {
   background-color: rgba(67, 40, 116, 0.5);
 }
 
-a.page:link {
-  color: #801f4f;
+/* Slick Arrows */
+.slick-next:before {
+  content: ">" !important;
+  border-radius: 15px 0px 0px 15px !important;
+  padding: 15px 10px 15px 10px;
 }
 
-a.page-current:link {
-  border: solid #801f4f 1px;
-  border-radius: 50%;
-  padding: 5px 10px;
-  color: white;
-  background-color: #801f4f;
+.slick-prev:before {
+  content: "<" !important;
+  border-radius: 0px 15px 15px 0px !important;
+  padding: 15px 10px 15px 10px;
+}
+
+.slick-prev:before, .slick-next:before {
+  font-family: "Work Sans", sans-serif !important;
+  background-color: rgba(128, 31, 79, 0.9) !important;
+  font-size: 40px !important;
+}
+
+.slick-prev.slick-disabled:before, .slick-next.slick-disabled:before {
+  opacity: 0 !important;
 }
 
 /* override variables and merge variables */
 /* Customize navbar colors */
+.watchlist-text {
+  font-size: 1em;
+}
+@media (max-width: 991px) {
+  .watchlist-text {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 545px) {
+  .watchlist-text {
+    font-size: 0.6em;
+  }
+}
+@media (max-width: 509px) {
+  .watchlist-text {
+    font-size: 0.5em;
+  }
+}
+@media (max-width: 478px) {
+  .watchlist-text {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 438px) {
+  .watchlist-text {
+    font-size: 0.6em;
+  }
+}
+@media (max-width: 438px) {
+  .watchlist-text {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 313px) {
+  .watchlist-text {
+    font-size: 0.8em;
+  }
+}
+
+.card-title {
+  font-size: 1em;
+}
+@media (max-width: 991px) {
+  .card-title {
+    font-size: 0.9em;
+  }
+}
+@media (max-width: 545px) {
+  .card-title {
+    font-size: 0.8em;
+  }
+}
+@media (max-width: 509px) {
+  .card-title {
+    font-size: 0.7em;
+  }
+}
+@media (max-width: 478px) {
+  .card-title {
+    font-size: 0.8em;
+  }
+}
+@media (max-width: 388px) {
+  .card-title {
+    font-size: 1em;
+  }
+}
+
+.current {
+  color: rgba(128, 31, 79, 0.9) !important;
+  border-bottom: 5px solid rgba(128, 31, 79, 0.9);
+}
+
+.type-selected {
+  color: rgba(128, 31, 79, 0.9) !important;
+  border-bottom: 2px solid rgba(128, 31, 79, 0.9);
+}
+
+.type-item:hover:not(.type-selected) {
+  border-bottom: 2px solid rgba(73, 80, 87, 0.9);
+}
+
 /* import bootstrap */
 /*!
  * Bootstrap  v5.3.2 (https://getbootstrap.com/)

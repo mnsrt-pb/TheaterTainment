@@ -1,0 +1,157 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <h3 class="fw-bold left-align mb-4 mt-3">Movies at TheaterTainment</h3>
+    </div>
+    <!-- Movie Carousel -->
+    <div class="my-5 ">
+        <div class="movies-slick ps-4 me-4">
+            {% for m in movies %}
+            <div class="container-card mx-3 mb-3">
+                <div class="card card-slick">
+                    <a href="{{ url_for('users.movie', movie_route=m.route) }}" class="movie-link">
+                        <img src="https://image.tmdb.org/t/p/original{{m.poster_path}}" class="card-img-top" alt="Poster for {{m.title}}">
+                    </a>
+
+                    <!-- Trailer Modal Trigger (1) -->
+                    <img src="../../static/images/play-button.png" alt="Play Trailer" class="play-button" data-bs-toggle="modal" data-bs-target="#modal-trailer"
+                        data-movie-title="{{ m.title }}", data-movie-trailer-path="{{ m.trailer_path }}",
+                        data-movie-poster-path="{{ m.poster_path }}", data-movie-runtime="{{ m.runtime }}",
+                        data-movie-rating="{{ m.rating }}">
+
+                    <div class="card-body">
+                        <span class="my-tooltip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{m.title}}">
+                            <h6 class="card-title text-truncate">{{ m.title }}</h6><br>
+                        </span>
+                    </div>
+
+                    <div class="add-watchlist card-footer bkg-pink text-white watchlist-text">
+                        <small><span class="heart">&#9825;</span>&emsp; Add to watch list</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Dates Carousel -->
+    <div class="container mt-5">
+        <h4 class="fw-bolder left-align">Showtimes</h4>
+
+        <div class="dates-slick ps-4 me-4">
+            {% for d in dates %}
+                {% if loop.first %}
+                    {% if date.year == d.year and date.month == d.month and date.day == d.day %}
+                        <div class="showtime-date showtime-date-label m-3 pt-3">
+                            <a class="current pb-2" href="{{ url_for('users.home') }}">Today</a>
+                        </div>
+                    {% else %}
+                        <div class="showtime-date showtime-date-label m-3 pt-3">
+                            <a href="{{ url_for('users.home') }}">Today</a>
+                        </div>
+                    {% endif %}
+                {% else %} 
+                    {% if date.year == d.year and date.month == d.month and date.day == d.day %}
+                        <a class="current m-3" href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">
+                            <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                            <div class="showtime-date-detail">
+                                {{ d.strftime("%m/%d") }}
+                            </div>
+                        </a>
+                    {% else %}
+                        <a class="m-3" href="{{ url_for('users.home', date=d.strftime('%Y-%m-%d')) }}">
+                            <label class="mb-0 pb-0 showtime-date showtime-date-label">{{ d.strftime("%a") }}</label>
+                            <div class="showtime-date-detail">
+                                {{ d.strftime("%m/%d") }}
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <hr>
+    </div>
+    <!-- Carousels End -->
+
+    <!-- Modal -->
+    <div class="modal" id="modal-trailer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="embed-responsive ratio ratio-16x9">
+                        <iframe id="modal-iframe" class="embed-responsive-item" src="" allowfullscreen allow="autoplay" frameborder="0"></iframe>
+                    </div>
+                </div>
+                <div class="row row-cols-2 row-cols-sm-2">
+                    <div class="col col-3 container mb-3 trailer right-align">
+                        <img src="" alt="" id="modal-poster" class="rounded">
+                    </div>
+                    <div class="col col-4 container left-align">
+                        <label class="mb-0 pb-0 movie-detail-title movie-detail-title-label"><span id="modal-title"></span></label>
+                        <div class="movie-detail pb-5 text-body-secondary"><span id="modal-rating"></span>&emsp; <span id="modal-runtime"></span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Modal End -->
+
+    <!-- Showtimes -->
+    <div class="container my-3">
+        {% for m in m_showtimes %}
+        <div class="d-flex flex-wrap  flex-sm-nowrap flex-md-nowrap flex-lg-nowrap left-align">
+            <div class="showtime left-align mb-5 me-4">
+                <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
+                <div class="bkg-pink text-white shadow p-2 mt-3 add-watchlist"><small><span class="heart">&#9825;</span>&emsp; Add to watch list</small></div>
+            </div>
+            <div class="flex-lg-grow-1">
+                <h3 class="movie-title">{{ m.movie.title }}</h3>
+
+                {% if m.movie.runtime < 60 %}
+                    {% set runtime = (m.movie.runtime)|string + ' min' %}
+                {% else %}
+                    {% set runtime = (m.movie.runtime // 60)|string + ' hr ' + (m.movie.runtime % 60)|string + ' min' %}
+                {% endif %}
+
+                <p><small class="movie-detail mt-4">{{ m.movie.rating }} &emsp; {{ runtime }}</small></p>
+
+                <a href="{{ url_for('users.movie', movie_route=m.movie.route) }}" class="btn btn-primary btn-sm">Details</a>
+
+                <!-- Trailer Modal Trigger (2) -->
+                <button type="button" class="btn btn-primary btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#modal-trailer"
+                data-movie-title="{{ m.movie.title }}", data-movie-trailer-path="{{ m.movie.trailer_path }}",
+                    data-movie-poster-path="{{ m.movie.poster_path }}", data-movie-runtime="{{ m.movie.runtime }}",
+                    data-movie-rating="{{ m.movie.rating }}">Trailer</button><br>
+                <div>
+                    {% for s in s_showtimes[loop.index0] %}
+                        {% if (s.start_datetime.year == timenow.year and 
+                            s.start_datetime.month == timenow.month and
+                            s.start_datetime.day == timenow.day and
+                            s.start_datetime.hour < timenow.hour) or  
+                            
+                            (s.start_datetime.year == timenow.year and 
+                            s.start_datetime.month == timenow.month and
+                            s.start_datetime.day == timenow.day and
+                            s.start_datetime.hour == timenow.hour and 
+                            s.start_datetime.minute <= timenow.minute) %}
+
+                            <button type="button" class="btn btn-outline-other-darker mt-3 me-3" disabled>{{ s.start_datetime.strftime(" %I:%M %p") }}</button>
+                        {% else %}
+                            <button type="button" class="btn btn-outline-other-darker mt-3 me-3">
+                                <a href="{{ url_for('users.ticket_seat_map', showtime_id=s.id ) }}">{{ s.start_datetime.strftime(" %I:%M %p") }}</a>
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+        
+{% endblock %}
