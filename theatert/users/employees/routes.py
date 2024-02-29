@@ -37,8 +37,11 @@ def home():
     '''Show home page'''
     
     if not current_user.is_authenticated:
-        return apology('TODO', 'member/layout.html', 403)
+        return redirect(url_for('users.home'))
     else:
+        if current_user.role == 'MEMBER':
+            return redirect(url_for('users.home'))
+
         page = request.args.get('page', 1, type=int)
         type = request.args.get('type', 1, type=int)
 
@@ -81,8 +84,6 @@ def home():
                         | {seats_total} Tickets'
                 }
                 changes.append(temp)
-            else: 
-                pass
 
     return render_template('employee/home.html', changes=changes, data=data, total=total, type=type)
 
@@ -92,7 +93,9 @@ def register():
     '''Register associate'''
 
     if current_user.is_authenticated:
-        return redirect(url_for('employees.home'))
+        if current_user.role == 'EMPLOYEE':
+            return redirect(url_for('employees.home'))
+        return redirect(url_for('users.home'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -105,7 +108,7 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'success')
-        return redirect(url_for('employees.login'))
+        return redirect(url_for('users.employee_login'))
     else:
         return render_template('employee/register.html', form=form)
 

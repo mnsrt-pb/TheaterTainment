@@ -144,10 +144,12 @@ $(document).ready(function(){
 
   ticket_seat_map();
   checkout_form_control();
+  member_forms_control();
+  account_profile_control();
 });
 
 
-// Shows toottips only for movies whose titles were ellipsed (fixes bootstrap's truncated text's tooltip)
+// Shows tooltips only for movies whose titles were ellipsed (fixes bootstrap's truncated text's tooltip)
 function fixTooltips()
 {
     function checkEllipsis(el){
@@ -184,6 +186,7 @@ function fixTooltips()
         }
     }
 }
+
 
 function ticket_seat_map(){
   var seats = 0
@@ -308,7 +311,7 @@ function checkout_form_control(){
   })
 
   // If user edits email field, remove is-invalid
-  $('#email').on('keypress', function(){
+  $('.guest-email').on('keypress', function(){
     if ($('#email').hasClass('is-invalid')){
       $('#email-e').text('')
       $('#email').removeClass('is-invalid')
@@ -438,7 +441,7 @@ function checkout_form_control(){
     }
   })
 
-  $('#email').on('focusout', function(){
+  $('.guest-email').on('focusout', function(){
     if ($(this).val().length == 0){
       $('#email-e').text('The Email Address field is required.')
       $('#email').addClass('is-invalid')
@@ -509,7 +512,6 @@ function checkout_form_control(){
   })
 
   $('#exp-year').on('change', function(){
-    console.log(valid.expirationDate($('#exp-month').val() + '/' + $(this).val()).isValid)
     if (!valid.expirationDate($('#exp-month').val() + '/' + $(this).val()).isValid){
       $('#exp-month-e').text('The Month field is invalid.')
       $('#exp-month').addClass('is-invalid')
@@ -554,6 +556,210 @@ function checkout_form_control(){
     return false;
   }); 
   */
+}
+
+
+function member_forms_control(){
+  $('#zip_code').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true; 
+  })
+  $('#zip_code').on("paste", function(e) { 
+    return false;
+  });
+  $('#zip_code').on("copy", function(e) { 
+    return false;
+  })
+
+  $('#phone').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true; 
+  })
+  $('#phone').on("paste", function(e) { 
+    return false;
+  });
+  $('#phone').on("copy", function(e) { 
+    return false;
+  })
+
+  $('#dob').on('keypress', function(e){
+    var charCode = (e.which) ? e.which : e.keyCode
+    // Accept numbers and slash
+    if (charCode > 31 && (charCode < 47 || charCode > 57))
+      return false;
+    return true; 
+  })
+  $('#dob').on("paste", function(e) { 
+    return false;
+  });
+  $('#dob').on("copy", function(e) { 
+    return false;
+  })
+
+  $('.toggle-visibility-1').on('click', function(e) {
+    if ($('#password').attr('type') == 'password'){
+      $('#password').attr('type', 'text')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">\
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>\
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>\
+      </svg>')
+    } else {
+      $('#password').attr('type', 'password')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">\
+      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>\
+      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>\
+      <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>\
+      </svg>')
+    }
+  })
+
+  $('.toggle-visibility-2').on('click', function(e) {
+    if ($('#confirmation').attr('type') == 'password'){
+      $('#confirmation').attr('type', 'text')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">\
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>\
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>\
+      </svg>')
+    } else {
+      $('#confirmation').attr('type', 'password')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">\
+      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>\
+      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>\
+      <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>\
+      </svg>')
+    }
+  })
+}
+
+
+function account_profile_control(){
+  $('#info-form-trigger').on('click', function(){
+    $('#info-form').prop('hidden', false)
+    $('#account-info').prop('hidden', true)
+  })
+  $('#email-form-trigger').on('click', function(){
+    $('#email-form').prop('hidden', false)
+    $('#account-info').prop('hidden', true)
+  })
+  $('#password-form-trigger').on('click', function(){
+    $('#password-form').prop('hidden', false)
+    $('#account-info').prop('hidden', true)
+  })
+  $('#payment-form-trigger').on('click', function(){
+    $('#payment-form').prop('hidden', false)
+    $('#default-payment').prop('hidden', true)
+  })
+  $('#cancel-info-form').on('click', function(){
+    $('#info-form').prop('hidden', true)
+    $('#account-info').prop('hidden', false)
+  })
+  $('#cancel-email-form').on('click', function(){
+    $('#email-form').prop('hidden', true)
+    $('#account-info').prop('hidden', false)
+  })
+  $('#cancel-password-form').on('click', function(){
+    $('#password-form').prop('hidden', true)
+    $('#account-info').prop('hidden', false)
+  })
+  $('#cancel-payment-form').on('click', function(){
+    $('#payment-form').prop('hidden', true)
+    $('#default-payment').prop('hidden', false)
+  })
+
+  $('.toggle-visibility-3').on('click', function(e) {
+    if ($('#new_password').attr('type') == 'password'){
+      $('#new_password').attr('type', 'text')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">\
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>\
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>\
+      </svg>')
+    } else {
+      $('#new_password').attr('type', 'password')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">\
+      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>\
+      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>\
+      <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>\
+      </svg>')
+    }
+  })
+  $('.toggle-visibility-4').on('click', function(e) {
+    if ($('#current_password').attr('type') == 'password'){
+      $('#current_password').attr('type', 'text')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">\
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>\
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>\
+      </svg>')
+    } else {
+      $('#current_password').attr('type', 'password')
+      $(this).html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">\
+      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>\
+      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>\
+      <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>\
+      </svg>')
+    }
+  })
+
+
+  $("#default-payment-form").find('form').on( "submit", function( event ) {
+    valid_zip = false
+    valid_ccn = false
+    valid_month = false
+
+    if ($('#zip-code').val().length == 0){
+      $('#zip-code-e').text('The Billing ZIP Code field is required.')
+      $('#zip-code').addClass('is-invalid')
+    } else if ($('#zip-code').val().length != 5){
+      $('#zip-code-e').text('The value for the Billing Zip Code field is invalid.')
+      $('#zip-code').addClass('is-invalid')
+    } else {
+      console.log('here1')
+      valid_zip = true
+    }
+
+    if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
+      $('#exp-month-e').text('The Month field is invalid.')
+      $('#exp-month').addClass('is-invalid')
+      $('#checkout-button').prop('hidden', true)
+    } else {
+      console.log('here2')
+      valid_month = true
+    }
+
+    number = valid.number($('#card-number').val())
+    
+    if (number.card != null){
+      // Validate
+      if (!($('#card-number').val().length >= 8 && $('#card-number').val().length <= 19)){
+        $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+        $('#card-number').addClass('is-invalid')
+      } else {
+        if (number.isValid){
+          $('#card_type').val(valid.number($('#card-number').val()).card.niceType)
+          valid_ccn = true;
+          console.log('here3')
+        } else {
+          $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+          $('#card-number').addClass('is-invalid')
+        }
+      }
+    } else {
+      if ($('#card-number').val().length == 0){
+        $('#card-number-e').text('The Card Number field is required.')
+        $('#card-number').addClass('is-invalid')
+      } else {
+        $('#card-number-e').text('The Card Number field is not a valid credit card number.')
+        $('#card-number').addClass('is-invalid')
+      }
+    }
+
+    if (!(valid_zip && valid_month && valid_ccn)){
+      event.preventDefault();
+    }
+  });
 }
 
 

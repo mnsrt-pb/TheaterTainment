@@ -70,6 +70,8 @@ button#action {
     padding: 10px;
 }
 
+.cont-11 { width: 45vw; }
+
 .col-1 { width: 30%; }
 
 .col-2 { width: 70% }
@@ -330,6 +332,10 @@ button.seat { border:none; }
 }
 
 .showtime > div { border-radius: 0.35em; }
+
+.toggle-visibility-1, .toggle-visibility-2 {
+    cursor: pointer;
+}
 
 #trailer  {
     width: 60%;
