@@ -1,5 +1,5 @@
-@import "../node_modules/bootstrap/scss/_functions";
-@import "../node_modules/bootstrap/scss/_variables";
+@import "../javascript/node_modules/bootstrap/scss/_functions";
+@import "../javascript/node_modules/bootstrap/scss/_variables";
 
 a.page:link
 {
@@ -29,13 +29,13 @@ $card-height: 100%;
 
 /* Navbar Start */
   /* + Colors for brand */
-  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light, .info
+  nav .navbar-brand .color-light, .navbar-light navbar-nav .nav-link:hover, .color-light, a.color-light, .info, a#nav-link-brand.navbar-brand:hover
   {
     // color: #a27880;
     color: rgba($pink-700, .55);
   }
 
-  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover, .info:hover
+  nav .navbar-brand .color-dark, .navbar-light navbar-nav .nav-link, .color-dark, a.nav-link:hover, .info:hover, a#nav-link-brand.navbar-brand
   {
     // color: #590d22;
     color: $pink-700;
@@ -172,6 +172,15 @@ $navbar-light-hover-color: rgba($pink-700, .9);
 
 }
 
+body {
+  @media screen and (max-width: 320px) {
+    margin-top: $spacer * 2.5 !important;
+  }
+  @media screen and (min-width: 321px) {
+    margin-top: $spacer * 0 !important;
+  }
+}
+
 .card-title {
   font-size: 1em;
 
@@ -196,6 +205,21 @@ $navbar-light-hover-color: rgba($pink-700, .9);
   }
 }
 
+.cont-12 {
+  @media (min-width: 1000px) {
+    width: 30%
+  }
+  @media (max-width: 1000px) {
+    width: 50%
+  }
+  @media (max-width: 700px) {
+    width: 100%
+  }
+  @media (max-width: 500px) {
+    width: 100%
+  }
+}
+
 .current {
   color: rgba($pink-700, .9) !important;
   border-bottom: 5px solid rgba($pink-700, .9);
@@ -211,4 +235,4 @@ $navbar-light-hover-color: rgba($pink-700, .9);
 }
 
 /* import bootstrap */
-@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../javascript/node_modules/bootstrap/scss/bootstrap";

@@ -1,4 +1,3 @@
-from flask import flash
 from flask_wtf import FlaskForm
 from theatert.models import Employee
 from wtforms import BooleanField, PasswordField, StringField, SubmitField
@@ -12,6 +11,9 @@ class RegistrationForm(FlaskForm):
         user = Employee.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('Username already exists.')
+        for char in username.data:
+            if not (char.isalpha() or char.isnumeric()):
+                raise ValidationError('Username can only have letters and numbers.')
 
 
     def validate_key(self, key):
@@ -48,4 +50,3 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
-

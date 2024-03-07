@@ -3,9 +3,10 @@ from flask import abort, Blueprint, flash, render_template,  redirect, request, 
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import extract, collate
 from theatert import bcrypt, db
-from theatert.models import Auditorium, Employee, Movie, Screening, Seat, Ticket, Card, Cards, Purchase, Purchased_Ticket
+from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Cards, Purchase, Purchased_Ticket
 from theatert.users.members.forms import CheckoutForm
-from theatert.users.employees.forms import LoginForm
+from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
+from theatert.users.members.forms import LoginForm as MemberLoginForm
 from theatert.users.utils import apology, date_obj
 from werkzeug.datastructures import MultiDict
 
@@ -26,8 +27,9 @@ def checkout():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
-            abort(404)
+        # FIXME: UNCOMMENT
+        # if screening.start_datetime < datetime.now():
+        #     abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
             for x in form.seats_selected.data.split(',') ]
@@ -43,8 +45,9 @@ def checkout():
             .filter(Screening.id.is_(request.form.get('screening-id'))) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
-            abort(404)
+        # FIXME: UNCOMMENT
+        # if screening.start_datetime < datetime.now():
+        #     abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
             for x in request.form.get('seats-selected').split(',') ]
@@ -71,8 +74,9 @@ def checkout_validate():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
-            abort(404)
+        # FIXME: UNCOMMENT
+        # if screening.start_datetime < datetime.now():
+        #     abort(404)
 
         form_data = session.get('form_data', None) 
         if form_data: 
@@ -100,13 +104,21 @@ def checkout_validate():
             # Cards with the same card number's must have the same data (sec_code, exp_date, and billing_zip)
             # A card can be saved in the Card table at most twice (once for member's and once for guests)
             if card:
-                if not (bcrypt.check_password_hash(card.sec_code, form.sec_code.data) \
-                    and card.exp_date == exp_date and card.card_type == form.card_type.data \
-                    and card.billing_zip == int(form.zip_code.data)):
+                if card.sec_code:
+                    if not (bcrypt.check_password_hash(card.sec_code, form.sec_code.data) \
+                        and card.exp_date == exp_date and card.card_type == form.card_type.data \
+                        and card.billing_zip == int(form.zip_code.data)):
 
-                    flash('Invalid card.', 'danger')
-                    session['form_data'] = request.form
-                    return redirect(url_for('users.checkout'))
+                        flash('Invalid card.', 'danger')
+                        session['form_data'] = request.form
+                        return redirect(url_for('users.checkout'))
+                else:
+                    if not (card.exp_date == exp_date and card.card_type == form.card_type.data \
+                        and card.billing_zip == int(form.zip_code.data)):
+
+                        flash('Invalid card.', 'danger')
+                        session['form_data'] = request.form
+                        return redirect(url_for('users.checkout'))
             
             card = Card(
                 card_num = form.card_number.data,
@@ -163,9 +175,12 @@ def employee_login():
     '''Login employee'''
 
     if current_user.is_authenticated:
-        return redirect(url_for('employees.employees.index'))
+        if current_user.role == 'EMPLOYEE':
+            return redirect(url_for('employees.employees.home'))
+        else:
+            return redirect(url_for('users.todo'))
 
-    form = LoginForm()
+    form = EmployeeLoginForm()
     if form.validate_on_submit():
         user = Employee.query.filter_by(username=form.username.data).first()
 
@@ -179,6 +194,32 @@ def employee_login():
         flash('Invalid Username or Password.', 'danger')
 
     return render_template('/employee/login.html', form=form)
+
+
+@users.route('/member/login', methods=['GET', 'POST'])
+def member_login():
+    '''Login member'''
+
+    if current_user.is_authenticated:
+        if current_user.role == 'EMPLOYEE':
+            return redirect(url_for('employees.employees.home'))
+        else:
+            return redirect(url_for('users.todo'))
+
+    form = MemberLoginForm()
+    if form.validate_on_submit():
+        user = Member.query.filter_by(email=form.email.data).first()
+
+        # Ensure username exists and password is correct
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+
+            return redirect(next_page) if next_page else redirect(url_for('users.home'))
+        
+        flash('Invalid Email or Password.', 'danger')
+
+    return render_template('/member/login.html', form=form)
 
 
 # TODO: Ensure only users who are not logged in can get here
@@ -295,8 +336,9 @@ def ticket_seat_map(showtime_id):
         .filter(Screening.id.is_(showtime_id)) \
         .first_or_404()
     
-    if screening.start_datetime < datetime.now():
-        abort(404)
+    # FIXME: UNCOMMENT
+    # if screening.start_datetime < datetime.now():
+    #     abort(404)
     
     seats = Seat.query.filter_by(auditorium_id = screening.auditorium.id).order_by(Seat.id) 
 

@@ -38,8 +38,11 @@ class Employee(User):
 class Member(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     email = db.Column(db.String, unique = True, nullable=False)
-    f_name = db.Column(db.String, nullable=False)
-    l_name = db.Column(db.String, nullable=False)
+    fname = db.Column(db.String, nullable=False)
+    lname = db.Column(db.String, nullable=False)
+    phone = db.Column(db.Integer, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=False)
+    dob = db.Column(db.Date)
 
     cards = db.relationship('Cards', backref='member', lazy=True) # Can have many cards
 
@@ -49,7 +52,7 @@ class Member(User):
 
 
     def __repr__(self):
-        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.f_name}, {self.l_name})"
+        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.fname}, {self.lname})"
 
 
 class Change(db.Model):
@@ -70,6 +73,7 @@ genres = db.Table('genres',
     db.Column('movie_id', db.Integer, db.ForeignKey('movie.id'), primary_key=True),
     db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True)
 )
+
 
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -165,7 +169,7 @@ class Ticket(db.Model):
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     card_num = db.Column(db.Integer, nullable=False) 
-    sec_code = db.Column(db.String(10), nullable=False)
+    sec_code = db.Column(db.String(10))
     exp_date = db.Column(db.Date, nullable=False)
     card_type = db.Column(db.String(10), nullable=False)
     billing_zip = db.Column(db.Integer, nullable=False) 
@@ -207,7 +211,6 @@ class Purchase(db.Model):
 
     def __repr__(self): 
         return f"Purchase({self.id}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
-
 
 
 class Purchased_Ticket(db.Model):

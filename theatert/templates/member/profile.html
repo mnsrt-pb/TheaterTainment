@@ -1,0 +1,374 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Profile & Payment 
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="d-flex left-align mb-4 flex-wrap">
+        <div class="h3 py-2 flex-grow-1 fw-bold">Profile & Payment</div>
+        <div class="pt-4 mx-2 type-selected fw-bold type-item">Your Profile</div>
+        <div class="pt-4 mx-2 {{ second }} type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
+        <div class="pt-4 mx-2 {{ second }} type-item"><a href="{{ url_for('users.home' )}}">Your Watchlist</a></div>
+    </div>
+
+    <div class="left-align mb-5">
+        <h4>Account Profile</h4><hr>
+        <h5 class="fw-bold">Personal Information</h5>
+        <p>Your personal account information and password.</p>
+        <div id="account-info" {{ hidden1 }}>
+            <p>{{ current_user.fname.capitalize() }} {{ current_user.lname.capitalize() }}<br>
+            {% if current_user.dob %}
+                Date of Birth: {{ current_user.dob.strftime("%m/%d") }}<br>
+            {% endif %}
+            ZIP Code: {{ current_user.zip_code }}<br>
+            {{ current_user.email }}<br></p>
+            <p><a id="info-form-trigger" class="info">Edit Personal Information</a></p>
+            <p><a id="email-form-trigger" class="info">Change Email Address</a></p>
+            <p><a id="password-form-trigger" class="info">Change Password</a></p>
+        </div>
+        <div id="info-form" class="cont-12" {{ hidden2 }}>
+            <form action="" method="post"class="needs-validation" novalidate>
+                <div class="left-align mb-3">
+                    {{ info_form.fname.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if info_form.fname.errors %}
+                        {{ info_form.fname(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ info_form.fname.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ info_form.fname(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ info_form.lname.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if info_form.lname.errors %}
+                        {{ info_form.lname(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ info_form.lname.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ info_form.lname(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ info_form.dob.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if info_form.dob.errors %}
+                        {{ info_form.dob(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ info_form.dob.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ info_form.dob(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ info_form.zip_code.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if info_form.zip_code.errors %}
+                        {{ info_form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ info_form.zip_code.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ info_form.zip_code(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ info_form.phone.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    <p class="my-small2">Numbers only, no dashes or spaces.</p>
+                    {% if info_form.phone.errors %}
+                        {{ info_form.phone(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ info_form.phone.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ info_form.phone(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-info-form">Cancel</button>
+                    {{ info_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                </div>
+            </form>
+        </div>
+        <div id="email-form" class="cont-12" {{ hidden3 }}>
+            <form action="" method="post"class="needs-validation" novalidate>
+                <div class="left-align mb-3">
+                    {{ email_form.email.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if email_form.email.errors %}
+                        {{ email_form.email(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ email_form.email.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ email_form.email(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ email_form.confirm_email.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if email_form.confirm_email.errors %}
+                        {{ email_form.confirm_email(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ email_form.confirm_email.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ email_form.confirm_email(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ email_form.password.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if email_form.password.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ email_form.password(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ email_form.password.errors[0] }}</span>
+                        </div>
+
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ email_form.password(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-email-form">Cancel</button>
+                    {{ info_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                </div>
+            </form>
+        </div>
+        <div id="password-form" class="cont-12" {{ hidden4 }}>
+            <form action="" method="post"class="needs-validation" novalidate>
+                <div class="left-align mb-3">
+                    {{ password_form.current_password.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if password_form.current_password.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.current_password(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ password_form.current_password.errors[0] }}</span>
+                        </div>
+
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.current_password(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ password_form.new_password.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    <p class="my-small2">Minimum of eight characters, with at least one letter, one number, and one special character.</p>
+                    {% if password_form.new_password.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.new_password(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ password_form.new_password.errors[0] }}</span>
+                        </div>
+
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.new_password(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ password_form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if password_form.confirmation.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ password_form.confirmation.errors[0] }}</span>
+                        </div>
+
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ password_form.confirmation(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-password-form">Cancel</button>
+                    {{ password_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="left-align">
+        <h4>Saved Payment Methods</h4><hr>
+        <h5 class="fw-bold">Default Payment Method</h5>
+        <p>Used for tickets purchases.</p>
+        <div id="default-payment">
+            <p>No payment method exists.</p>
+            <p><a id="payment-form-trigger" class="info">Add Default Payment</a></p>
+        </div>
+        <div id="payment-form" class="cont-12" {{ hidden5 }}>
+            <div id="default-payment-form">
+                <form action="" method="post"class="needs-validation" novalidate>
+                    {{ payment_form.hidden_tag() }}
+
+                    <div id= "cc_holder" class="d-flex align-items-center">
+                        <div class="visa rounded m-2">
+                            <img class="img-responsive" src="../../static/images/cc_visa.webp" alt="Visa">
+                        </div>
+                        <div class="mastercard rounded m-2">
+                            <img class="img-responsive" src="../../static/images/cc_mastercard.webp" alt="Mastercard">
+                        </div>
+                        <div class="amex rounded m-2">
+                            <img class="img-responsive" src="../../static/images/cc_amex.webp" alt="American Express">
+                        </div>
+                        <div class="discover rounded m-2">
+                            <img class="img-responsive" src="../../static/images/cc_discover.webp" alt="Discover">
+                        </div>
+                    </div>
+        
+                    <div class="mb-3">
+                        {{ payment_form.card_number.label(class_="fw-bold mb-2") }}
+                        {% if payment_form.card_number.errors and not get_flashed_messages(with_categories=true)%}
+                            {{ payment_form.card_number(autocomplete="off", autofocus=true, class="form-control is-invalid", id="card-number")}}
+                            <div class="invalid-feedback">
+                                <span id="card-number-e">{{ payment_form.card_number.errors[0] }}</span>
+                            </div>
+                        {% else %}
+                            {{ payment_form.card_number(autocomplete="off", autofocus=true, class="form-control", id="card-number")}}
+                            <div class="invalid-feedback">
+                                <span id="card-number-e"></span>
+                            </div>
+                        {% endif %}
+                    </div>
+        
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            {{ payment_form.exp_month.label(class_="fw-bold mb-2") }}
+                            {% if payment_form.exp_month.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ payment_form.exp_month(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-month")}}
+                                <div class="invalid-feedback">
+                                    <span id="exp-month-e">{{ payment_form.exp_month.errors[0] }}</span>
+                                </div>
+                            {% else %}
+                                {{ payment_form.exp_month(autocomplete="off", autofocus=true, class="form-control", id="exp-month")}}
+                                <div class="invalid-feedback">
+                                    <span id="exp-month-e">{{ error }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            {{ payment_form.exp_year.label(class_="fw-bold mb-2") }}
+                            {% if payment_form.exp_year.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ payment_form.exp_year(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-year")}}
+                                <div class="invalid-feedback">
+                                    <span>{{ payment_form.exp_year.errors[0] }}</span>
+                                </div>
+                            {% else %}
+                                {{ payment_form.exp_year(autocomplete="off", autofocus=true, class="form-control", id="exp-year")}}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        {{ payment_form.zip_code.label(class_="fw-bold mb-2") }}
+                        {% if payment_form.zip_code.errors and not get_flashed_messages(with_categories=true)%}
+                            {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="zip-code")}}
+                            <div class="invalid-feedback">
+                                <span id="zip-code-e">{{ payment_form.zip_code.errors[0] }}</span>
+                            </div>
+                        {% else %}
+                            {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control", id="zip-code")}}
+                            <div class="invalid-feedback">
+                                <span id="zip-code-e"></span>
+                            </div>
+                        {% endif %}
+                    </div>
+    
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-payment-form">Cancel</button>
+                        {{ payment_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                    </div>
+                </form>
+            </div>
+            <form action="" method="post">
+                {{ delete_default.hidden_tag() }}
+                <div class="mt-4 d-flex justify-content-end">
+                    {{ delete_default.submit(class="btn btn-outline-secondary btn-rounded ms-3") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

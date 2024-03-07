@@ -7,38 +7,170 @@
 {% block main %}
     <h3 class="color-dark">Register A New Account</h3>
     <div class="border container cont-1 rounded shadow">
+        <div class="mb-4">
+            <form id="register-form" action="" method="post"class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
 
-        <form action="/m-register" method="post">
-            <h5 class="color-light">Account Information</h5>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">Username</label>
-                <input autocomplete="off" autofocus class="form-control" name="username" type="text">
-            </div>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">Password</label>
-                <input autocomplete="off" autofocus class="form-control" name="password" type="password">
-            </div>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">Confirm Password</label>
-                <input autocomplete="off" autofocus class="form-control" name="confirmation" type="password">
-            </div><br>
+                <h5 class="color-light">Account Information</h5>
+                <div class="left-align mb-3">
+                    {{ form.email.label(class="font-bold form-label font-sm mx-auto w-auto") }}
 
-            <h5 class="color-light">Personal Information</h5>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">First Name</label>
-                <input autocomplete="off" autofocus class="form-control" name="fname" type="text">
-            </div>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">Last Name</label>
-                <input autocomplete="off" autofocus class="form-control" name="lname" type="text">
-            </div>
-            <div class="mb-3 left-align">
-                <label class="form-label font-sm  mx-auto w-auto">Phone</label>
-                <input autocomplete="off" autofocus class="form-control" name="phone" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="123-456-7890">
-            </div>
+                    {% if form.email.errors %}
+                        {{ form.email(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.email.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.email(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.confirm_email.label(class="font-bold form-label font-sm mx-auto w-auto") }}
 
-            <button class="btn btn-primary" type="submit">Register</button>
-        </form>
+                    {% if form.confirm_email.errors %}
+                        {{ form.confirm_email(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.confirm_email.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.confirm_email(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    <p class="my-small2">Minimum of eight characters, with at least one letter, one number, and one special character.</p>
+                    {% if form.password.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ form.password.errors[0] }}</span>
+                        </div>
 
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ form.password(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if form.confirmation.errors %}
+                        <div class="d-flex justify-content-between">
+                            {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="my-small2 text-danger mt-1">
+                            <span>{{ form.confirmation.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-between">
+                            {{ form.confirmation(autocomplete="off", autofocus=true, class="form-control") }} 
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="toggle-visibility-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <h5 class="color-light">Personal Information</h5>
+                <div class="left-align mb-3">
+                    {{ form.fname.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if form.fname.errors %}
+                        {{ form.fname(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.fname.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.fname(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.lname.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if form.lname.errors %}
+                        {{ form.lname(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.lname.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.lname(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.phone.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    <p class="my-small2">Numbers only, no dashes or spaces.</p>
+                    {% if form.phone.errors %}
+                        {{ form.phone(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.phone.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.phone(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {{ form.zip_code.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if form.zip_code.errors %}
+                        {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.zip_code.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="left-align mb-3">
+                    {% if form.agree.errors %}
+                        {{ form.agree(class="form-check-input is-invalid")}}
+                        {{ form.agree.label(class="form-check-input-label") }}
+                        <div class="invalid-feedback">
+                            <span>{{ form.agree.errors[0] }}</span>
+                        </div>
+                    {% else %}
+                        {{ form.agree(class="form-check-input")}}
+                        {{ form.agree.label(class="form-check-input-label") }}
+                    {% endif %}
+                </div>
+                
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Already Have An Account? <a class="ml-2 info" href="{{ url_for('users.member_login') }}">Sign In</a>
+            </small>
+        </div>
     </div>
 {% endblock %}

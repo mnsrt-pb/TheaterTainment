@@ -5,21 +5,50 @@
 {% endblock %}
 
 {% block main %}
-    <h3 class="color-dark">Sign In</h3>
-    <div class="border container cont-1 rounded shadow">
+<div class="border container cont-1 rounded shadow">
+    <div class="mb-4">
+        <form action="" method="POST" class="needs-validation" novalidate>
+            <h5 class="color-dark">Log In</h5>
 
-        <form action="/m-login" method="post">
-            <div class="mb-3  left-align">
-                <label class="font-bold font-sm form-label mx-auto w-auto">Username</label>
-                <input autocomplete="off" autofocus class="form-control" name="username" type="text">
-            </div>
-            <div class="mb-3 left-align">
-                <label class="font-bold font-sm form-label mx-auto w-auto">Password</label>
-                <input autocomplete="off" autofocus class="form-control" name="password" type="password">
-            </div>
+            {{ form.hidden_tag() }}
+            <div class="left-align mb-3">
+                {{ form.email.label(class="font-bold form-label font-sm mx-auto w-auto" )}}
 
-            <button class="btn btn-primary" type="submit">Log In</button>
+                {% if form.email.errors %}
+                    {{ form.email(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(autocomplete="off", autofocus=true, class="form-control")}}
+                {% endif %}
+            </div>
+            <div class="left-align mb-3">
+                {{ form.password.label(class="font-bold form-label font-sm mx-auto w-auto")}}
+                {% if form.password.errors %}
+                    {{ form.password(autocomplete="off", autofocus=true, class="form-control is-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.password(autocomplete="off", autofocus=true, class="form-control")}}
+                {% endif %}
+            </div>
+            <div class="left-align mb-3">
+                {{ form.remember(class="form-check-input")}}
+                {{ form.remember.label(class="form-check-input-label")}}
+            </div>
+            {{form.submit(class="btn btn-primary")}}
         </form>
-
     </div>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Don't Have An Account? <a class="ml-2 info" href="{{ url_for('members.register') }}">Register</a>
+        </small>
+    </div>
+</div>
 {% endblock %}

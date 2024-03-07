@@ -5,6 +5,7 @@ PIP INSTALLS:
     flask-bcrypt
     flask-login
     flask-sqlalchemy
+    phonenumbers
     python-dotenv
     requests
     schwifty
@@ -28,9 +29,10 @@ current_app.app_context()
 db.create_all()
 db.drop_all()
 Table.__table__.drop(db.engine)
-
-Purchase.__table__.drop(db.engine)
-
+Purchase.__table__.drop(db.engine
+)
+User.query.filter_by(id=3).delete()
+db.session.commit()
 
 audi1 = Auditorium.query.get(1)
 
