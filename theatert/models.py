@@ -168,20 +168,21 @@ class Ticket(db.Model):
 # Purchasing Tickets
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
+    member = db.Column(db.Boolean, default=True, nullable=False) 
+    # An instance of this card should at most appear twice
+    # Once for members and once for guests
+
     card_num = db.Column(db.Integer, nullable=False) 
-    sec_code = db.Column(db.String(10))
+    sec_code = db.Column(db.Integer, nullable=False)
     exp_date = db.Column(db.Date, nullable=False)
     card_type = db.Column(db.String(10), nullable=False)
     billing_zip = db.Column(db.Integer, nullable=False) 
-    guest = db.Column(db.Boolean, default=True, nullable=False) 
-    # An instance of this card should at most appear twice
-    # Once for members and once for guests
 
     cards_id = db.relationship('Cards', backref='card', lazy=True) # Can be a part of many card groups
     purchase_id = db.relationship('Purchase', backref='card', lazy=True) # Can be a part of many card groups
 
     def __repr__(self): 
-        return f"Card({self.id}, Num:{self.card_num}, Sec:{self.sec_code}, {self.exp_date}, {self.billing_zip}, {self.card_type}, {self.guest})"
+        return f"Card({self.id}, Num:{self.card_num}, Sec:{self.sec_code}, Exp:{self.exp_date}, Zip:{self.billing_zip}, Type:{self.card_type}, Member:{self.member})"
 
 
 class Cards(db.Model): 
@@ -192,7 +193,7 @@ class Cards(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False) # Has one card
 
     def __repr__(self): 
-        return f"Cards({self.id}, {self.active}, Member: {self.member_id}, Card: {self.card_id})"
+        return f"Cards({self.id}, Active:{self.active}, Member: {self.member_id}, Card: {self.card_id})"
 
 
 class Purchase(db.Model):

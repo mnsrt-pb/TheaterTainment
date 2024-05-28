@@ -103,7 +103,13 @@ button#action {
     display: block;
 }
 
-#cc_holder div {
+#cc_holder_2 {
+    min-width: 250px;
+    max-width: 320px;
+    display: block;
+}
+
+#cc_holder > div, #cc_holder_2 > div {
     background: #fff;
     width: calc(25% - 15px);
     overflow: hidden;

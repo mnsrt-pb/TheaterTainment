@@ -99,6 +99,9 @@ class DefaultPaymentForm(FlaskForm):
     zip_code = StringField('Billing Zip Code', validators=[DataRequired(message="The Billing ZIP Code field is required."),
                     Length(min=5, max=5, message='The value for the Billing Zip Code field is invalid.')])
     
+    sec_code = StringField('Card Security Code', validators=[DataRequired(message="The Card Security Code field is required."),
+                    Length(min=3, max=4, message='The Card Security Code field is not a valid credit card security code.')])
+    
     submit = SubmitField('Save')
 
 

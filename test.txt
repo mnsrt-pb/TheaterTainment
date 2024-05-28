@@ -4,14 +4,45 @@ HelloWorld#3
 foo@foo.foo
 helloworld#3
 
-4111111111111111
-Feb 2025
-12345
-123
+Visa
+40320330679806774
+05/2025
+44444
+335
 
+MasterCard
+5110922681585734
+05/2026
+11111
+816
 
-2221000000000009
-Jan 2025
+Amex
+372410074700767
+05/2029
 22222
-333
+6589
+
+Discover
+6011287354412626
+12/2027
+33333
+948
+
+
+
+
+
+Notes: 
+* A card is valid if it passes the card validation test. 
+However, the expiration date and billing zip code are not checked.
+Therefore, once an instance of a card exists, i.e. card has been 'validated', 
+if another user (guest or member) want's to use that same card number the expiration date and
+billing zip code must be the same or it'll be marked invalid. This will persist 
+until the card is removed from the existing database. 
+
+* A card's sec code will be the first sec code that is inputted, 
+whether it's by a guest or memeber. To verify other inputs of this card's sec code
+a comparison with the first input will be made.
+
+
 

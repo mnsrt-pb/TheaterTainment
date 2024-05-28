@@ -274,8 +274,44 @@
         <h5 class="fw-bold">Default Payment Method</h5>
         <p>Used for tickets purchases.</p>
         <div id="default-payment">
-            <p>No payment method exists.</p>
-            <p><a id="payment-form-trigger" class="info">Add Default Payment</a></p>
+            {% if not saved_card %}
+                <p>No payment method exists.</p>
+                <p><a id="payment-form-trigger" class="info">Add Default Payment</a></p>
+            {% else %}
+            <div class="d-flex align-items-center">
+                <div id="cc_holder_2" class="d-flex align-items-center">
+                    {% if saved_card.card_type == 'Visa' %}
+                    <div class="visa rounded m-2">
+                        <img class="img-responsive" src="../../static/images/cc_visa.webp" alt="Visa">
+                    </div>
+                    {% elif saved_card.card_type == 'Mastercard' %}
+                    <div class="mastercard rounded m-2">
+                        <img class="img-responsive" src="../../static/images/cc_mastercard.webp" alt="Mastercard">
+                    </div>
+                    {% elif saved_card.card_type == 'American Express' %}
+                    <div class="amex rounded m-2">
+                        <img class="img-responsive" src="../../static/images/cc_amex.webp" alt="American Express">
+                    </div>
+                    {% elif saved_card.card_type == 'Discover' %}
+                    <div class="discover rounded m-2">
+                        <img class="img-responsive" src="../../static/images/cc_discover.webp" alt="Discover">
+                    </div>
+                    {% endif %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                        <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/>
+                    </svg>
+                    <span class="fw-bold">
+                        {{ (saved_card.card_num | string)[-4:]  }}
+                    </span>
+                    <form action="" method="post">
+                        {{ delete_default.hidden_tag() }}
+                        <div class="ms-2">
+                            {{ delete_default.submit(class="btn btn-outline-secondary btn-rounded ms-3") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
         <div id="payment-form" class="cont-12" {{ hidden5 }}>
             <div id="default-payment-form">
@@ -339,19 +375,36 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="col">
-                        {{ payment_form.zip_code.label(class_="fw-bold mb-2") }}
-                        {% if payment_form.zip_code.errors and not get_flashed_messages(with_categories=true)%}
-                            {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="zip-code")}}
-                            <div class="invalid-feedback">
-                                <span id="zip-code-e">{{ payment_form.zip_code.errors[0] }}</span>
-                            </div>
-                        {% else %}
-                            {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control", id="zip-code")}}
-                            <div class="invalid-feedback">
-                                <span id="zip-code-e"></span>
-                            </div>
-                        {% endif %}
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            {{ payment_form.zip_code.label(class_="fw-bold mb-2") }}
+                            {% if payment_form.zip_code.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="zip-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="zip-code-e">{{ payment_form.zip_code.errors[0] }}</span>
+                                </div>
+                            {% else %}
+                                {{ payment_form.zip_code(autocomplete="off", autofocus=true, class="form-control", id="zip-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="zip-code-e"></span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            {{ payment_form.sec_code.label(class_="fw-bold mb-2") }}
+                            {% if payment_form.sec_code.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ payment_form.sec_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="sec-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="sec-code-e">{{ payment_form.sec_code.errors[0] }}</span>
+                                </div>
+                            {% else %}
+                                {{ payment_form.sec_code(autocomplete="off", autofocus=true, class="form-control", id="sec-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="sec-code-e"></span>
+                                </div>
+                            {% endif %}
+                        </div>
+
                     </div>
     
                     <div class="mt-4 d-flex justify-content-end">
@@ -360,12 +413,6 @@
                     </div>
                 </form>
             </div>
-            <form action="" method="post">
-                {{ delete_default.hidden_tag() }}
-                <div class="mt-4 d-flex justify-content-end">
-                    {{ delete_default.submit(class="btn btn-outline-secondary btn-rounded ms-3") }}
-                </div>
-            </form>
         </div>
     </div>
 

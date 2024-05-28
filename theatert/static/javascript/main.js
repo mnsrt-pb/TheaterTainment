@@ -702,9 +702,9 @@ function account_profile_control(){
     }
   })
 
-
   $("#default-payment-form").find('form').on( "submit", function( event ) {
     valid_zip = false
+    valid_sec = false
     valid_ccn = false
     valid_month = false
 
@@ -715,8 +715,17 @@ function account_profile_control(){
       $('#zip-code-e').text('The value for the Billing Zip Code field is invalid.')
       $('#zip-code').addClass('is-invalid')
     } else {
-      console.log('here1')
       valid_zip = true
+    }
+    
+    if ($('#sec-code').val().length == 0){
+      $('#sec-code-e').text('The Card Security Code field is required.')
+      $('#sec-code').addClass('is-invalid')
+    } else if (!($('#sec-code').val().length >=3 && $('#sec-code').val().length <= 4)){
+      $('#sec-code-e').text('The value for the Card Security Code field is invalid.')
+      $('#sec-code').addClass('is-invalid')
+    } else {
+      valid_sec = true
     }
 
     if (!valid.expirationDate($('#exp-month').val() + '/' + $('#exp-year').val()).isValid){
@@ -724,14 +733,13 @@ function account_profile_control(){
       $('#exp-month').addClass('is-invalid')
       $('#checkout-button').prop('hidden', true)
     } else {
-      console.log('here2')
       valid_month = true
     }
 
     number = valid.number($('#card-number').val())
     
     if (number.card != null){
-      // Validate
+      // Validate 
       if (!($('#card-number').val().length >= 8 && $('#card-number').val().length <= 19)){
         $('#card-number-e').text('The Card Number field is not a valid credit card number.')
         $('#card-number').addClass('is-invalid')
@@ -739,7 +747,6 @@ function account_profile_control(){
         if (number.isValid){
           $('#card_type').val(valid.number($('#card-number').val()).card.niceType)
           valid_ccn = true;
-          console.log('here3')
         } else {
           $('#card-number-e').text('The Card Number field is not a valid credit card number.')
           $('#card-number').addClass('is-invalid')
@@ -755,7 +762,7 @@ function account_profile_control(){
       }
     }
 
-    if (!(valid_zip && valid_month && valid_ccn)){
+    if (!(valid_zip && valid_sec && valid_month && valid_ccn)){
       event.preventDefault();
     }
   });
