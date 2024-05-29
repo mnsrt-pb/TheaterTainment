@@ -9,8 +9,8 @@
     <div class="d-flex left-align mb-4 flex-wrap">
         <div class="h3 py-2 flex-grow-1 fw-bold">Profile & Payment</div>
         <div class="pt-4 mx-2 type-selected fw-bold type-item">Your Profile</div>
-        <div class="pt-4 mx-2 {{ second }} type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
-        <div class="pt-4 mx-2 {{ second }} type-item"><a href="{{ url_for('users.home' )}}">Your Watchlist</a></div>
+        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
+        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('members.watchlist' )}}">Your Watchlist</a></div>
     </div>
 
     <div class="left-align mb-5">
@@ -88,7 +88,7 @@
                 </div>
                 <div class="mt-4 d-flex justify-content-end">
                     <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-info-form">Cancel</button>
-                    {{ info_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                    {{ info_form.submit(class="btn btn-primary btn-rounded ms-3", id="info-submit") }}
                 </div>
             </form>
         </div>
@@ -152,7 +152,7 @@
                 </div>
                 <div class="mt-4 d-flex justify-content-end">
                     <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-email-form">Cancel</button>
-                    {{ info_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                    {{ email_form.submit(class="btn btn-primary btn-rounded ms-3", id="email-submit") }}
                 </div>
             </form>
         </div>
@@ -263,7 +263,7 @@
                 </div>
                 <div class="mt-4 d-flex justify-content-end">
                     <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-password-form">Cancel</button>
-                    {{ password_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                    {{ password_form.submit(class="btn btn-primary btn-rounded ms-3", id="password-submit") }}
                 </div>
             </form>
         </div>
@@ -306,7 +306,7 @@
                     <form action="" method="post">
                         {{ delete_default.hidden_tag() }}
                         <div class="ms-2">
-                            {{ delete_default.submit(class="btn btn-outline-secondary btn-rounded ms-3") }}
+                            {{ delete_default.submit(class="btn btn-outline-secondary btn-rounded ms-3", id="delete-submit") }}
                         </div>
                     </form>
                 </div>
@@ -409,7 +409,7 @@
     
                     <div class="mt-4 d-flex justify-content-end">
                         <button type="button" class="btn btn-outline-secondary btn-rounded btn-sm" id="cancel-payment-form">Cancel</button>
-                        {{ payment_form.submit(class="btn btn-primary btn-rounded ms-3") }}
+                        {{ payment_form.submit(class="btn btn-primary btn-rounded ms-3", id="payment-submit") }}
                     </div>
                 </form>
             </div>
@@ -417,5 +417,4 @@
     </div>
 
 </div>
-
 {% endblock %}

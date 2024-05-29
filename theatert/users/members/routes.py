@@ -1,15 +1,35 @@
-from datetime import datetime
-from flask import Blueprint, flash, render_template,  redirect, request, url_for
+from datetime import datetime, timedelta
+from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user
+from sqlalchemy import collate
+
 from theatert import db, bcrypt
 from theatert.users.members.forms import RegistrationForm, AccountInfoForm, EmailForm, PasswordForm, DefaultPaymentForm, DeleteDefaultPayemnt
-from theatert.models import Member, Card, Cards
+from theatert.models import Card, Cards, Member, Movie, Watchlist
 from theatert.users.utils import apology, login_required
 
 import calendar
 
 
 members = Blueprint('members', __name__, url_prefix='/member')
+
+
+@members.route('/<int:m_id>/add_watchlist', methods=['GET'])
+@login_required(role='MEMBER')
+def add_watchlist(m_id):
+    movie = Movie.query.filter_by(id = m_id, deleted=False).first_or_404()
+    added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
+    
+    if not added:
+        item = Watchlist(
+                    member_id = current_user.id,
+                    movie_id = m_id
+                    )
+        db.session.add(item)
+        flash(f'<b><i>{movie.title}</i></b> added to Watch List', 'light')
+    db.session.commit()
+        
+    return redirect(request.referrer)
 
 
 @members.route('/profile', methods=['GET', 'POST'])
@@ -36,7 +56,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your information has been updated!', 'success')
+            flash('Your information has been updated!', 'light')
             return redirect(url_for('members.profile'))
 
     elif 'email' in request.form:
@@ -54,7 +74,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your email has been updated!', 'success')
+            flash('Your email has been updated!', 'light')
             return redirect(url_for('members.profile'))
 
     elif 'new_password' in request.form:
@@ -73,7 +93,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your password has been updated!', 'success')
+            flash('Your password has been updated!', 'light')
             return redirect(url_for('members.profile'))
 
     elif 'card_number' in request.form:
@@ -146,7 +166,7 @@ def profile():
                 db.session.add(cards)
             db.session.commit()
 
-            flash('Default Payment Saved!', 'success')
+            flash('Default Payment Saved!', 'light')
             return redirect(url_for('members.profile'))
 
     elif 'delete' in request.form:
@@ -155,7 +175,7 @@ def profile():
         saved_data.active = False
         db.session.commit()
 
-        flash('Saved Card Removed!', 'success')
+        flash('Saved Card Removed!', 'light')
         return redirect(url_for('members.profile'))
 
     else:
@@ -179,6 +199,7 @@ def profile():
     return render_template('member/profile.html', info_form=info_form, email_form=email_form, \
                            password_form=password_form, payment_form=payment_form, delete_default=delete_default, \
                            hidden1=hidden1, hidden2=hidden2, hidden3=hidden3, hidden4=hidden4, hidden5=hidden5, saved_card=saved_card)
+
 
 @members.route('/register', methods=['GET', 'POST'])
 def register():
@@ -206,8 +227,48 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Your account has been created! You are now able to log in.', 'success')
+        flash('Your account has been created! You are now able to log in.', 'light')
         return redirect(url_for('users.member_login'))
     else:
         return render_template('member/register.html', form=form)
+
+
+@members.route('/<int:m_id>/remove_watchlist', methods=['GET'])
+@login_required(role='MEMBER')
+def remove_watchlist(m_id):
+    movie = Movie.query.filter_by(id = m_id, deleted=False).first_or_404()
+    added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
+    
+    if added:
+        remove = Watchlist.query.get(added.id)
+        db.session.delete(remove)
+        db.session.commit()
+        url = url_for('members.add_watchlist', m_id=movie.id)
+        flash(f'<b><i>{movie.title}</i></b> removed from Watch List <a href="{url}" class=" ms-3 info fw-bold">UNDO</a>', 'light')
+
+    return redirect(request.referrer)
+
+
+@members.route('/watchlist', methods=['GET'])
+@login_required(role='MEMBER')
+def watchlist():
+    '''Member's Watchlist'''
+    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id))
+    
+    now_playing = watchlist.filter(
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+
+    not_playing = watchlist.filter(
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(False),\
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+
+    coming_soon = watchlist.filter(db.and_(Movie.deleted.is_(False), \
+                db.ColumnOperators.__gt__(Movie.release_date, datetime.now())))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+
+    return render_template('member/watchlist.html', now_playing=now_playing, not_playing=not_playing, coming_soon=coming_soon)
+
 

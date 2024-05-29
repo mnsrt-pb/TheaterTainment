@@ -97,7 +97,7 @@ def add_showtime():
                         )
                         db.session.add(ticket)
 
-                flash('Showtime was created and tickets have been generated.', 'success')
+                flash('Showtime was created and tickets have been generated.', 'light')
 
                 db.session.commit()
                 return redirect(url_for('employees.showtimes.all_showtimes'))

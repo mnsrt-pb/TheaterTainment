@@ -62,9 +62,9 @@ def add_movie():
                 movie.backdrop_path = None
                 movie.trailer_path = None
                 change.action = "added"
-                flash('Movie was added.', 'success')
+                flash('Movie was added.', 'light')
             else:
-                flash('Fetched new data.', 'success')
+                flash('Fetched new data.', 'light')
 
         else: 
             # Add Movie
@@ -97,7 +97,7 @@ def add_movie():
                 data_id = movie.id,
                 employee_id = current_user.id
             )
-            flash('Movie was added.', 'success')
+            flash('Movie was added.', 'light')
 
         db.session.add(change)
         db.session.commit()
@@ -178,7 +178,7 @@ def all_movies():
         db.session.add(change)
 
         db.session.commit()
-        flash('Movie activated.', 'success')
+        flash('Movie activated.', 'light')
         return redirect(url_for('employees.movies.all_movies'))
 
 
@@ -198,7 +198,7 @@ def all_movies():
         db.session.add(change)
 
         db.session.commit()
-        flash('Movie inactivated.', 'success')
+        flash('Movie inactivated.', 'light')
         return redirect(url_for('employees.movies.all_movies'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
@@ -262,7 +262,7 @@ def delete_movie(movie_id):
         db.session.add(change)
 
         db.session.commit()
-        flash(f'{movie.title} has been deleted!', 'success')
+        flash(f'{movie.title} has been deleted!', 'light')
     else: 
         flash(f'{movie.title} cannot be deleted! It has upcoming showtimes.', 'danger')
 
@@ -356,7 +356,7 @@ def update_movie(movie_route):
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie updated.', 'success')
+            flash('Movie updated.', 'light')
             return redirect(url_for('employees.movies.movie', movie_route = movie.route))
         else:
             flash('Must select something.', 'danger')

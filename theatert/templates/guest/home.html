@@ -31,7 +31,35 @@
                     </div>
 
                     <div class="add-watchlist card-footer bkg-pink text-white watchlist-text">
-                        <small><span class="heart">&#9825;</span>&emsp; Add to watch list</small>
+                        <small>
+                            {% if watchlist %}
+                                {# jinja does not update vars within a loop so must use a list approach #}
+                                {% set added = [] %}
+    
+                                {% for item in watchlist %}
+                                    {% if m.id == item.movie_id %}
+                                        {% set temp = added.append(True) %}
+                                    {% endif %}
+                                {% endfor %}
+    
+                                {% if added|length > 0 %}
+                                <a href="{{ url_for('members.remove_watchlist', m_id=m.id) }}">
+                                    <span class="heart">&#9829;</span>
+                                    <span class="font-sm">&emsp; Added to Watch List</span>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('members.add_watchlist', m_id=m.id) }}">
+                                    <span class="heart">&#9825;</span>&emsp;
+                                    <span class="font-sm">Add to Watch List</span>
+                                </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ url_for('members.add_watchlist', m_id=m.id) }}">
+                                    <span class="heart">&#9825;</span>&emsp;
+                                    <span class="font-sm">Add to Watch List</span>
+                                </a>
+                            {% endif %}
+                        </small>
                     </div>
                 </div>
             </div>
@@ -105,10 +133,39 @@
     <!-- Showtimes -->
     <div class="container my-3">
         {% for m in m_showtimes %}
-        <div class="d-flex flex-wrap  flex-sm-nowrap flex-md-nowrap flex-lg-nowrap left-align">
-            <div class="showtime left-align mb-5 me-4">
+        <div class="d-flex flex-wrap  flex-sm-nowrap flex-md-nowrap flex-lg-nowrap left-align mb-5">
+            <div class="showtime left-align mb-3 me-4">
                 <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
-                <div class="bkg-pink text-white shadow p-2 mt-3 add-watchlist"><small><span class="heart">&#9825;</span>&emsp; Add to watch list</small></div>
+                <div class="bkg-pink text-white shadow p-2 mt-3 add-watchlist">
+                    <small>
+                        {% if watchlist %}
+                            {% set added = [] %}
+
+                            {% for item in watchlist %}
+                                {% if m.movie.id == item.movie_id %}
+                                    {% set temp = added.append(True) %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if added|length > 0 %}
+                            <a href="{{ url_for('members.remove_watchlist', m_id=m.movie.id) }}">
+                                <span class="heart">&#9829;</span>
+                                <span class="font-sm">&emsp; Added to Watch List</span>
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('members.add_watchlist', m_id=m.movie.id) }}">
+                                <span class="heart">&#9825;</span>&emsp;
+                                <span class="font-sm">Add to Watch List</span>
+                            </a>
+                        {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('members.add_watchlist', m_id=m.movie.id) }}">
+                                <span class="heart">&#9825;</span>&emsp;
+                                <span class="font-sm">Add to Watch List</span>
+                            </a>
+                        {% endif %}
+                    </small>
+                </div>
             </div>
             <div class="flex-lg-grow-1">
                 <h3 class="movie-title">{{ m.movie.title }}</h3>

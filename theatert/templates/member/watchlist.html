@@ -1,0 +1,94 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Watch List
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="d-flex left-align mb-4 flex-wrap">
+        <div class="h3 py-2 flex-grow-1 fw-bold">Watch List</div>
+        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('members.profile' )}}">Your Profile</a></div>
+        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
+        <div class="pt-4 mx-2 type-selected fw-bold type-item">Your Watchlist</div>
+    </div>
+    <div class="left-align mb-5">
+        {% if not(now_playing.count() != 0 or not_playing.count() != 0 or coming_soon.count() != 0) %}
+            <p>Don't miss that movie you want to see. Tap the 
+                <span class="add-watchlist">
+                    <span class="heart text-primary">&#9825;</span>
+                </span> 
+                to add it to your watch list.</p>
+        {% else %}
+            <h4 class="fw-bold mb-4">Movies You'd Like to Watch</h4>
+            {% if now_playing.count() != 0 %}
+                <hr><h4 class="fw-bold mb-4">Now Playing</h4>
+                {% for m in now_playing %}
+                    <div class="d-flex flex-wrap left-align mb-5">
+                        <div class="showtime left-align mb-2 me-4">
+                            <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="movie-title">{{ m.movie.title }}</h5>
+                            <p>Now Playing</p>
+                            <div class="d-flex justify-content-between watchlist-item">
+                                <a class="fw-bold info" href="{{ url_for('users.movie', movie_route=m.movie.route) }}">Get Tickets</a>
+                                <a class="info" href="{{ url_for('members.remove_watchlist', m_id=m.movie.id) }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if coming_soon.count() != 0 %}
+                <hr><h4 class="fw-bold mb-4">Coming Soon</h4>
+                {% for m in coming_soon %}
+                    <div class="d-flex flex-wrap left-align mb-5">
+                        <div class="showtime left-align mb-2 me-4">
+                            <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="movie-title">{{ m.movie.title }}</h5>
+                            <p>Opens {{ m.movie.release_date.strftime("%b %d, %Y") }}</p>
+                            <div class="d-flex justify-content-between watchlist-item">
+                                <a class="fw-bold info" href="{{ url_for('users.movie', movie_route=m.movie.route) }}">Get Advanced Tickets</a>
+                                <a class="info" href="{{ url_for('members.remove_watchlist', m_id=m.movie.id) }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if not_playing.count() != 0 %}
+                <hr><h4 class="fw-bold mb-4">No Longer In Theater</h4>
+                {% for m in not_playing %}
+                    <div class="d-flex flex-wrap left-align mb-5">
+                        <div class="showtime left-align mb-2 me-4">
+                            <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="movie-title">{{ m.movie.title }}</h5>
+                            <p>No longer playing</p>
+                            <div class="d-flex justify-content-end watchlist-item">
+                                <a class="info" href="{{ url_for('members.remove_watchlist', m_id=m.movie.id) }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

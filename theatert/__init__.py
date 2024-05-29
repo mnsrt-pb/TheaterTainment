@@ -13,8 +13,12 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 
-login_manager.login_view = 'users.employee_login'
-login_manager.login_message_category = "danger"
+# login_manager.login_view = 'users.member_login'
+login_manager.blueprint_login_views = {
+    'members': 'users.member_login',
+    'employees': 'users.employee_login',
+}
+login_manager.login_message_category = "light"
 
 
 def create_app(config_class=Config):

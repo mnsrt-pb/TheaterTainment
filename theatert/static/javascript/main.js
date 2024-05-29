@@ -133,12 +133,23 @@ $(document).ready(function(){
   })
   
   $('.add-watchlist').each(function(){
+    // ♥
+    // ♡
+    if ($(this).find('.heart').html() == "♡"){
       $(this).hover(function (){
         $(this).find('.heart').html("&#9829;")
       })
       $(this).mouseleave(function (){
         $(this).find('.heart').html("&#9825;")
       })
+    } else {
+      $(this).hover(function (){
+        $(this).find('.heart').html("&#9825;")
+      })
+      $(this).mouseleave(function (){
+        $(this).find('.heart').html("&#9829;")
+      })
+    }
   })
 
   ticket_seat_map();

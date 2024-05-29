@@ -37,7 +37,7 @@ def login_required(role="ANY"):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return login_manager.unauthorized()
-            if (current_user.role != role) and (role == "ANY"):
+            if (current_user.role != role) and (role != "ANY"):
                 return login_manager.unauthorized()
 
             return f(*args, **kwargs)

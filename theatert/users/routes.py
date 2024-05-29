@@ -3,7 +3,7 @@ from flask import abort, Blueprint, flash, render_template,  redirect, request, 
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import extract, collate
 from theatert import bcrypt, db
-from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Cards, Purchase, Purchased_Ticket
+from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Cards, Purchase, Purchased_Ticket, Watchlist
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm
@@ -176,9 +176,9 @@ def employee_login():
 
     if current_user.is_authenticated:
         if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.employees.home'))
+            return redirect(url_for('employees.home'))
         else:
-            return redirect(url_for('users.todo'))
+            return redirect(url_for('users.home'))
 
     form = EmployeeLoginForm()
     if form.validate_on_submit():
@@ -202,9 +202,9 @@ def member_login():
 
     if current_user.is_authenticated:
         if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.employees.home'))
+            return redirect(url_for('employees.home'))
         else:
-            return redirect(url_for('users.todo'))
+            return redirect(url_for('users.home'))
 
     form = MemberLoginForm()
     if form.validate_on_submit():
@@ -253,8 +253,11 @@ def home():
                 extract('day', Screening.start_datetime).is_(date.day),
             )).order_by(Screening.start_datetime)
         s_showtimes.append(st)
+    
 
-    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes, timenow=datetime.now(), date=date)
+    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+
+    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes, timenow=datetime.now(), date=date, watchlist=watchlist)
 
 
 @users.route('/movie/<string:movie_route>')
@@ -276,25 +279,32 @@ def movie(movie_route):
             extract('day', Screening.start_datetime).is_(date.day),
         )).order_by(Screening.start_datetime)
 
-    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, showtimes=showtimes, date=date, timenow=datetime.now())
+    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+
+    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, showtimes=showtimes, date=date, timenow=datetime.now(), watchlist=watchlist)
 
 
 @users.route('/movies')
 def movies():
     movies = Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                db.ColumnOperators.__le__(Movie.release_date, datetime.now())))\
                 .order_by(collate(Movie.title, 'NOCASE'))
-            
-    return render_template('member/movies.html', type='Now Playing', first='type-selected', movies=movies)
+
+    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+
+    return render_template('member/movies.html', type='Now Playing', first='type-selected', movies=movies, watchlist=watchlist)
 
 
 @users.route('/movies/coming-soon')
 def movies_coming_soon():
-    movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), \
+    movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
                 db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
                 .order_by(collate(Movie.title, 'NOCASE'))
-    return render_template('member/movies.html', type='Coming Soon', second='type-selected', movies=movies)
+    
+    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+
+    return render_template('member/movies.html', type='Coming Soon', second='type-selected', movies=movies, watchlist=watchlist)
 
 
 @users.route('/logout')

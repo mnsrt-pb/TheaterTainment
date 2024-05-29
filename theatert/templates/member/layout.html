@@ -69,8 +69,13 @@
             {% if messages %}
                 <header class="mt-4">
                     {% for category, message in messages %}
-                        <div class="alert alert-{{category}} mb-0 text-center" role="alert">
-                            {{ message }} 
+                        <div class="alert alert-{{category}} mb-0 d-flex justify-content-center" role="alert">
+                            <div class="text-center flex-grow-1 color-dark">
+                                {{ message|safe }} 
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                         </div>
                     {% endfor %}
                 </header>

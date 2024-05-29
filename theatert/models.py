@@ -45,6 +45,7 @@ class Member(User):
     dob = db.Column(db.Date)
 
     cards = db.relationship('Cards', backref='member', lazy=True) # Can have many cards
+    watchlist = db.relationship('Watchlist', backref='member', lazy=True) # Can have many movies
 
     __mapper_args__ = {
         'polymorphic_identity': 'MEMBER',
@@ -95,6 +96,7 @@ class Movie(db.Model):
     genres = db.relationship('Genre', secondary=genres, lazy='subquery', 
                              backref=db.backref('movies', lazy=True)) # Can have many genres
     screenings = db.relationship('Screening', backref='movie', lazy=True) # Can have many screenings
+    watchlist = db.relationship('Watchlist', backref='movie', lazy=True) # Can be a part of many watchlists
     
     def __repr__(self):
         return f"Movie({self.id}, {self.tmdb_id}, {self.title}, {self.status}, {self.overview}, {self.release_date}, {self.runtime}, {self.tagline}, {self.active}, {self.deleted}, {self.genres})"
@@ -106,6 +108,16 @@ class Genre(db.Model):
     
     def __repr__(self):
         return f"Genre({self.id}, {self.name})"
+
+
+class Watchlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False) # Has one member
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False) # Has one movie
+
+    def __repr__(self): 
+        return f"Id:({self.id}, Member: {self.member_id}, Movie: {self.movie_id})"
 
 
 # Auditoriums & Seats
