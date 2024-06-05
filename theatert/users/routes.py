@@ -16,6 +16,7 @@ import calendar
 users = Blueprint('users', __name__)
 
 
+# TODO: 404 PAGE
 @users.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     form = CheckoutForm()
@@ -75,7 +76,6 @@ def checkout():
     return render_template('guest/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, show_form=show_form, member_form=member_form)
 
 
-# FIXME: unique constraint with token causing errors ????? WHY PLS HELP
 @users.route('/checkout-validate', methods=['POST'])
 def checkout_validate():
     form = CheckoutForm()
@@ -364,6 +364,7 @@ def ticket_seat_map(showtime_id):
     purchased_ticket = Ticket.query.join(Screening).join(Seat).join(Purchased_Ticket) \
         .filter(
             db.and_(
+                Screening.id.is_(screening.id),
                 Screening.id.is_(Ticket.screening_id),
                 Seat.id.is_(Ticket.seat_id),
                 Purchased_Ticket.ticket_id.is_(Ticket.id)))

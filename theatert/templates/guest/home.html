@@ -15,7 +15,7 @@
             <div class="container-card mx-3 mb-3">
                 <div class="card card-slick">
                     <a href="{{ url_for('users.movie', movie_route=m.route) }}" class="movie-link">
-                        <img src="https://image.tmdb.org/t/p/original{{m.poster_path}}" class="card-img-top" alt="Poster for {{m.title}}">
+                        <img src="https://image.tmdb.org/t/p/original{{m.poster_path}}" class="card-img-top img-not-rounded" alt="Poster for {{m.title}}">
                     </a>
 
                     <!-- Trailer Modal Trigger (1) -->
@@ -198,9 +198,9 @@
                             s.start_datetime.hour == timenow.hour and 
                             s.start_datetime.minute <= timenow.minute) %}
 
-                            <button type="button" class="btn btn-outline-other-darker mt-3 me-3" disabled>{{ s.start_datetime.strftime(" %I:%M %p") }}</button>
+                            <button type="button" class="btn btn-sm btn-outline-other-darker mt-3 me-3" disabled>{{ s.start_datetime.strftime(" %I:%M %p") }}</button>
                         {% else %}
-                            <button type="button" class="btn btn-outline-other-darker mt-3 me-3">
+                            <button type="button" class="btn btn-sm  btn-outline-other-darker mt-3 me-3">
                                 <a href="{{ url_for('users.ticket_seat_map', showtime_id=s.id ) }}">{{ s.start_datetime.strftime(" %I:%M %p") }}</a>
                             </button>
                         {% endif %}

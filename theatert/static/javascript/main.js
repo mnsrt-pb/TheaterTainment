@@ -144,10 +144,10 @@ $(document).ready(function(){
       })
     } else {
       $(this).hover(function (){
-        $(this).find('.heart').html("&#982;")
+        $(this).find('.heart').html("&#9825;")
       })
       $(this).mouseleave(function (){
-        $(this).find('.heart').html("&#9825;")
+        $(this).find('.heart').html("&#9829;")
       })
     }
   })

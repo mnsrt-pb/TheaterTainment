@@ -8,13 +8,11 @@ a .movie-link {
     text-decoration: none;
 }
 
-.action  { 
-    width: 100%;
-}
+.action  { width: 100%; }
 
-.add-watchlist {
-    cursor: pointer;
-}
+.add-watchlist { cursor: pointer; }
+
+#all-movies .card { border: none; }
 
 button#action { 
     border-radius: 0 !important;
@@ -26,12 +24,7 @@ button#action {
     width: 100%;
 }
 
-.btn-rounded {border-radius: 24px;}
-
-.card-img-top {
-    border-top-left-radius: 0px !important;
-    border-top-right-radius: 0px !important;
-}
+.btn-rounded { border-radius: 24px; }
 
 .col-1 > img {
     width: 80%;
@@ -65,9 +58,9 @@ button#action {
 
 .cont-7 { width: 300px !important; }
 
-.cont-8 {width: 40%; }
+.cont-8 { width: 40%; }
 
-.cont-9 {width: 60%; }
+.cont-9 { width: 60%; }
 
 .cont-10 {
     width: 48%; 
@@ -102,9 +95,187 @@ button#action {
 
 .hide-info { display: none; }
 
-.info {cursor: pointer; }
+.img-not-rounded {
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
 
-/* Credit Card Imgs Start */
+.info { cursor: pointer; }
+
+.left-align { text-align: left; }
+
+@media screen and (min-width: 750px) {
+    .cont-1 { width: 35vw; }
+}
+
+@media screen and (max-width: 750px) {
+    .cont-2 { width: 250px; }
+    td { white-space: nowrap; }
+    .cont-8, .cont-10 { width: 100%; }
+}
+
+@media screen and (max-width: 300px) {
+    .cont-2 { width: 100%; }
+    .movie-top { padding-top: 40px; }
+}
+
+@media screen and (max-width: 500px) {
+    .col-1 { width: 80%; }
+    .col-2 { width: 100%; }
+    .col-3 { width: 30%; }
+    .col-4 { width: 70%; }
+    
+    .trailer > img { width: 70px; }
+
+    .backdrop > img:not(.play-button) { width: 150%; }
+    .backdrop > .play-button { 
+        top: 50% !important; 
+        left: 75% !important; 
+    }
+    .movie-detail-title-label { font-size: 1em !important}
+}
+
+.modal-trailer { width: 100vw; }
+
+.movie-detail, .showtime-date-detail {
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 400!important;
+}
+
+.movie-detail-label { 
+    font-size: .7em;
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title, .showtime-date { 
+    font-family: 'Work Sans', sans-serif!important; 
+    font-weight: 700!important;
+}
+
+.movie-detail-title-label { font-size: 1.3em; }
+.showtime-date-label {font-size: 1em; }
+
+.movies-slick .card {
+    border: none;
+    border-radius: 100%;
+}
+
+.movie-title { font-weight: 600!important; }
+
+.my-font { font-family: 'Work Sans', sans-serif!important; }
+.my-small { font-size: medium; }
+.my-small2 { font-size: small; }
+.no-borders *{ border: none !important; }
+
+.play-button {
+    width: 50px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    opacity: .7;
+    transition: opacity .2s ease-in-out
+}
+
+.card-slick .play-button {
+    top: 35%; 
+    left: 50%;
+}
+
+.movies .play-button {
+    top: 40%; 
+    left: 50%;
+}
+
+.play-button:hover {
+    opacity: 1;
+    transition: opacity .2s ease-in-out
+}
+
+.movies-slick, .dates-slick {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out;
+    -webkit-transition: opacity 1s ease-in-out;
+}
+
+.movies-slick.slick-initialized, .dates-slick.slick-initialized {
+    visibility: visible;
+    opacity: 1;    
+}
+
+.more {
+    background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.qrcode > img {
+    width: 100px;
+    font-size: .8em;
+}
+
+.qrcode2 { object-fit: contain; }
+
+.right-align { text-align: right; }
+
+.round { border-radius: 50% !important; }
+
+.screen {
+    border-top: 10px solid black; 
+    border-radius: 50%; 
+    position: inherit; 
+}
+.screen-a {
+    width: 800px; 
+    min-width: 800px; 
+}
+
+.screen-b {
+    width: 450px;  
+    min-width: 450px;
+}
+
+.screen-c {
+    width: 520px; 
+    min-width: 520px; 
+}
+
+.showtime > img, .showtime > div {
+    width: 150px;
+    font-size: .8em;
+}
+
+.showtime > div { border-radius: 0.35em; }
+
+.toggle-visibility-1, .toggle-visibility-2 { cursor: pointer; }
+
+#trailer  {
+    width: 60%;
+    position: relative
+}
+
+.trailer > img { width: 70px; }
+
+.watchlist-item { width: 50% }
+
+.watchlist-text-movie { font-size: .7em; }
+
+.watchlist-text-2 { font-size: .7em !important; }
+
+
+
+
+
+
+
+
+
+
+/* CREDIT CARD IMGS Start */
 #cc_holder {
     max-width: 250px;
     display: block;
@@ -154,162 +325,8 @@ img {
 #cc_holder.AmericanExpress .amex, #cc_holder.Discover .discover {
     box-shadow: 2px 2px 5px rgba(0,0,0,.12);
 }
-/* Credit Card Imgs End */
+/* CREDIT CARD IMGS end */
 
-.left-align { text-align: left; }
-.right-align { text-align: right; }
-
-@media screen and (min-width: 750px) {
-    .cont-1 {
-        width: 35vw;
-    }
-}
-
-@media screen and (max-width: 750px) {
-    .cont-2 {
-        width: 250px;
-    }
-    td {
-        white-space: nowrap;
-    }
-    .cont-8, .cont-10 {
-        width: 100%;
-    }
-}
-
-@media screen and (max-width: 300px) {
-    .cont-2 {
-        width: 100%;
-    }
-    .movie-top {
-        padding-top: 40px;
-    }
-}
-
-@media screen and (max-width: 500px) {
-    .col-1 { width: 80%; }
-    .col-2 { width: 100%; }
-    .col-3 { width: 30%; }
-    .col-4 { width: 70%; }
-    
-    .trailer > img { 
-        width: 70px; 
-    }
-    .backdrop > img:not(.play-button) { 
-        width: 150%; 
-    }
-    .backdrop > .play-button { 
-        top: 50% !important; 
-        left: 75% !important; 
-    }
-    .movie-detail-title-label { font-size: 1em !important}
-}
-
-
-.modal-trailer {
-    width: 100vw;
-}
-
-.movie-detail, .showtime-date-detail
-{
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 400!important;
-}
-
-.movie-detail-label { 
-    font-size: .7em;
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 700!important;
-}
-
-.movie-detail-title, .showtime-date { 
-    font-family: 'Work Sans', sans-serif!important; 
-    font-weight: 700!important;
-}
-
-.movie-detail-title-label { font-size: 1.3em; }
-.showtime-date-label {font-size: 1em; }
-
-.movies-slick .card {
-    border: none;
-    border-radius: 100%;
-}
-
-.movie-title {font-weight: 600!important;}
-
-.my-font {font-family: 'Work Sans', sans-serif!important;}
-.my-small {font-size: medium;}
-.my-small2 {font-size: small;}
-.no-borders *{border: none !important;}
-
-.play-button {
-    width: 50px;
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    opacity: .7;
-    transition: opacity .2s ease-in-out
-}
-
-.card-slick .play-button {
-    top: 35%; left: 50%;
-}
-
-.movies .play-button {
-    top: 40%; left: 50%;
-}
-
-.play-button:hover {
-    opacity: 1;
-    transition: opacity .2s ease-in-out
-}
-
-.movies-slick, .dates-slick {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 1s ease-in-out;
-    -webkit-transition: opacity 1s ease-in-out;
-}
-
-.movies-slick.slick-initialized, .dates-slick.slick-initialized {
-    visibility: visible;
-    opacity: 1;    
-}
-
-.more {
-    background: none;
-	border: none;
-	padding: 0;
-	font: inherit;
-	cursor: pointer;
-	outline: inherit;
-}
-
-/* .row {
-    overflow: auto; 
-} */
-
-.round { border-radius: 50% !important; }
-
-.screen {
-    border-top: 10px solid black; 
-    border-radius: 50%; 
-    position: inherit; 
-}
-.screen-a {
-    width: 800px; 
-    min-width: 800px; 
-}
-
-.screen-b {
-    width: 450px;  
-    min-width: 450px;
-}
-
-.screen-c {
-    width: 520px; 
-    min-width: 520px; 
-}
 
 /* SEAT start */
 button.seat { border:none; }
@@ -343,44 +360,3 @@ button.seat { border:none; }
     height: 100%;
 }
 /* SEAT end */
-
-.showtime > img, .showtime > div {
-    width: 150px;
-    font-size: .8em;
-}
-
-.qrcode > img {
-    width: 100px;
-    font-size: .8em;
-}
-
-.qrcode2 {
-    object-fit: contain;
-}
-
-.showtime > div { border-radius: 0.35em; }
-
-.toggle-visibility-1, .toggle-visibility-2 {
-    cursor: pointer;
-}
-
-#trailer  {
-    width: 60%;
-    position: relative
-}
-
-.trailer > img {
-    width: 70px;
-}
-
-.watchlist-item {
-    width: 50%
-}
-
-.watchlist-text-movie {
-    font-size: .7em;
-}
-
-.watchlist-text-2 {
-    font-size: .7em !important;
-}

@@ -19,7 +19,7 @@ members = Blueprint('members', __name__, url_prefix='/member')
 @members.route('/<int:m_id>/add_watchlist', methods=['GET'])
 @login_required(role='MEMBER')
 def add_watchlist(m_id):
-    movie = Movie.query.filter_by(id = m_id, deleted=False).first_or_404()
+    movie = Movie.query.filter_by(id = m_id, deleted=False, active=True).first_or_404()
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
     
     if not added:
@@ -128,7 +128,6 @@ def checkout():
     return render_template('member/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, saved_card=saved_card)
 
 
-# FIXME: unique constraint with token causing errors ????? WHY PLS HELP
 @members.route('/checkout-validate', methods=['POST'])
 @login_required(role='MEMBER')
 def checkout_validate():

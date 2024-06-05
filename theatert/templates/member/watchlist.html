@@ -22,7 +22,7 @@
         {% else %}
             <h4 class="mb-4">Movies You'd Like to Watch</h4>
             {% if now_playing.count() != 0 %}
-                <hr><h4 class="fw-bold mb-4">Now Playing</h4>
+                <hr><h5 class="fw-bold mb-4">Now Playing</h5>
                 {% for m in now_playing %}
                     <div class="d-flex flex-wrap left-align mb-5">
                         <div class="showtime left-align mb-3 me-3">
@@ -45,7 +45,7 @@
             {% endif %}
 
             {% if coming_soon.count() != 0 %}
-                <hr><h4 class="fw-bold mb-4">Coming Soon</h4>
+                <hr><h5 class="fw-bold mb-4">Coming Soon</h5>
                 {% for m in coming_soon %}
                     <div class="d-flex flex-wrap left-align mb-5">
                         <div class="showtime left-align mb-3 me-3">

@@ -11,6 +11,10 @@ a.page-current:link {
   background-color: #801f4f;
 }
 
+#all-movies .card:hover {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
 .color-a {
   color: #6c757d;
 }
