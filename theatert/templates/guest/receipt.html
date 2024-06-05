@@ -6,15 +6,29 @@
 
 {% block main %}
 <div class="container left-align">
-    <h3 class="fw-bold mb-4 mt-3">Order Details</h3>
-    <div class="d-flex justify-content-between">
-        <h5 class="fw-bold">Thank you for your purchase</h5>
-        <div>
-            <h6 class="fw-bold">Confirmation Token</h6>
-            <p class="my-small2 mb-5">{{ purchase.confirmation }}</p>
+    <h2 class="text-center mb-4"><span class="color-dark">THEATER</span><span class="color-light">TAINMENT</span></h2>
+    <h3 class="fw-bold mb-4 mt-3 mx-3">Order Details</h3>
+    
+    <div class="col-12 p-3 mb-5">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-5 col-lg-8 pe-3">
+                <h5 class="fw-bold">Thank you for your purchase</h5>
+                <p>Your tickets have been saved to your account.</p>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-7 col-lg-4 rounded shadow p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="qrcode me-3">
+                        <img class="img-responsive center" src="{{ qrcode(purchase.confirmation) }}">
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold">Confirmation Token</h6>
+                        <p class="my-small2">{{ purchase.confirmation }}</p>
+                    </div>
+                </div>
+                <small>Show your barcode at the theatre podium to pick up your tickets.</small>
+            </div>
         </div>
     </div>
-
 
     <div class="d-flex flex-wrap flex-sm-nowrap flex-md-nowrap flex-lg-nowrap rounded shadow p-3 mb-5">
         <div class="showtime left-align me-4">

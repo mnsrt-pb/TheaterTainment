@@ -21,9 +21,14 @@
             <div id="checkout-selection" class="cont-10">
         {% endif %}
             <p>Sign in to use saved payment information. If you don't have an account, you can register for a Cinemark account.</p>
-            <div class="d-grid gap-2 mx-auto">
-                <button class="btn btn-primary btn-rounded my-1 py-2">Sign In</button>
-            </div>
+
+            <form action="{{ url_for('members.checkout') }}" method="POST">
+                {{ member_form.hidden_tag() }}
+                <div class="d-grid gap-2 mx-auto">
+                    {{ member_form.submit(class="btn btn-primary btn-rounded my-1 py-2", value="Sign In")}}
+                </div>
+            </form>
+
             <div class="d-grid gap-2 mx-auto info">
                 <button id="guest-checkout" class="btn btn-outline-secondary btn-rounded my-1 py-2">Guest Checkout</button>
             </div>

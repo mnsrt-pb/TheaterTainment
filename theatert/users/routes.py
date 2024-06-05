@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 from flask import abort, Blueprint, flash, render_template,  redirect, request, session, url_for
 from flask_login import current_user, login_user, logout_user
+from secrets import token_urlsafe
 from sqlalchemy import extract, collate
 from theatert import bcrypt, db
-from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Cards, Purchase, Purchased_Ticket, Watchlist
+from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Purchase, Purchased_Ticket, Watchlist
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
-from theatert.users.members.forms import LoginForm as MemberLoginForm
+from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
 from theatert.users.utils import apology, date_obj
 from werkzeug.datastructures import MultiDict
 
@@ -18,18 +19,18 @@ users = Blueprint('users', __name__)
 @users.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     form = CheckoutForm()
+    member_form = MemberCheckoutForm()
 
-    form_data = session.get('form_data', None)
-
-    if form_data and not request.form.get('screening-id'):
+    form_data = session.get('form_data')
+    
+    if form_data:
         form = CheckoutForm(MultiDict(form_data))
         screening = Screening.query.join(Movie).join(Auditorium) \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        # FIXME: UNCOMMENT
-        # if screening.start_datetime < datetime.now():
-        #     abort(404)
+        if screening.start_datetime < datetime.now():
+            abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
             for x in form.seats_selected.data.split(',') ]
@@ -39,46 +40,55 @@ def checkout():
             'senior': int(form.senior_tickets.data) }
         
         show_form = True
+        
         form.validate()
+    
     else:
         screening = Screening.query.join(Movie).join(Auditorium) \
-            .filter(Screening.id.is_(request.form.get('screening-id'))) \
+            .filter(Screening.id.is_(request.form.get('screening_id'))) \
             .first_or_404()
         
-        # FIXME: UNCOMMENT
-        # if screening.start_datetime < datetime.now():
-        #     abort(404)
+        if screening.start_datetime < datetime.now():
+            abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
-            for x in request.form.get('seats-selected').split(',') ]
+            for x in request.form.get('seats_selected').split(',') ]
 
-        tickets = { 'adult': int(request.form.get('adult-tickets')), 
-                    'child': int(request.form.get('child-tickets')), 
-                    'senior': int(request.form.get('senior-tickets')) }
+        tickets = { 'adult': int(request.form.get('adult_tickets')), 
+                    'child': int(request.form.get('child_tickets')), 
+                    'senior': int(request.form.get('senior_tickets')) }
 
         form.screening_id.data = screening.id
-        form.seats_selected.data = request.form.get('seats-selected')
-        form.adult_tickets.data = request.form.get('adult-tickets')
-        form.child_tickets.data = request.form.get('child-tickets')
-        form.senior_tickets.data = request.form.get('senior-tickets')
+        form.seats_selected.data = request.form.get('seats_selected')
+        form.adult_tickets.data = request.form.get('adult_tickets')
+        form.child_tickets.data = request.form.get('child_tickets')
+        form.senior_tickets.data = request.form.get('senior_tickets')
+        form.screening_id.data = screening.id
+
+        member_form.screening_id.data = screening.id
+        member_form.seats_selected.data = request.form.get('seats_selected')
+        member_form.adult_tickets.data = request.form.get('adult_tickets')
+        member_form.child_tickets.data = request.form.get('child_tickets')
+        member_form.senior_tickets.data = request.form.get('senior_tickets')
         show_form = False
 
-    return render_template('guest/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, show_form=show_form)
+    return render_template('guest/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, show_form=show_form, member_form=member_form)
 
 
+# FIXME: unique constraint with token causing errors ????? WHY PLS HELP
 @users.route('/checkout-validate', methods=['POST'])
 def checkout_validate():
     form = CheckoutForm()
+
     if form.validate_on_submit():
         screening = Screening.query.join(Movie).join(Auditorium) \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        # FIXME: UNCOMMENT
-        # if screening.start_datetime < datetime.now():
-        #     abort(404)
+        if screening.start_datetime < datetime.now():
+            abort(404)
 
-        form_data = session.get('form_data', None) 
+        form_data = session.get('form_data') 
         if form_data: 
             # saved data form previous submittd form because current submission failed 
             # (screening_id, adult_tickets, etc.)
@@ -87,7 +97,7 @@ def checkout_validate():
         day = str(calendar.monthrange(form.exp_year.data, form.exp_month.data)[1])
         exp_date = datetime.strptime(str(form.exp_month.data) + '/' + day + '/' + str(form.exp_year.data), '%m/%d/%Y').date()
 
-        card = Card.query.filter_by(card_num = form.card_number.data, guest = True).first()
+        card = Card.query.filter_by(card_num = form.card_number.data, member = False).first()
 
         if card:
             if not (bcrypt.check_password_hash(card.sec_code, form.sec_code.data) \
@@ -99,26 +109,18 @@ def checkout_validate():
                 return redirect(url_for('users.checkout'))
 
         else:
-            card = Card.query.filter_by(card_num = form.card_number.data, guest = False).first()
+            card = Card.query.filter_by(card_num = form.card_number.data, member = True).first()
             
             # Cards with the same card number's must have the same data (sec_code, exp_date, and billing_zip)
             # A card can be saved in the Card table at most twice (once for member's and once for guests)
             if card:
-                if card.sec_code:
-                    if not (bcrypt.check_password_hash(card.sec_code, form.sec_code.data) \
-                        and card.exp_date == exp_date and card.card_type == form.card_type.data \
-                        and card.billing_zip == int(form.zip_code.data)):
+                if not (bcrypt.check_password_hash(card.sec_code, form.sec_code.data) \
+                    and card.exp_date == exp_date and card.card_type == form.card_type.data \
+                    and card.billing_zip == int(form.zip_code.data)):
 
-                        flash('Invalid card.', 'danger')
-                        session['form_data'] = request.form
-                        return redirect(url_for('users.checkout'))
-                else:
-                    if not (card.exp_date == exp_date and card.card_type == form.card_type.data \
-                        and card.billing_zip == int(form.zip_code.data)):
-
-                        flash('Invalid card.', 'danger')
-                        session['form_data'] = request.form
-                        return redirect(url_for('users.checkout'))
+                    flash('Invalid card.', 'danger')
+                    session['form_data'] = request.form
+                    return redirect(url_for('users.checkout'))
             
             card = Card(
                 card_num = form.card_number.data,
@@ -126,6 +128,7 @@ def checkout_validate():
                 exp_date = exp_date,
                 card_type = form.card_type.data,
                 billing_zip = form.zip_code.data,
+                member = False
             )
             db.session.add(card)
             db.session.commit()
@@ -135,7 +138,8 @@ def checkout_validate():
             adult_tickets = form.adult_tickets.data,
             child_tickets = form.child_tickets.data,
             senior_tickets = form.senior_tickets.data,
-            card_id = card.id
+            card_id = card.id,
+            confirmation = token_urlsafe(12)
         )
         db.session.add(purchase)
 
@@ -222,8 +226,7 @@ def member_login():
     return render_template('/member/login.html', form=form)
 
 
-# TODO: Ensure only users who are not logged in can get here
-@users.route('/')
+@users.route('/', methods=['GET', 'POST'])
 def home():
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 41
@@ -338,17 +341,23 @@ def receipt(confirmation):
 
 @users.route('/ticket-seat-map/<int:showtime_id>')
 def ticket_seat_map(showtime_id):
-    form_data = session.get('form_data', None)
+    form_data = session.get('form_data')
+    form2_data = session.get('form2_data')
+    form_data_login = session.get('form_data_login')
+    
     if form_data:
         session.pop('form_data')
+    if form2_data:
+        session.pop('form2_data')
+    if form_data_login:
+        session.pop('form_data_login')
 
     screening = Screening.query.join(Movie).join(Auditorium) \
         .filter(Screening.id.is_(showtime_id)) \
         .first_or_404()
     
-    # FIXME: UNCOMMENT
-    # if screening.start_datetime < datetime.now():
-    #     abort(404)
+    if screening.start_datetime < datetime.now():
+        abort(404)
     
     seats = Seat.query.filter_by(auditorium_id = screening.auditorium.id).order_by(Seat.id) 
 
@@ -366,7 +375,7 @@ def ticket_seat_map(showtime_id):
     return render_template('/guest/map.html', screening=screening, seats=seats, purchased_seats=purchased_seats)
 
 
-@users.route('/todo')
+@users.route('/todo', methods=['GET', 'POST'])
 def todo():
     return apology('TODO', 'member/layout.html', 403)
 

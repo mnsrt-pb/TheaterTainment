@@ -6,11 +6,11 @@
 
 {% block main %}
 <div class="container">
-    <div class="d-flex left-align mb-4 flex-wrap">
-        <div class="h3 py-2 flex-grow-1 fw-bold">Profile & Payment</div>
-        <div class="pt-4 mx-2 type-selected fw-bold type-item">Your Profile</div>
-        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
-        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('members.watchlist' )}}">Your Watchlist</a></div>
+    <h3 class="d-flex justify-content-start fw-bold">Profile & Payment</h3>
+    <div class="d-flex justify-content-end flex-wrap mb-4">
+        <div class="pt-3 mx-2 type-selected fw-bold type-item">Your Profile</div>
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.purchases' )}}">Purchases</a></div>
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.watchlist' )}}">Your Watchlist</a></div>
     </div>
 
     <div class="left-align mb-5">
@@ -318,7 +318,7 @@
                 <form action="" method="post"class="needs-validation" novalidate>
                     {{ payment_form.hidden_tag() }}
 
-                    <div id= "cc_holder" class="d-flex align-items-center">
+                    <div id= "cc_holder" class="d-flex align-items-center mb-3">
                         <div class="visa rounded m-2">
                             <img class="img-responsive" src="../../static/images/cc_visa.webp" alt="Visa">
                         </div>

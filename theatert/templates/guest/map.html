@@ -113,18 +113,22 @@
         
         <!-- Seat Form -->
         <div class="cont-8 align-self-start rounded shadow mb-5">
-            <form action="{{ url_for('users.checkout') }}" method="POST">
+            {% if current_user.is_authenticated %}
+                <form action="{{ url_for('members.checkout') }}" method="POST">
+            {% else %}
+                <form action="{{ url_for('users.checkout') }}" method="POST">
+            {% endif %}
                 <div id="select-seats-message">
                     <h5 class="fw-bolder mb-4 mt-3">Tickets {{ "$%.2f"|format(screening.adult_price)}}</h5>
                     <hr>
                     <span><h5 class="fw-bolder m-5 p-4">Select your seats<br>to see ticket options.</h5></span>
                 </div>
                 <div id="select-seats-form" hidden>
-                    <input type="hidden" name="screening-id" value="{{ screening.id }}">
-                    <input type="hidden" id="seats-selected" name="seats-selected" value="">
-                    <input type="hidden" id="adult-tickets" name="adult-tickets" value="0">
-                    <input type="hidden" id="child-tickets" name="child-tickets" value="0">
-                    <input type="hidden" id="senior-tickets" name="senior-tickets" value="0">
+                    <input type="hidden" name="screening_id" value="{{ screening.id }}">
+                    <input type="hidden" id="seats_selected" name="seats_selected" value="">
+                    <input type="hidden" id="adult_tickets" name="adult_tickets" value="0">
+                    <input type="hidden" id="child_tickets" name="child_tickets" value="0">
+                    <input type="hidden" id="senior_tickets" name="senior_tickets" value="0">
 
                     <h5 class="fw-bolder mb-4 mt-3">Select <span id="tickets-amt"></span></h5><hr>
                     <div class="container col-4 ">

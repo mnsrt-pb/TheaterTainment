@@ -6,11 +6,11 @@
 
 {% block main %}
 <div class="container">
-    <div class="d-flex left-align mb-4 flex-wrap">
-        <div class="h3 py-2 flex-grow-1 fw-bold">Watch List</div>
-        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('members.profile' )}}">Your Profile</a></div>
-        <div class="pt-4 mx-2 type-item"><a href="{{ url_for('users.home' )}}">Purchases</a></div>
-        <div class="pt-4 mx-2 type-selected fw-bold type-item">Your Watchlist</div>
+    <h3 class="d-flex justify-content-start fw-bold">Watch List</h3>
+    <div class="d-flex justify-content-end flex-wrap mb-4">
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.profile' )}}">Your Profile</a></div>
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.purchases' )}}">Purchases</a></div>
+        <div class="pt-3 mx-2 type-selected fw-bold type-item">Your Watchlist</div>
     </div>
     <div class="left-align mb-5">
         {% if not(now_playing.count() != 0 or not_playing.count() != 0 or coming_soon.count() != 0) %}
@@ -20,12 +20,12 @@
                 </span> 
                 to add it to your watch list.</p>
         {% else %}
-            <h4 class="fw-bold mb-4">Movies You'd Like to Watch</h4>
+            <h4 class="mb-4">Movies You'd Like to Watch</h4>
             {% if now_playing.count() != 0 %}
                 <hr><h4 class="fw-bold mb-4">Now Playing</h4>
                 {% for m in now_playing %}
                     <div class="d-flex flex-wrap left-align mb-5">
-                        <div class="showtime left-align mb-2 me-4">
+                        <div class="showtime left-align mb-3 me-3">
                             <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
                         </div>
                         <div class="flex-grow-1">
@@ -48,7 +48,7 @@
                 <hr><h4 class="fw-bold mb-4">Coming Soon</h4>
                 {% for m in coming_soon %}
                     <div class="d-flex flex-wrap left-align mb-5">
-                        <div class="showtime left-align mb-2 me-4">
+                        <div class="showtime left-align mb-3 me-3">
                             <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
                         </div>
                         <div class="flex-grow-1">
@@ -71,7 +71,7 @@
                 <hr><h4 class="fw-bold mb-4">No Longer In Theater</h4>
                 {% for m in not_playing %}
                     <div class="d-flex flex-wrap left-align mb-5">
-                        <div class="showtime left-align mb-2 me-4">
+                        <div class="showtime left-align mb-3 me-3">
                             <img src="https://image.tmdb.org/t/p/original{{m.movie.poster_path}}" alt="Poster for {{m.movie.title}}">
                         </div>
                         <div class="flex-grow-1">

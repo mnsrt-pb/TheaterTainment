@@ -46,6 +46,7 @@ class Member(User):
 
     cards = db.relationship('Cards', backref='member', lazy=True) # Can have many cards
     watchlist = db.relationship('Watchlist', backref='member', lazy=True) # Can have many movies
+    purchase_id = db.relationship('Purchase', backref='member', lazy=True) # Can be a part of many purchases
 
     __mapper_args__ = {
         'polymorphic_identity': 'MEMBER',
@@ -210,7 +211,7 @@ class Cards(db.Model):
 
 class Purchase(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
-    confirmation = db.Column(db.String, unique = True, default=token_urlsafe(16))
+    confirmation = db.Column(db.String, unique = True)
 
     email = db.Column(db.String, nullable=False)
     datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -220,10 +221,11 @@ class Purchase(db.Model):
     senior_tickets = db.Column(db.Integer, nullable=False)
 
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False) # Has one card
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=True) # Can have a member
     purchased_ticket_id = db.relationship('Purchased_Ticket', backref='purchase', lazy=True) # Can have many purchased tickets
 
     def __repr__(self): 
-        return f"Purchase({self.id}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
+        return f"Purchase({self.id}, confirmation:{self.confirmation}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
 
 
 class Purchased_Ticket(db.Model):

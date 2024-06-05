@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template
+from flask import render_template, request, session
 from flask_login import current_user
 from functools import wraps
 from theatert import login_manager
@@ -36,8 +36,8 @@ def login_required(role="ANY"):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                return login_manager.unauthorized()
-            if (current_user.role != role) and (role != "ANY"):
+                if role == "MEMBER":
+                    session['form_data_login'] = request.form
                 return login_manager.unauthorized()
 
             return f(*args, **kwargs)

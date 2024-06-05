@@ -123,6 +123,11 @@ button#action {
     border: 1px solid rgba(0,0,0,.2);
 }
 
+img {
+    overflow-clip-margin: content-box;
+    overflow: clip;
+}
+
 .img-responsive {
     display: block;
     max-width: 100%;
@@ -342,6 +347,15 @@ button.seat { border:none; }
 .showtime > img, .showtime > div {
     width: 150px;
     font-size: .8em;
+}
+
+.qrcode > img {
+    width: 100px;
+    font-size: .8em;
+}
+
+.qrcode2 {
+    object-fit: contain;
 }
 
 .showtime > div { border-radius: 0.35em; }
