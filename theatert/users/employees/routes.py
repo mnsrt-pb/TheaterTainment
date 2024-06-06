@@ -33,6 +33,7 @@ def auditoriums():
 # FIXME: should use login_required(role='EMPLOYEE')
 @employees.route('/')
 @employees.route('/home')
+@login_required(role='EMPLOYEE')
 def home():
     '''Show home page'''
     
@@ -107,7 +108,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Your account has been created! You are now able to log in.', 'success')
+        flash('Your account has been created! You are now able to log in.', 'light')
         return redirect(url_for('users.employee_login'))
     else:
         return render_template('employee/register.html', form=form)

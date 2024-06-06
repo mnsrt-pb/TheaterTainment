@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
+from flask_qrcode import QRcode
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -13,8 +14,12 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 
-login_manager.login_view = 'users.employee_login'
-login_manager.login_message_category = "danger"
+# login_manager.login_view = 'users.member_login'
+login_manager.blueprint_login_views = {
+    'members': 'users.member_login',
+    'employees': 'users.employee_login',
+}
+login_manager.login_message_category = "light"
 
 
 def create_app(config_class=Config):
@@ -26,6 +31,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    QRcode(app)
 
     # Blueprints
     from theatert.users.employees.movies.routes import movies
@@ -33,11 +39,14 @@ def create_app(config_class=Config):
     from theatert.users.employees.routes import employees
     from theatert.users.members.routes import members
     from theatert.users.routes import users
+    from theatert.errors.handlers import errors
+
     employees.register_blueprint(movies)
     employees.register_blueprint(showtimes)
     app.register_blueprint(employees)
     app.register_blueprint(members)
     app.register_blueprint(users)
+    app.register_blueprint(errors)
 
     return app
 

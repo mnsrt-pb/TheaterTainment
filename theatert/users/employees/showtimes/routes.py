@@ -14,7 +14,6 @@ showtimes = Blueprint('showtimes', __name__, url_prefix='/showtimes')
 @login_required(role="EMPLOYEE")
 def add_showtime():
     '''Assign showtimes to movies'''
-
     form = AddShowtime()
 
     movies = Movie.query.filter(
@@ -63,6 +62,9 @@ def add_showtime():
             
             if exists:
                 flash(f'A movie will screen at Auditorium {form.a_id.data} at this time. Try a different auditorium or time.', 'danger')
+            elif form.date_time.data < movie.release_date:
+                # Ensure movie's date and time are after movie's release date
+                flash(f'{movie.title} has not been released for the date entered.', 'danger')
             else: 
                 # Add screening
                 screening = Screening(
@@ -97,7 +99,7 @@ def add_showtime():
                         )
                         db.session.add(ticket)
 
-                flash('Showtime was created and tickets have been generated.', 'success')
+                flash('Showtime was created and tickets have been generated.', 'light')
 
                 db.session.commit()
                 return redirect(url_for('employees.showtimes.all_showtimes'))

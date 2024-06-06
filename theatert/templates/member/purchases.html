@@ -1,0 +1,114 @@
+{% extends "member/layout.html" %}
+
+{% block title %}
+    Watch List
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h3 class="d-flex justify-content-start fw-bold">Tickets & Purchases</h3>
+    <div class="d-flex justify-content-end flex-wrap mb-4">
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.profile' )}}">Your Profile</a></div>
+        <div class="pt-3 mx-2 type-selected fw-bold type-item">Purchases</div>
+        <div class="pt-3 mx-2 type-item"><a href="{{ url_for('members.watchlist' )}}">Your Watchlist</a></div>
+    </div>
+    <div class="left-align mb-5">
+        <div class="mb-5">
+            <h4 class="mb-4">Upcoming Tickets & Orders</h4><hr>
+            {% if (purchases.upcoming.screenings | length) == 0  %}
+                <p>You have no upcoming tickets associated with this account.</p>
+            {% else %}
+                <div class="mt-5">
+                    {% for i in range(purchases.upcoming.screenings | length) %}
+                        <div class="d-flex flex-wrap flex-sm-nowrap flex-md-nowrap flex-lg-nowrap rounded shadow p-3 mb-5">
+                            <div class="showtime left-align me-4 my-2">
+                                <img src="https://image.tmdb.org/t/p/original{{purchases.upcoming.screenings[i].movie.poster_path}}" alt="Poster for {{purchases.upcoming.screenings[i].movie.title}}" class="rounded">
+                            </div>
+                            <div class="mt-2">
+                                <h3 class="movie-title">{{ purchases.upcoming.screenings[i].movie.title }}</h3>
+                                <p class="mb-4">{{ purchases.upcoming.screenings[i].start_datetime.strftime("%A, %B %d") }} at {{ purchases.upcoming.screenings[0].start_datetime.strftime(" %I:%M %p") }}</p>
+                                <p>
+                                    <span class="fs-6 fw-bolder">Tickets ({{ purchases.upcoming.totals[i] }})</span>
+                                    <br>
+                                    Seats:
+                                    {% for t in purchases.upcoming.tickets[i] %}
+                                        {% if loop.last %}
+                                            {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }}
+                                        {% else %}
+                                            {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }},
+                                        {% endif %}
+                                    {% endfor %}
+                                    <br>
+                                    <span class="my-small2 text-body-secondary">Auditorium {{ purchases.upcoming.screenings[i].auditorium.id }}</span>
+                                </p>
+                                <p>
+                                    <a class="fw-bold info" href="{{ url_for('users.receipt', confirmation=purchases.upcoming.purchase[i].confirmation) }}">View Full Purchase Details</a>
+                                </p>
+                            </div>
+                            <div class="flex-grow-1 d-flex justify-content-end">
+                                <div>
+                                    <div class="qrcode me-3 text-center px-2 pb-2">
+                                        <img class="img-responsive center" src="{{ qrcode(purchases.upcoming.purchase[i].confirmation) }}">
+                                    </div>
+                                    <div>
+                                        <p class="my-small2">{{ purchases.upcoming.purchase[i].confirmation }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-5">
+            <h5 class="fw-bold mb-4">Past Tickets & Orders</h5><hr>
+            {% if (purchases.past.screenings | length) == 0  %}
+                <p>No past purchases found for this account.</p>
+            {% else %}
+                <div class="mt-5">
+                    {% for i in range(purchases.past.screenings | length) %}
+                        <div class="d-flex flex-wrap flex-sm-nowrap flex-md-nowrap flex-lg-nowrap rounded shadow p-3 mb-5">
+                            <div class="showtime left-align me-4 my-2">
+                                <img src="https://image.tmdb.org/t/p/original{{purchases.past.screenings[i].movie.poster_path}}" alt="Poster for {{purchases.past.screenings[i].movie.title}}" class="rounded">
+                            </div>
+                            <div class="mt-2">
+                                <h3 class="movie-title">{{ purchases.past.screenings[i].movie.title }}</h3>
+                                <p class="mb-4">{{ purchases.past.screenings[i].start_datetime.strftime("%A, %B %d") }} at {{ purchases.past.screenings[0].start_datetime.strftime(" %I:%M %p") }}</p>
+                                <p>
+                                    <span class="fs-6 fw-bolder">Tickets ({{ purchases.past.totals[i] }})</span>
+                                    <br>
+                                    Seats:
+                                    {% for t in purchases.past.tickets[i] %}
+                                        {% if loop.last %}
+                                            {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }}
+                                        {% else %}
+                                            {{ t.ticket.seat.row_name }}{{ t.ticket.seat.col }},
+                                        {% endif %}
+                                    {% endfor %}
+                                    <br>
+                                    <span class="my-small2 text-body-secondary">Auditorium {{ purchases.past.screenings[i].auditorium.id }}</span>
+                                </p>
+                                <p>
+                                    <a class="fw-bold info" href="{{ url_for('users.receipt', confirmation=purchases.past.purchase[i].confirmation) }}">View Full Purchase Details</a>
+                                </p>
+                            </div>
+                            <div class="flex-grow-1 d-flex justify-content-end">
+                                <div>
+                                    <div class="qrcode me-3 text-center px-2 pb-2">
+                                        <img class="img-responsive center" src="{{ qrcode(purchases.past.purchase[i].confirmation) }}">
+                                    </div>
+                                    <div>
+                                        <p class="my-small2">{{ purchases.past.purchase[i].confirmation }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

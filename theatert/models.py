@@ -45,6 +45,8 @@ class Member(User):
     dob = db.Column(db.Date)
 
     cards = db.relationship('Cards', backref='member', lazy=True) # Can have many cards
+    watchlist = db.relationship('Watchlist', backref='member', lazy=True) # Can have many movies
+    purchase_id = db.relationship('Purchase', backref='member', lazy=True) # Can be a part of many purchases
 
     __mapper_args__ = {
         'polymorphic_identity': 'MEMBER',
@@ -95,6 +97,7 @@ class Movie(db.Model):
     genres = db.relationship('Genre', secondary=genres, lazy='subquery', 
                              backref=db.backref('movies', lazy=True)) # Can have many genres
     screenings = db.relationship('Screening', backref='movie', lazy=True) # Can have many screenings
+    watchlist = db.relationship('Watchlist', backref='movie', lazy=True) # Can be a part of many watchlists
     
     def __repr__(self):
         return f"Movie({self.id}, {self.tmdb_id}, {self.title}, {self.status}, {self.overview}, {self.release_date}, {self.runtime}, {self.tagline}, {self.active}, {self.deleted}, {self.genres})"
@@ -106,6 +109,16 @@ class Genre(db.Model):
     
     def __repr__(self):
         return f"Genre({self.id}, {self.name})"
+
+
+class Watchlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False) # Has one member
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False) # Has one movie
+
+    def __repr__(self): 
+        return f"Id:({self.id}, Member: {self.member_id}, Movie: {self.movie_id})"
 
 
 # Auditoriums & Seats
@@ -198,7 +211,7 @@ class Cards(db.Model):
 
 class Purchase(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
-    confirmation = db.Column(db.String, unique = True, default=token_urlsafe(16))
+    confirmation = db.Column(db.String, unique = True)
 
     email = db.Column(db.String, nullable=False)
     datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -208,10 +221,11 @@ class Purchase(db.Model):
     senior_tickets = db.Column(db.Integer, nullable=False)
 
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=False) # Has one card
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=True) # Can have a member
     purchased_ticket_id = db.relationship('Purchased_Ticket', backref='purchase', lazy=True) # Can have many purchased tickets
 
     def __repr__(self): 
-        return f"Purchase({self.id}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
+        return f"Purchase({self.id}, confirmation:{self.confirmation}, {self.email}, {self.datetime}, adult: {self.adult_tickets}, child: {self.child_tickets}, senior: {self.senior_tickets}, Card: {self.card_id}))"
 
 
 class Purchased_Ticket(db.Model):

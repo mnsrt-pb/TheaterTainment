@@ -6,10 +6,32 @@
 
 {% block watchlist %}
 <div>
-    <a class="add-watchlist">
-        <span class="heart text-primary">&#9825;</span>
-        <span class="text-body-secondary watchlist-text-movie">&ensp;Add to watch list</span>
-    </a>
+    {% if watchlist %}
+        {% set added = [] %}
+
+        {% for item in watchlist %}
+            {% if Movie.id == item.movie_id %}
+                {% set temp = added.append(True) %}
+            {% endif %}
+        {% endfor %}
+
+        {% if added|length > 0 %}
+        <a class="add-watchlist" href="{{ url_for('members.remove_watchlist', m_id=Movie.id) }}">
+            <span class="heart text-primary">&#9829;</span>
+            <span class="text-body-secondary watchlist-text-movie">&ensp; Added to Watch List</span>
+        </a>
+        {% else %}
+        <a class="add-watchlist" href="{{ url_for('members.add_watchlist', m_id=Movie.id) }}">
+            <span class="heart text-primary">&#9825;</span>
+            <span class="text-body-secondary watchlist-text-movie">&ensp;Add to Watch List</span>
+        </a>
+        {% endif %}
+    {% else %}
+        <a class="add-watchlist" href="{{ url_for('members.add_watchlist', m_id=Movie.id) }}">
+            <span class="heart text-primary">&#9825;</span>
+            <span class="text-body-secondary watchlist-text-movie">&ensp;Add to Watch List</span>
+        </a>
+    {% endif %}
 </div>
 {% endblock %}
 

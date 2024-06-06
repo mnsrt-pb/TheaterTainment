@@ -1,4 +1,5 @@
 from datetime import datetime
+from flask import flash
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from theatert import bcrypt
@@ -30,18 +31,65 @@ class AccountInfoForm(FlaskForm):
                                                     Length(min=5, max=5, message='The value for the Billing Zip Code field is invalid.')])
     submit = SubmitField('Save')
 
- 
-class CheckoutForm(FlaskForm):
-    '''Ensure username does not exist'''
-            
+
+# class CheckoutForm(FlaskForm):
+#     screening_id = HiddenField(validators=[DataRequired()])
+#     seats_selected = HiddenField(validators=[DataRequired()])
+#     adult_tickets = HiddenField(validators=[DataRequired()])
+#     child_tickets = HiddenField(validators=[DataRequired()])
+#     senior_tickets = HiddenField(validators=[DataRequired()])
+#     card_type = HiddenField(validators=[DataRequired()])
+
+#     email = EmailField('Email Address', validators=[DataRequired(), Email()])
+
+#     card_number = StringField('Card Number', 
+#         validators=[DataRequired(message="The Card Number field is required."), 
+#                     Length(min=8, max=19, message='The Card Number field is not a valid credit card number.')])
+    
+#     exp_month = SelectField(u'Exp Month', coerce=int,
+#                             choices=[(1, 'Jan'), 
+#                                      (2, 'Feb'), 
+#                                      (3, 'Mar'),
+#                                      (4, 'Apr'), 
+#                                      (5, 'May'),
+#                                      (6, 'June'), 
+#                                      (7, 'Jul'),
+#                                      (8, 'Aug'), 
+#                                      (9, 'Sept'),
+#                                      (10, 'Oct'),
+#                                      (11, 'Nov'), 
+#                                      (12, 'Dec')])
+    
+#     exp_year = SelectField(u'Exp Year', coerce=int,
+#                            choices=[(datetime.today().year + x, datetime.today().year + x) for x in range(11)])
+    
+#     zip_code = StringField('Billing Zip Code', validators=[DataRequired(message="The Billing ZIP Code field is required."),
+#                     Length(min=5, max=5, message='The value for the Billing Zip Code field is invalid.')])
+    
+#     sec_code = StringField('Card Security Code', validators=[DataRequired(message="The Card Security Code field is required."),
+#                     Length(min=3, max=4, message='The Card Security Code field is not a valid credit card security code.')])
+    
+#     submit = SubmitField('Complete Purchase')
+
+
+class BaseCheckoutForm(FlaskForm):
     screening_id = HiddenField(validators=[DataRequired()])
     seats_selected = HiddenField(validators=[DataRequired()])
     adult_tickets = HiddenField(validators=[DataRequired()])
     child_tickets = HiddenField(validators=[DataRequired()])
     senior_tickets = HiddenField(validators=[DataRequired()])
+
+
+class BasePaymentForm(FlaskForm):
+    def validate_card_type(self, type):
+        '''Ensure Select Movie was not selected.'''
+
+        if (type.data != 'Visa') and (type.data != 'American Express') and (type.data != 'Discover') and (type.data != 'Mastercard'):
+            flash('Invalid Entry.', 'danger')
+            raise ValidationError('Invalid Card Type.')
+        
     card_type = HiddenField(validators=[DataRequired()])
 
-    email = EmailField('Email Address', validators=[DataRequired(), Email()])
     card_number = StringField('Card Number', 
         validators=[DataRequired(message="The Card Number field is required."), 
                     Length(min=8, max=19, message='The Card Number field is not a valid credit card number.')])
@@ -65,43 +113,29 @@ class CheckoutForm(FlaskForm):
     
     zip_code = StringField('Billing Zip Code', validators=[DataRequired(message="The Billing ZIP Code field is required."),
                     Length(min=5, max=5, message='The value for the Billing Zip Code field is invalid.')])
-                                                           
+    
     sec_code = StringField('Card Security Code', validators=[DataRequired(message="The Card Security Code field is required."),
                     Length(min=3, max=4, message='The Card Security Code field is not a valid credit card security code.')])
     
+
+class MemberCheckoutForm(BaseCheckoutForm, BasePaymentForm):
+    form1 = HiddenField()
+    save = BooleanField('Save my Payment Information')
     submit = SubmitField('Complete Purchase')
 
 
-class DefaultPaymentForm(FlaskForm):
-    card_type = HiddenField(validators=[DataRequired()])
-
-    card_number = StringField('Card Number', 
-        validators=[DataRequired(message="The Card Number field is required."), 
-                    Length(min=8, max=19, message='The Card Number field is not a valid credit card number.')])
-    
-    exp_month = SelectField(u'Exp Month', coerce=int,
-                            choices=[(1, 'Jan'), 
-                                     (2, 'Feb'), 
-                                     (3, 'Mar'),
-                                     (4, 'Apr'), 
-                                     (5, 'May'),
-                                     (6, 'June'), 
-                                     (7, 'Jul'),
-                                     (8, 'Aug'), 
-                                     (9, 'Sept'),
-                                     (10, 'Oct'),
-                                     (11, 'Nov'), 
-                                     (12, 'Dec')])
-    
-    exp_year = SelectField(u'Exp Year', coerce=int,
-                           choices=[(datetime.today().year + x, datetime.today().year + x) for x in range(11)])
-    
-    zip_code = StringField('Billing Zip Code', validators=[DataRequired(message="The Billing ZIP Code field is required."),
-                    Length(min=5, max=5, message='The value for the Billing Zip Code field is invalid.')])
-    
+class MemberCheckoutForm2(BaseCheckoutForm):
     sec_code = StringField('Card Security Code', validators=[DataRequired(message="The Card Security Code field is required."),
                     Length(min=3, max=4, message='The Card Security Code field is not a valid credit card security code.')])
-    
+    submit = SubmitField('Complete Purchase')
+
+ 
+class CheckoutForm(BaseCheckoutForm, BasePaymentForm):
+    email = EmailField('Email Address', validators=[DataRequired(), Email()])
+    submit = SubmitField('Complete Purchase')
+
+
+class DefaultPaymentForm(BasePaymentForm):
     submit = SubmitField('Save')
 
 

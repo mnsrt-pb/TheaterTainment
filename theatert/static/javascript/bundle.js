@@ -134,12 +134,23 @@ $(document).ready(function(){
   })
   
   $('.add-watchlist').each(function(){
+    // ♥
+    // ♡
+    if ($(this).find('.heart').html() == "♡"){
       $(this).hover(function (){
         $(this).find('.heart').html("&#9829;")
       })
       $(this).mouseleave(function (){
         $(this).find('.heart').html("&#9825;")
       })
+    } else {
+      $(this).hover(function (){
+        $(this).find('.heart').html("&#9825;")
+      })
+      $(this).mouseleave(function (){
+        $(this).find('.heart').html("&#9829;")
+      })
+    }
   })
 
   ticket_seat_map();
@@ -265,7 +276,7 @@ function ticket_seat_map(){
   $('.btn-inc').on('click', function(){
     curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
     $('#ticket-selector-' + $(this).data('ticket-type')).text(++curr)
-    $('#' + $(this).data('ticket-type') + '-tickets').val(curr)
+    $('#' + $(this).data('ticket-type') + '_tickets').val(curr)
 
     if (curr == 1){
       $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", false)
@@ -285,7 +296,7 @@ function ticket_seat_map(){
   $('.btn-dec').on('click', function(){
     curr = $('#ticket-selector-' + $(this).data('ticket-type')).text()
     $('#ticket-selector-' + $(this).data('ticket-type')).text(--curr)
-    $('#' + $(this).data('ticket-type') + '-tickets').val(curr)
+    $('#' + $(this).data('ticket-type') + '_tickets').val(curr)
 
     if (curr == 0){
       $('#'+$(this).data('ticket-type')).find('.btn-dec').prop("disabled", true)
@@ -336,6 +347,8 @@ function checkout_form_control(){
         $('#cc_holder').addClass('AmericanExpress')
       }
 
+      $("input[name=card_type]").val(number.card.niceType)
+
       // Validate
       if (!($(this).val().length >= 8 && $(this).val().length <= 19)){
         $('#card-number-e').text('The Card Number field is not a valid credit card number.')
@@ -378,7 +391,7 @@ function checkout_form_control(){
 
   // FIXME: After uncommenting code that disables copy/paste remove this code
   $('#card-number').on('change', function(){
-    $('#card_type').val(valid.number($(this).val()).card.niceType)
+    $("input[name=card_type]").val(valid.number($(this).val()).card.niceType)
   })
 
   $('#zip-code').on('focusout', function(){
@@ -472,7 +485,7 @@ function checkout_form_control(){
     var charCode = (e.which) ? e.which : e.keyCode
     if (charCode > 31 && (charCode < 48 || charCode > 57))
       return false;
-    $('#card_type').val(valid.number($(this).val()).card.niceType)
+    $("input[name=card_type]").val(valid.number($(this).val()).card.niceType)
     return true; 
   })
 
@@ -746,7 +759,7 @@ function account_profile_control(){
         $('#card-number').addClass('is-invalid')
       } else {
         if (number.isValid){
-          $('#card_type').val(valid.number($('#card-number').val()).card.niceType)
+          $('#card_type').val(number.card.niceType)
           valid_ccn = true;
         } else {
           $('#card-number-e').text('The Card Number field is not a valid credit card number.')
@@ -814,21 +827,21 @@ function seatSelected(t, seats){
     if (t.hasClass('selected')){
       t.removeClass('selected')
 
-      seats_selected = $('#seats-selected').val().split(',')
+      seats_selected = $('#seats_selected').val().split(',')
       seats_selected = seats_selected.filter(e => e != t.data('seat-id'))
-      $('#seats-selected').val(seats_selected.toString())
+      $('#seats_selected').val(seats_selected.toString())
 
       seats -= 1;
     } else {
       t.addClass('selected')
 
-      if ($('#seats-selected').val() == ''){
+      if ($('#seats_selected').val() == ''){
         seats_selected = []
       } else {
-        seats_selected = $('#seats-selected').val().split(',')
+        seats_selected = $('#seats_selected').val().split(',')
       }
       seats_selected.push(t.data('seat-id'))
-      $('#seats-selected').val(seats_selected.toString())
+      $('#seats_selected').val(seats_selected.toString())
 
       seats += 1;
     }
