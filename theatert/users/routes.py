@@ -13,10 +13,10 @@ from werkzeug.datastructures import MultiDict
 
 import calendar
 
+
 users = Blueprint('users', __name__)
 
 
-# TODO: 404 PAGE
 @users.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     form = CheckoutForm()

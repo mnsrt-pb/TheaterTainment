@@ -39,129 +39,129 @@
         {% else %}
             <div id="checkout-form" class="cont-10 shadow rounded align-self-start p-3 mb-5" hidden>
         {% endif %}
-            <form id="checkout-validate" action="{{ url_for('users.checkout_validate' )}}" method="POST" class="needs-validation" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="mb-4">
-                    {{ form.email.label(class_="fw-bold mb-2") }}
-                    {% if form.email.errors and not get_flashed_messages(with_categories=true)%}
-                        {{ form.email(autocomplete="off", autofocus=true, class="form-control is-invalid guest-email")}}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
+                <form id="checkout-validate" action="{{ url_for('users.checkout_validate' )}}" method="POST" class="needs-validation" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        {{ form.email.label(class_="fw-bold mb-2") }}
+                        {% if form.email.errors and not get_flashed_messages(with_categories=true)%}
+                            {{ form.email(autocomplete="off", autofocus=true, class="form-control is-invalid guest-email")}}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span id="email-e">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(autocomplete="off", autofocus=true, class="form-control guest-email")}}
+                            <div class="invalid-feedback">
                                 <span id="email-e">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.email(autocomplete="off", autofocus=true, class="form-control guest-email")}}
-                        <div class="invalid-feedback">
-                            <span id="email-e">{{ error }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+                            </div>
+                        {% endif %}
+                    </div>
 
-                <hr>
-                <div class="d-flex justify-content-between">
-                    <h5 class="fw-bolder mb-4">Credit Card</h5>
-                    <div id="cc_holder" class="d-flex align-items-center">
-                        <div class="visa rounded m-2">
-                            <img class="img-responsive" src="../../static/images/cc_visa.webp" alt="Visa">
-                        </div>
-                        <div class="mastercard rounded m-2">
-                            <img class="img-responsive" src="../../static/images/cc_mastercard.webp" alt="Mastercard">
-                        </div>
-                        <div class="amex rounded m-2">
-                            <img class="img-responsive" src="../../static/images/cc_amex.webp" alt="American Express">
-                        </div>
-                        <div class="discover rounded m-2">
-                            <img class="img-responsive" src="../../static/images/cc_discover.webp" alt="Discover">
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h5 class="fw-bolder mb-4">Credit Card</h5>
+                        <div id="cc_holder" class="d-flex align-items-center">
+                            <div class="visa rounded m-2">
+                                <img class="img-responsive" src="../../static/images/cc_visa.webp" alt="Visa">
+                            </div>
+                            <div class="mastercard rounded m-2">
+                                <img class="img-responsive" src="../../static/images/cc_mastercard.webp" alt="Mastercard">
+                            </div>
+                            <div class="amex rounded m-2">
+                                <img class="img-responsive" src="../../static/images/cc_amex.webp" alt="American Express">
+                            </div>
+                            <div class="discover rounded m-2">
+                                <img class="img-responsive" src="../../static/images/cc_discover.webp" alt="Discover">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mb-3">
-                    {{ form.card_number.label(class_="fw-bold mb-2") }}
-                    {% if form.card_number.errors and not get_flashed_messages(with_categories=true)%}
-                        {{ form.card_number(autocomplete="off", autofocus=true, class="form-control is-invalid", id="card-number")}}
-                        <div class="invalid-feedback">
-                            {% for error in form.card_number.errors %}
-                                <span id="card-number-e">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.card_number(autocomplete="off", autofocus=true, class="form-control", id="card-number")}}
-                        <div class="invalid-feedback">
-                            <span id="card-number-e"></span>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col">
-                        {{ form.exp_month.label(class_="fw-bold mb-2") }}
-                        {% if form.exp_month.errors and not get_flashed_messages(with_categories=true)%}
-                            {{ form.exp_month(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-month")}}
+                    <div class="mb-3">
+                        {{ form.card_number.label(class_="fw-bold mb-2") }}
+                        {% if form.card_number.errors and not get_flashed_messages(with_categories=true)%}
+                            {{ form.card_number(autocomplete="off", autofocus=true, class="form-control is-invalid", id="card-number")}}
                             <div class="invalid-feedback">
-                                {% for error in form.exp_month.errors %}
+                                {% for error in form.card_number.errors %}
+                                    <span id="card-number-e">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.card_number(autocomplete="off", autofocus=true, class="form-control", id="card-number")}}
+                            <div class="invalid-feedback">
+                                <span id="card-number-e"></span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            {{ form.exp_month.label(class_="fw-bold mb-2") }}
+                            {% if form.exp_month.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ form.exp_month(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-month")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.exp_month.errors %}
+                                        <span id="exp-month-e">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.exp_month(autocomplete="off", autofocus=true, class="form-control", id="exp-month")}}
+                                <div class="invalid-feedback">
                                     <span id="exp-month-e">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.exp_month(autocomplete="off", autofocus=true, class="form-control", id="exp-month")}}
-                            <div class="invalid-feedback">
-                                <span id="exp-month-e">{{ error }}</span>
-                            </div>
-                        {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            {{ form.exp_year.label(class_="fw-bold mb-2") }}
+                            {% if form.exp_year.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ form.exp_year(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-year")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.exp_year.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.exp_year(autocomplete="off", autofocus=true, class="form-control", id="exp-year")}}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="col">
-                        {{ form.exp_year.label(class_="fw-bold mb-2") }}
-                        {% if form.exp_year.errors and not get_flashed_messages(with_categories=true)%}
-                            {{ form.exp_year(autocomplete="off", autofocus=true, class="form-control is-invalid", id="exp-year")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.exp_year.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.exp_year(autocomplete="off", autofocus=true, class="form-control", id="exp-year")}}
-                        {% endif %}
-                    </div>
-                </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col">
-                        {{ form.zip_code.label(class_="fw-bold mb-2") }}
-                        {% if form.zip_code.errors and not get_flashed_messages(with_categories=true)%}
-                            {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="zip-code")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.zip_code.errors %}
-                                    <span id="zip-code-e">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control", id="zip-code")}}
-                            <div class="invalid-feedback">
-                                <span id="zip-code-e"></span>
-                            </div>
-                        {% endif %}
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            {{ form.zip_code.label(class_="fw-bold mb-2") }}
+                            {% if form.zip_code.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="zip-code")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.zip_code.errors %}
+                                        <span id="zip-code-e">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.zip_code(autocomplete="off", autofocus=true, class="form-control", id="zip-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="zip-code-e"></span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            {{ form.sec_code.label(class_="fw-bold mb-2") }}
+                            {% if form.sec_code.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="sec-code")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.sec_code.errors %}
+                                        <span id="sec-code-e">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control", id="sec-code")}}
+                                <div class="invalid-feedback">
+                                    <span id="sec-code-e"></span>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="col">
-                        {{ form.sec_code.label(class_="fw-bold mb-2") }}
-                        {% if form.sec_code.errors and not get_flashed_messages(with_categories=true)%}
-                            {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="sec-code")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.sec_code.errors %}
-                                    <span id="sec-code-e">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control", id="sec-code")}}
-                            <div class="invalid-feedback">
-                                <span id="sec-code-e"></span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
         <div class="cont-10">
             <div class="d-flex flex-wrap flex-md-nowrap flex-lg-nowrap">
                 <div class="showtime me-4 mb-3">
