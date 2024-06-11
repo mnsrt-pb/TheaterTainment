@@ -24,74 +24,81 @@
         </div>
 
         <!-- Activate/Inactivate Movies -->
-        {% if title == 'All Movies' %} 
+        {% if title == 'All Movies' or title == 'Active' or title == 'Inactive'%} 
         <div class="conatainer mb-5 mt-0">
             <!-- Buttons for Modals -->
-            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#activate-movie">
-                Activate Movie
-            </button>
-            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
-                Inactivate Movie
-            </button>
+            {% if title == 'All Movies' or title == 'Inactive'%} 
+                <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#activate-movie">
+                    Activate Movie
+                </button>
+            {% endif %}
+            {% if title == 'All Movies' or title == 'Active'%} 
+                <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inactivate-movie">
+                    Inactivate Movie
+                </button>
+            {% endif %}
             
             <!-- Modals -->
-            <div class="modal fade" id="activate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Activate Movie</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="left-align text-body-secondary">Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
-                            <form action="" method="POST" id="activate" class="needs-validation" novalidate>
-                                {{ activate_form.hidden_tag() }}
-                                <div class="form-floating">
-                                    {{ activate_form.m_id(class="form-select") }}
-                                    {{ activate_form.m_id.label }}
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            {% if activate_form.m_id.choices | length > 1 %}
-                                {{ activate_form.submit(class="btn btn-primary", form="activate") }}
-                            {% else %}
-                                {{ activate_form.submit(class="btn btn-primary", disabled=True) }}
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal fade" id="inactivate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Inactivate Movie</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="left-align text-body-secondary">Only movies with no upcoming showtimes can be inactivated.</p>
-                            <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
-                                {{ inactivate_form.hidden_tag() }}
-                                <div class="form-floating">
-                                    {{ inactivate_form.m_id(class="form-select") }}
-                                    {{ inactivate_form.m_id.label }}
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            {% if inactivate_form.m_id.choices | length > 1 %}
-                                {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
-                            {% else %}
-                                {{ inactivate_form.submit(class="btn btn-primary", disabled=True) }}
-                            {% endif %}
+            {% if title == 'All Movies' or title == 'Inactive'%} 
+                <div class="modal fade" id="activate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="staticBackdropLabel">Activate Movie</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="left-align text-body-secondary">Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
+                                <form action="" method="POST" id="activate" class="needs-validation" novalidate>
+                                    {{ activate_form.hidden_tag() }}
+                                    <div class="form-floating">
+                                        {{ activate_form.m_id(class="form-select") }}
+                                        {{ activate_form.m_id.label }}
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                {% if activate_form.m_id.choices | length > 1 %}
+                                    {{ activate_form.submit(class="btn btn-primary", form="activate") }}
+                                {% else %}
+                                    {{ activate_form.submit(class="btn btn-primary", disabled=True) }}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
+            {% endif %}
+            {% if title == 'All Movies' or title == 'Active'%} 
+                <div class="modal fade" id="inactivate-movie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="staticBackdropLabel">Inactivate Movie</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="left-align text-body-secondary">Only movies with no upcoming showtimes can be inactivated.</p>
+                                <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
+                                    {{ inactivate_form.hidden_tag() }}
+                                    <div class="form-floating">
+                                        {{ inactivate_form.m_id(class="form-select") }}
+                                        {{ inactivate_form.m_id.label }}
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                {% if inactivate_form.m_id.choices | length > 1 %}
+                                    {{ inactivate_form.submit(class="btn btn-primary", form="inactivate") }}
+                                {% else %}
+                                    {{ inactivate_form.submit(class="btn btn-primary", disabled=True) }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         {% endif %}
 

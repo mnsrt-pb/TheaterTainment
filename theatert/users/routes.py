@@ -8,7 +8,7 @@ from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
-from theatert.users.utils import apology, date_obj
+from theatert.users.utils import apology, date_obj, guest_or_member
 from werkzeug.datastructures import MultiDict
 
 import calendar
@@ -18,6 +18,7 @@ users = Blueprint('users', __name__)
 
 
 @users.route('/checkout', methods=['GET', 'POST'])
+@guest_or_member()
 def checkout():
     form = CheckoutForm()
     member_form = MemberCheckoutForm()
@@ -77,6 +78,7 @@ def checkout():
 
 
 @users.route('/checkout-validate', methods=['POST'])
+@guest_or_member()
 def checkout_validate():
     form = CheckoutForm()
 
@@ -227,6 +229,7 @@ def member_login():
 
 
 @users.route('/', methods=['GET', 'POST'])
+@guest_or_member()
 def home():
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 41
@@ -264,6 +267,7 @@ def home():
 
 
 @users.route('/movie/<string:movie_route>')
+@guest_or_member()
 def movie(movie_route):
     '''Display movie info like it'll be displayed to members/guests.'''
     date = request.args.get('date', default=datetime.today(), type=date_obj)
@@ -288,6 +292,7 @@ def movie(movie_route):
 
 
 @users.route('/movies')
+@guest_or_member()
 def movies():
     movies = Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
@@ -300,6 +305,7 @@ def movies():
 
 
 @users.route('/movies/coming-soon')
+@guest_or_member()
 def movies_coming_soon():
     movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
                 db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
@@ -321,6 +327,7 @@ def logout():
 
 
 @users.route('/receipt/<string:confirmation>')
+@guest_or_member()
 def receipt(confirmation):
 
     tickets = Purchased_Ticket.query.join(Ticket).join(Purchase).join(Seat)\
@@ -340,6 +347,7 @@ def receipt(confirmation):
 
 
 @users.route('/ticket-seat-map/<int:showtime_id>')
+@guest_or_member()
 def ticket_seat_map(showtime_id):
     form_data = session.get('form_data')
     form2_data = session.get('form2_data')

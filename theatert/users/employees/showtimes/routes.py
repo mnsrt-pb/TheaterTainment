@@ -14,6 +14,7 @@ showtimes = Blueprint('showtimes', __name__, url_prefix='/showtimes')
 @login_required(role="EMPLOYEE")
 def add_showtime():
     '''Assign showtimes to movies'''
+
     form = AddShowtime()
 
     movies = Movie.query.filter(
@@ -102,7 +103,8 @@ def add_showtime():
                 flash('Showtime was created and tickets have been generated.', 'light')
 
                 db.session.commit()
-                return redirect(url_for('employees.showtimes.all_showtimes'))
+            
+                return redirect(url_for('employees.showtimes.movie', movie_route=movie.route))
 
     return render_template('employee/add-showtime.html', form=form)
 
@@ -223,7 +225,7 @@ def past_showtimes():
     total = screenings.count()
     movies = screenings.group_by(Movie.id)
 
-    screenings = screenings.paginate(page=page, per_page=1)
+    screenings = screenings.paginate(page=page, per_page=10)
 
     seats_total = []
     for s in screenings:
@@ -246,7 +248,7 @@ def movie(movie_route):
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
 
     auditoriums = Auditorium.query.all()
-    choices = []
+    choices = [(None, 'Select Auditorium')]
     for a in auditoriums:
         choices.append((a.id, a.id))
 
@@ -276,9 +278,17 @@ def movie(movie_route):
                         Seat.auditorium_id.is_(s.auditorium.id), 
                         Seat.seat_type.is_not('empty'))).count())
     
+
+    form = AddShowtime()
+    form.m_id.choices = [(movie.id, movie.title)]
+    form.a_id.choices = choices
+    form.adult_price.data = 12.50
+    form.child_price.data = 10.50
+    form.senior_price.data = 9.00
+
+    form.date_time.data = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)
+
     return render_template('employee/showtimes-movie.html', title=movie.title, screenings=screenings, \
                            seats_total=seats_total, total=total, url='employees.showtimes.movie', \
-                            movie_route=movie_route, choices=choices, auditorium=auditorium, date=date)
+                            movie_route=movie_route, choices=choices, auditorium=auditorium, date=date, form=form)
 
-
-# TODO: add showtime(date)

@@ -7,7 +7,7 @@ from theatert import db, bcrypt
 from theatert.users.members.forms import AccountInfoForm, DefaultPaymentForm, DeleteDefaultPayemnt, \
     EmailForm, MemberCheckoutForm, MemberCheckoutForm2, RegistrationForm, PasswordForm
 from theatert.models import Auditorium, Card, Cards, Member, Movie, Purchase, Purchased_Ticket, Screening, Seat, Ticket, Watchlist
-from theatert.users.utils import login_required
+from theatert.users.utils import guest, login_required
 from werkzeug.datastructures import MultiDict
 
 import calendar
@@ -532,13 +532,9 @@ def purchases():
 
 
 @members.route('/register', methods=['GET', 'POST'])
+@guest()
 def register():
     '''Register associate'''
-
-    if current_user.is_authenticated:
-        if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.home'))
-        return redirect(url_for('users.home'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
