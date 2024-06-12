@@ -21,7 +21,7 @@ class InactivateForm(FlaskForm):
         '''Ensure Select Movie was not selected.'''
 
         if m_id.data == 'None':
-            flash('Must select a movie.', 'danger')
+            flash('Must select a movie you wnat to inactivate.', 'danger')
             raise ValidationError('Must select a movie.')
         
     m_id = SelectField('Movie') 
@@ -33,7 +33,7 @@ class ActivateForm(FlaskForm):
         '''Ensure Select Movie was not selected.'''
 
         if m_id.data == 'None':
-            flash('Must select a movie.', 'danger')
+            flash('Must select a movie you want to activate.', 'danger')
             raise ValidationError('Must select a movie.')
         
     m_id = SelectField('Movie')

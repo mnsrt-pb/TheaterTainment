@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 from flask import abort, Blueprint, flash, render_template,  redirect, request, session, url_for
 from flask_login import current_user, login_user, logout_user
+from pytz import timezone, utc
 from secrets import token_urlsafe
 from sqlalchemy import extract, collate
 from theatert import bcrypt, db
-from theatert.models import Auditorium, Employee, Member, Movie, Screening, Seat, Ticket, Card, Purchase, Purchased_Ticket, Watchlist
+from theatert.models import Employee, Member, Movie, Screening, Seat, Ticket, Card, Purchase, Purchased_Ticket, Watchlist
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
@@ -16,10 +17,14 @@ import calendar
 
 users = Blueprint('users', __name__)
 
+tz = timezone('US/Eastern')
+
 
 @users.route('/checkout', methods=['GET', 'POST'])
 @guest_or_member()
 def checkout():
+    ''' Checkout page '''
+
     form = CheckoutForm()
     member_form = MemberCheckoutForm()
 
@@ -27,11 +32,11 @@ def checkout():
     
     if form_data:
         form = CheckoutForm(MultiDict(form_data))
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -46,11 +51,11 @@ def checkout():
         form.validate()
     
     else:
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(request.form.get('screening_id'))) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -80,14 +85,16 @@ def checkout():
 @users.route('/checkout-validate', methods=['POST'])
 @guest_or_member()
 def checkout_validate():
+    '''  Validate checkout data  '''
+
     form = CheckoutForm()
 
     if form.validate_on_submit():
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
 
         form_data = session.get('form_data') 
@@ -149,10 +156,10 @@ def checkout_validate():
         tickets = ''
 
         for s in seat_ids:
-            ticket = Ticket.query.join(Screening).join(Seat) \
+            ticket = Ticket.query \
                 .filter(
-                    db.and_(Seat.id.is_(s),
-                        Screening.id.is_(form.screening_id.data))).first()
+                    db.and_(Ticket.seat_id.is_(s),
+                            Ticket.screening_id.is_(form.screening_id.data))).first()
             
             tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
             
@@ -178,7 +185,7 @@ def checkout_validate():
 
 @users.route('/employee/login', methods=['GET', 'POST'])
 def employee_login():
-    '''Login employee'''
+    ''' Login employee '''
 
     if current_user.is_authenticated:
         if current_user.role == 'EMPLOYEE':
@@ -204,7 +211,7 @@ def employee_login():
 
 @users.route('/member/login', methods=['GET', 'POST'])
 def member_login():
-    '''Login member'''
+    ''' Login member '''
 
     if current_user.is_authenticated:
         if current_user.role == 'EMPLOYEE':
@@ -231,6 +238,8 @@ def member_login():
 @users.route('/', methods=['GET', 'POST'])
 @guest_or_member()
 def home():
+    ''' Home page '''
+
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 41
     date = date if (date <= (datetime.today() + timedelta(days=max_days))) and (date >= datetime.today()) else datetime.today()
@@ -239,7 +248,7 @@ def home():
     dates =[datetime.today() + timedelta(days=x) for x in range(max_days)]
 
     # movies with showtimes for given date
-    m_showtimes = Screening.query.join(Movie).join(Auditorium) \
+    m_showtimes = Screening.query.join(Movie) \
         .filter(
             db.and_(
                 extract('year', Screening.start_datetime).is_(date.year),
@@ -250,7 +259,7 @@ def home():
     # showtimes for each movie
     s_showtimes = []
     for s in m_showtimes:
-        st = Screening.query.join(Movie).join(Auditorium) \
+        st = Screening.query \
         .filter(
             db.and_(
                 Screening.movie_id.is_(s.movie_id),
@@ -261,23 +270,28 @@ def home():
         s_showtimes.append(st)
     
 
-    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+    watchlist = Watchlist.query.filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
 
-    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes, timenow=datetime.now(), date=date, watchlist=watchlist)
+    return render_template('guest/home.html', movies=movies, dates=dates, m_showtimes=m_showtimes, s_showtimes=s_showtimes, timenow=datetime.now(tz), date=date, watchlist=watchlist)
 
 
 @users.route('/movie/<string:movie_route>')
 @guest_or_member()
 def movie(movie_route):
-    '''Display movie info like it'll be displayed to members/guests.'''
+    ''' 
+        Display movie details along with a poster, backdrop, and trailer.
+        Display upcoming showtimes.
+     
+    '''
+
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 12
     date = date if (date <= (datetime.today() + timedelta(days=max_days))) and (date >= datetime.today()) else datetime.today()
 
     movie = Movie.query.filter_by(route = movie_route, deleted=False, active=True).first_or_404()
-    dates =[datetime.now() + timedelta(days=x) for x in range(max_days)]
+    dates =[datetime.now(tz) + timedelta(days=x) for x in range(max_days)]
 
-    showtimes = Screening.query.join(Movie).join(Auditorium) \
+    showtimes = Screening.query \
     .filter(
         db.and_(
             Screening.movie_id.is_(movie.id),
@@ -286,20 +300,22 @@ def movie(movie_route):
             extract('day', Screening.start_datetime).is_(date.day),
         )).order_by(Screening.start_datetime)
 
-    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+    watchlist = Watchlist.query.filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
 
-    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, showtimes=showtimes, date=date, timenow=datetime.now(), watchlist=watchlist)
+    return render_template('member/movie.html', ext="member/layout.html", Movie=movie, dates=dates, showtimes=showtimes, date=date, timenow=datetime.now(tz), watchlist=watchlist)
 
 
 @users.route('/movies')
 @guest_or_member()
 def movies():
+    ''' Display all movies '''
+
     movies = Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, datetime.now())))\
+                db.ColumnOperators.__le__(Movie.release_date, datetime.now(tz))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
-    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+    watchlist = Watchlist.query.filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
 
     return render_template('member/movies.html', type='Now Playing', first='type-selected', movies=movies, watchlist=watchlist)
 
@@ -307,11 +323,13 @@ def movies():
 @users.route('/movies/coming-soon')
 @guest_or_member()
 def movies_coming_soon():
+    ''' Display movies that are coming soon '''
+
     movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__ge__(Movie.release_date, datetime.now())))\
+                db.ColumnOperators.__ge__(Movie.release_date, datetime.now(tz))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
     
-    watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
+    watchlist = Watchlist.query.filter(Watchlist.member_id.is_(current_user.id)) if current_user.is_authenticated else None
 
     return render_template('member/movies.html', type='Coming Soon', second='type-selected', movies=movies, watchlist=watchlist)
 
@@ -329,26 +347,33 @@ def logout():
 @users.route('/receipt/<string:confirmation>')
 @guest_or_member()
 def receipt(confirmation):
+    ''' Display receipt with purchase, showtime, and transaction info. '''
 
-    tickets = Purchased_Ticket.query.join(Ticket).join(Purchase).join(Seat)\
-        .filter(
-            db.and_(Purchase.confirmation.is_(confirmation),
-                    Purchased_Ticket.purchase_id.is_(Purchase.id),
-                    Ticket.id.is_(Purchased_Ticket.ticket_id),
-                    Seat.id.is_(Ticket.seat_id)))
+    tickets = Purchased_Ticket.query.join(Purchase) \
+        .filter(Purchase.confirmation.is_(confirmation))
     
     purchase = tickets.first_or_404().purchase
 
-    screening = Screening.query.join(Movie).join(Auditorium) \
+    screening = Screening.query \
         .filter(Screening.id.is_(tickets.first().ticket.screening_id)).first()
 
 
-    return render_template('/guest/receipt.html', purchase=purchase, tickets=tickets, screening=screening, total=tickets.count())
+    return render_template('/guest/receipt.html', purchase=purchase, tickets=tickets, screening=screening, total=tickets.count(), utc=utc, tz=tz)
 
 
 @users.route('/ticket-seat-map/<int:showtime_id>')
 @guest_or_member()
 def ticket_seat_map(showtime_id):
+    '''  
+        Display map for showtime. 
+        Allow users to select seats they wish to purchase and ticket types.
+        They can proceed to checkout after making their selection.
+    
+        Note: 
+            Cannot purchase a ticket for a movie that's already playing or has played
+            Links to these showtimes become unavailable if the movie has played or is currently playing
+    '''
+
     form_data = session.get('form_data')
     form2_data = session.get('form2_data')
     form_data_login = session.get('form_data_login')
@@ -360,21 +385,19 @@ def ticket_seat_map(showtime_id):
     if form_data_login:
         session.pop('form_data_login')
 
-    screening = Screening.query.join(Movie).join(Auditorium) \
+    screening = Screening.query \
         .filter(Screening.id.is_(showtime_id)) \
         .first_or_404()
     
-    if screening.start_datetime < datetime.now():
+    if screening.start_datetime < datetime.now(tz):
         abort(404)
     
     seats = Seat.query.filter_by(auditorium_id = screening.auditorium.id).order_by(Seat.id) 
 
-    purchased_ticket = Ticket.query.join(Screening).join(Seat).join(Purchased_Ticket) \
+    purchased_ticket = Ticket.query.join(Purchased_Ticket) \
         .filter(
             db.and_(
-                Screening.id.is_(screening.id),
-                Screening.id.is_(Ticket.screening_id),
-                Seat.id.is_(Ticket.seat_id),
+                Ticket.screening_id.is_(screening.id),
                 Purchased_Ticket.ticket_id.is_(Ticket.id)))
     
     purchased_seats = []
@@ -388,9 +411,3 @@ def ticket_seat_map(showtime_id):
 def todo():
     return apology('TODO', 'member/layout.html', 403)
 
-
-'''  
-Note: 
-Purchase ticket: Cannot purchase a ticket for a movie that's already playing or has played
-Links to these tickets must become unavailable if the movie has played or is currently playing
-'''

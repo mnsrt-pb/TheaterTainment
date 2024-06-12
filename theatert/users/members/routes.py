@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import abort, Blueprint, flash, render_template, redirect, request, session, url_for
 from flask_login import current_user
+from pytz import timezone
 from secrets import token_urlsafe
 from sqlalchemy import collate
 from theatert import db, bcrypt
 from theatert.users.members.forms import AccountInfoForm, DefaultPaymentForm, DeleteDefaultPayemnt, \
     EmailForm, MemberCheckoutForm, MemberCheckoutForm2, RegistrationForm, PasswordForm
-from theatert.models import Auditorium, Card, Cards, Member, Movie, Purchase, Purchased_Ticket, Screening, Seat, Ticket, Watchlist
+from theatert.models import Card, Cards, Member, Movie, Purchase, Purchased_Ticket, Screening, Seat, Ticket, Watchlist
 from theatert.users.utils import guest, login_required
 from werkzeug.datastructures import MultiDict
 
@@ -15,10 +16,14 @@ import calendar
 
 members = Blueprint('members', __name__, url_prefix='/member')
 
+tz = timezone('US/Eastern')
+
 
 @members.route('/<int:m_id>/add_watchlist', methods=['GET'])
 @login_required(role='MEMBER')
 def add_watchlist(m_id):
+    ''' Add movie to member's watchlist '''
+
     movie = Movie.query.filter_by(id = m_id, deleted=False, active=True).first_or_404()
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
     
@@ -29,7 +34,7 @@ def add_watchlist(m_id):
                     )
         db.session.add(item)
         flash(f'<b><i>{movie.title}</i></b> added to Watch List', 'light')
-    db.session.commit()
+        db.session.commit()
         
     return redirect(request.referrer)
 
@@ -37,6 +42,8 @@ def add_watchlist(m_id):
 @members.route('/checkout', methods=['GET', 'POST'])
 @login_required(role='MEMBER')
 def checkout():
+    ''' Checkout page'''
+
     form = MemberCheckoutForm()
 
     form_data = session.get('form_data')
@@ -46,11 +53,11 @@ def checkout():
     if form2_data:
         form = MemberCheckoutForm2(MultiDict(form2_data))
 
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -64,11 +71,11 @@ def checkout():
 
     elif form_data:
         form = MemberCheckoutForm(MultiDict(form_data))
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -81,11 +88,11 @@ def checkout():
         form.validate()
 
     elif form_data_login:
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(form_data_login['screening_id'])) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -102,11 +109,11 @@ def checkout():
         form.senior_tickets.data = form_data_login['senior_tickets']
 
     else:
-        screening = Screening.query.join(Movie).join(Auditorium) \
+        screening = Screening.query \
             .filter(Screening.id.is_(request.form.get('screening_id'))) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now():
+        if screening.start_datetime < datetime.now(tz):
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -131,6 +138,8 @@ def checkout():
 @members.route('/checkout-validate', methods=['POST'])
 @login_required(role='MEMBER')
 def checkout_validate():
+    ''' Validate checkout data '''
+
     form = MemberCheckoutForm()
     form2 = MemberCheckoutForm2()
 
@@ -141,11 +150,11 @@ def checkout_validate():
 
     if 'form1' in request.form:
         if form.validate_on_submit():
-            screening = Screening.query.join(Movie).join(Auditorium) \
+            screening = Screening.query \
                 .filter(Screening.id.is_(form.screening_id.data)) \
                 .first_or_404()
             
-            if screening.start_datetime < datetime.now():
+            if screening.start_datetime < datetime.now(tz):
                 abort(404)
 
             form_data = session.get('form_data') 
@@ -221,10 +230,10 @@ def checkout_validate():
             tickets = ''
 
             for s in seat_ids:
-                ticket = Ticket.query.join(Screening).join(Seat) \
+                ticket = Ticket.query \
                     .filter(
-                        db.and_(Seat.id.is_(s),
-                            Screening.id.is_(form.screening_id.data))).first()
+                        db.and_(Ticket.seat_id.is_(s),
+                                Ticket.screening_id.is_(form.screening_id.data))).first()
                 
                 tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
                 
@@ -250,11 +259,11 @@ def checkout_validate():
             return redirect(url_for('members.checkout'))
     else: 
         if form2.validate_on_submit():
-            screening = Screening.query.join(Movie).join(Auditorium) \
+            screening = Screening.query \
                 .filter(Screening.id.is_(form.screening_id.data)) \
                 .first_or_404()
             
-            if screening.start_datetime < datetime.now():
+            if screening.start_datetime < datetime.now(tz):
                 abort(404)
 
             form2_data = session.get('form2_data') 
@@ -282,10 +291,10 @@ def checkout_validate():
                 tickets = ''
 
                 for s in seat_ids:
-                    ticket = Ticket.query.join(Screening).join(Seat) \
+                    ticket = Ticket.query \
                         .filter(
-                            db.and_(Seat.id.is_(s),
-                                Screening.id.is_(form.screening_id.data))).first()
+                            db.and_(Ticket.seat_id.is_(s),
+                                    Ticket.screening_id.is_(form.screening_id.data))).first()
                     
                     tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
                     
@@ -318,6 +327,8 @@ def checkout_validate():
 @members.route('/profile', methods=['GET', 'POST'])
 @login_required(role='MEMBER')
 def profile():
+    ''' Member's profile page '''
+
     info_form = AccountInfoForm()
     email_form = EmailForm()
     password_form = PasswordForm()
@@ -490,6 +501,8 @@ def profile():
 @members.route('/purchases', methods=['GET'])
 @login_required(role='MEMBER')
 def purchases():
+    ''' Display member's purchases '''
+
     ps = Purchase.query.filter_by(member_id = current_user.id)
 
     purchases = {'past': {
@@ -507,16 +520,11 @@ def purchases():
                 }
 
     for p in ps:
-        t = Purchased_Ticket.query.join(Ticket).join(Seat)\
-            .filter(
-                db.and_(Purchased_Ticket.purchase_id.is_(p.id),
-                        Ticket.id.is_(Purchased_Ticket.ticket_id),
-                        Seat.id.is_(Ticket.seat_id)))
+        t = Purchased_Ticket.query.filter(Purchased_Ticket.purchase_id.is_(p.id))
         
-        s = Screening.query.join(Movie).join(Auditorium) \
-            .filter(Screening.id.is_(t.first().ticket.screening_id)).first()
+        s = Screening.query.filter(Screening.id.is_(t.first().ticket.screening_id)).first()
         
-        if s.start_datetime < datetime.now():
+        if s.start_datetime < datetime.now(tz):
             purchases['past']['purchase'].append(p)
             purchases['past']['tickets'].append(t)
             purchases['past']['screenings'].append(s)
@@ -534,7 +542,7 @@ def purchases():
 @members.route('/register', methods=['GET', 'POST'])
 @guest()
 def register():
-    '''Register associate'''
+    ''' Register associate '''
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -561,6 +569,8 @@ def register():
 @members.route('/<int:m_id>/remove_watchlist', methods=['GET'])
 @login_required(role='MEMBER')
 def remove_watchlist(m_id):
+    ''' Remove movie from member's watchlist '''
+
     movie = Movie.query.filter_by(id = m_id, deleted=False).first_or_404()
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
     
@@ -578,20 +588,21 @@ def remove_watchlist(m_id):
 @login_required(role='MEMBER')
 def watchlist():
     '''Member's Watchlist'''
+    
     watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id))
     
     now_playing = watchlist.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now(tz)))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     not_playing = watchlist.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(False),\
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now(tz)))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     coming_soon = watchlist.filter(db.and_(Movie.deleted.is_(False), \
-                db.ColumnOperators.__gt__(Movie.release_date, datetime.now())))\
+                db.ColumnOperators.__gt__(Movie.release_date, datetime.now(tz))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     return render_template('member/watchlist.html', now_playing=now_playing, not_playing=not_playing, coming_soon=coming_soon)

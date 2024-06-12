@@ -31,7 +31,7 @@ def apology(message, extends, code=400):
 
 
 def guest():
-    '''Decorate routes to require login.'''
+    '''Decorate routes to not allow logged users.'''
 
     def wrapper(f):
         @wraps(f)
@@ -48,7 +48,7 @@ def guest():
 
 
 def guest_or_member():
-    '''Decorate routes to require login.'''
+    '''Decorate routes to require guests or Member accounts only.'''
 
     def wrapper(f):
         @wraps(f)

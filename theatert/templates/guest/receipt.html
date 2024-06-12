@@ -127,8 +127,9 @@
 
             <hr>
             <h5 class="movie-title mb-3">Payments</h5>
-            <p class="my-small2">Your payment was successfully charged on {{ purchase.datetime.strftime("%m/%d/%Y") }} 
-                at {{ purchase.datetime.strftime(" %I:%M %p") }}</p>
+
+            <p class="my-small2">Your payment was successfully charged on {{ utc.localize(purchase.datetime).astimezone(tz).strftime("%m/%d/%Y") }} 
+                at {{ utc.localize(purchase.datetime).astimezone(tz).strftime(" %I:%M %p") }}</p>
 
             <div class="d-flex justify-content-between my-small2">
                 <p>{{purchase.card.card_type}} ... {{ (purchase.card.card_num| string)[-4:]  }}</p>
