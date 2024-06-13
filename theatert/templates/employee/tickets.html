@@ -6,55 +6,156 @@
 
 {% block main %}
     <h3 class="color-dark mb-3">{{ title }}</h3>
-    <h6 class="my-font mb-3">
+
+    <h6 class="mb-3">
         {{ screening.movie.title }} 
         | Auditorium {{ screening.auditorium.id }} 
         | {{ screening.start_datetime.strftime("%A, %b %d, %Y") }} 
         | {{ screening.start_datetime.strftime(" %I:%M %p") }}
         | {{ total }} Tickets
+        | {{ purchased_tickets | length }} Sold
     </h6>
-    <div class="container cont-2 shadow">
-        <div class="table-responsive-md">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th class="text-start">#</th>
-                        <th class="text-start">Seat</th>
-                        <th class="text-end">About</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in tickets %}
-                        <tr>
-                            <th class="text-start">{{ loop.index }}</th>
-                            
-                            <td class="text-start">{{ t.seat.row_name }}{{ t.seat.col }}</td>
-                            
-                            {% if t.seat.seat_type == 'normal' %}
-                                <td class="text-end">Seat</td>
-                            {% elif t.seat.seat_type == 'wheelchair' %}
-                                <td class="text-end">Wheelchair Space (not a seat)</td>
-                            {% else %}
-                                <td class="text-end">Companion Seat</td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="my-5">
-        {% for pg_num in tickets.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                {% if pg_num %}
-                    {% if tickets.page == pg_num %}
-                        <a class="page-current me-3" href="{{ url_for('employees.tickets', s_id=screening.id, page=pg_num) }}">{{ pg_num }}</a>
+    <!-- Auditorium -->
+    <div class="container cont-4">
+        <div class="d-flex row justify-content-md-center">
+            {% if screening.auditorium.id == 3 %}
+                <h3 class="screen screen-a my-3">SCREEN</h3>
+            {% elif screening.auditorium.id == 4 %}
+                <h3 class="screen screen-b my-3">SCREEN</h3>
+            {% else %}
+                <h3 class="screen screen-c my-3">SCREEN</h3>
+            {% endif %}
+        </div>
+
+        {% for seat in seats %}
+            {% if (loop.index0 % screening.auditorium.cols) == 0 %}
+                <div class="flex-row flex-nowrap row justify-content-md-center">
+            {% endif %}
+                    {% if seat.seat_type == 'normal'%}
+                        {% if seat.id in purchased_seats %}
+                            <a class="seat unavailable pointer p-2 m-1" href="{{ url_for('employees.purchase_info', confirmation=purchased_seats[seat.id].confirmation) }}">
+                                {{ seat.row_name }}{{ seat.col }}
+                            </a>
+                        {% else %}    
+                            <button class="seat available not-pointer p-2 m-1">
+                                {{ seat.row_name }}{{ seat.col }}
+                            </button>
+                        {% endif %}
+
+                    {% elif seat.seat_type == 'wheelchair' %}
+                        {% if seat.id in purchased_seats %}
+                            <a class="seat seat-wheelchair seat-img unavailable pointer p-2 m-1" href="{{ url_for('employees.purchase_info', confirmation=purchased_seats[seat.id].confirmation) }}">
+                                <img src="../../static/images/seat_wheelchair.webp">
+                            </a>
+                        {% else %}    
+                            <button class="seat seat-wheelchair seat-img not-pointer p-2 m-1">
+                                <img src="../../static/images/seat_wheelchair.webp">
+                            </button>
+                        {% endif %}
+                    {% elif seat.seat_type == 'companion' %}
+                        {% if seat.id in purchased_seats %}
+                            <a class="seat seat-companion seat-img unavailable pointer p-2 m-1" href="{{ url_for('employees.purchase_info', confirmation=purchased_seats[seat.id].confirmation) }}">
+                                <img src="../../static/images/seat_companion.webp">
+                            </a>
+                        {% else %}    
+                            <button class="seat seat-companion seat-img not-pointer p-2 m-1">
+                                <img src="../../static/images/seat_companion.webp">
+                            </button>
+                        {% endif %}
                     {% else %}
-                        <a class="page me-3" href="{{ url_for('employees.tickets',s_id=screening.id,  page=pg_num) }}">{{ pg_num }}</a>
+                        <div class="seat empty p-2 m-1"></div>
                     {% endif %}
-                {% else %}
-                    <span class="me-3">...</span>
-                {% endif %}
+
+            {% if (loop.index0 % screening.auditorium.cols) == (screening.auditorium.cols-1) %}
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
+
+    <div class="container">
+        <small class="text-body-secondary fst-italic">
+            Note: Click on a sold seat on the map or table to view its receipt.
+        </small>
+    </div>
+
+    <div class="container mt-5 d-flex justify-content-around flex-wrap flex-xxl-wrap">
+        <!-- Seat Legend -->
+        <div class="cont-8 align-self-start rounded shadow left-align mb-3 p-3">
+            <h5 class="fw-bolder">Seat Legend</h5>
+            <small>
+                <div class="d-flex align-items-center">
+                    <div class="seat available p-2 m-1"></div>
+                    <div class="ps-3 pt-2">Available Seat</div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex align-items-center">
+                    <div class="seat unavailable p-2 m-1"></div>
+                    <div class="ps-3 pt-2">Sold</div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex align-items-center flex-nowrap">
+                    <div class="seat seat-wheelchair seat-img p-2 m-1 col-3">
+                        <img src="../../static/images/seat_wheelchair.webp">
+                    </div>
+                    <div class="ps-3 pt-2 flex-grow-1">Wheelchair Space (no seat)</div>
+                </div><hr>
+            </small>
+
+            <small>
+                <div class="d-flex">
+                    <div class="seat seat-img p-2 m-1 col-3">
+                        <img src="../../static/images/seat_companion.webp">
+                    </div>
+                    <div class="ps-3 pt-2 flex-grow-1">Companion Seat</div>
+                </div>
+            </small>
+        </div>
+
+        <!-- Table -->
+        <div class="container cont-8 rounded shadow p-3">
+            <div class="table-responsive-md collapse-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-start">#</th>
+                            <th class="text-start">Seat</th>
+                            <th class="text-start">Sold</th>
+                            <th class="text-end">About</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tickets %}
+                            <tr>
+                                <th class="text-start">{{ loop.index }}</th>
+                                
+                                <td class="text-start">{{ t.seat.row_name }}{{ t.seat.col }}</td>
+    
+                                {% if t.id in purchased_tickets %}
+                                    <td class="text-start ticket-unavailable fw-bolder">
+                                        <a href="{{ url_for('employees.purchase_info', confirmation=purchased_tickets[t.id].confirmation) }}">Y</a>
+                                    </td>
+                                {% else %}
+                                    <td class="text-start ticket-available fw-bold">N</td>
+                                {% endif %}
+                                
+                                {% if t.seat.seat_type == 'normal' %}
+                                    <td class="text-end">Seat</td>
+                                {% elif t.seat.seat_type == 'wheelchair' %}
+                                    <td class="text-end">Wheelchair Space (not a seat)</td>
+                                {% else %}
+                                    <td class="text-end">Companion Seat</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}
+

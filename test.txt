@@ -1,8 +1,18 @@
 foo
 HelloWorld#3
 
+bar 
+HelloWorld$4
+
+------
+
 foo@foo.foo
 helloworld#3
+
+abc@abc.abc
+helloworld$4
+
+-------
 
 Visa
 4032033067980677

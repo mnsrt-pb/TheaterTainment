@@ -51,7 +51,6 @@
 
                 <div class="form-floating">
                     <select class="form-select mb-3" id="select-auditoriums" name="auditorium">
-                        <option value="">Select Auditorium</option>
                         {% for c in choices %}    
                             <option value="{{ c[0] }}">{{ c[1] }}</option>
                         {% endfor %}
@@ -68,7 +67,8 @@
             </form>
         </div>
 
-        <div class="container mb-3"><small class="fst-italic text-body-secondary">Note: Click on tickets to view tickets' info for that showtime.</small></div>
+        <div class="container"><small class="fst-italic text-body-secondary">Note: Click on movie to view all showtimes for that movie.</small></div>
+        <div class="container"><small class="fst-italic text-body-secondary">Click on tickets to view tickets' info for that showtime.</small></div>
 
         <div class="table-responsive-xl mt-5">
             <table class="table table-striped">
@@ -90,12 +90,13 @@
                     <tr>
                         <th class="text-start">{{ loop.index }}</th>
                         <td class="text-start">
-                            <a href="{{ url_for('employees.showtimes.movie', movie_route=s.movie.route) }}">{{ s.movie.title }}</a>
+                            <a href="{{ url_for('employees.showtimes.movie', movie_route=s.movie.route) }}" class="info fw-bold">{{ s.movie.title }}</a>
                         </td>
 
                         <td class="text-start">{{ s.start_datetime.strftime("%A, %b %d, %Y") }}</td>
                         <td class="text-start">{{ s.start_datetime.strftime(" %I:%M %p") }}</td>
                         <td class="text-start">{{ s.end_datetime.strftime(" %I:%M %p") }}</td>
+
                         {% if s.movie.runtime < 60 %}
                             {% set runtime = (s.movie.runtime)|string + ' min' %}
                         {% else %}
@@ -104,7 +105,7 @@
                         <td class="text-start">{{ runtime }}</td>
 
                         <td class="text-end">{{ s.auditorium.id }}</td>
-                        <td class="text-end"><a href="{{ url_for('employees.tickets', s_id=s.id) }}">{{ seats_total[loop.index0] }}</a></td>
+                        <td class="text-end"><a href="{{ url_for('employees.tickets', s_id=s.id) }}" class="info fw-bolder">{{ seats_total[loop.index0] }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -1,8 +1,9 @@
 from datetime import datetime
-from flask import render_template, request, session
+from flask import render_template, redirect, request, session, url_for
 from flask_login import current_user
 from functools import wraps
 from theatert import login_manager
+
 
 def apology(message, extends, code=400):
     '''Render message as an apology to user.'''
@@ -29,6 +30,38 @@ def apology(message, extends, code=400):
     return render_template('other/apology.html', ext=extends, top=code, bottom=escape(message)), code
 
 
+def guest():
+    '''Decorate routes to not allow logged users.'''
+
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if  current_user.is_authenticated:
+                if current_user.role == "EMPLOYEE":
+                    return redirect(url_for('employees.home'))
+                else:
+                    return redirect(url_for('users.home'))
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+
+def guest_or_member():
+    '''Decorate routes to require guests or Member accounts only.'''
+
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if current_user.is_authenticated:
+                if current_user.role == "EMPLOYEE":
+                    return redirect(url_for('employees.home'))
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+
 def login_required(role="ANY"):
     '''Decorate routes to require login.'''
 
@@ -47,3 +80,4 @@ def login_required(role="ANY"):
 
 def date_obj(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d")
+

@@ -1,9 +1,8 @@
-from datetime import datetime, time
-from flask import flash
+from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import DateField, DecimalField, HiddenField, SelectField,StringField, SubmitField
+from wtforms import DecimalField, SelectField, SubmitField
 from wtforms.fields import DateTimeLocalField
-from wtforms.validators import DataRequired, Length, ValidationError, Optional
+from wtforms.validators import DataRequired, ValidationError
 
 def places():
     message = f'Must have at most two values after the decimal.'

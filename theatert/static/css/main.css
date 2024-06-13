@@ -14,6 +14,8 @@ a .movie-link {
 
 #all-movies .card { border: none; }
 
+body { font-family: 'Work Sans', sans-serif!important; }
+
 button#action { 
     border-radius: 0 !important;
     padding: 8px 16px !important
@@ -163,7 +165,6 @@ button#action {
 
 .movie-title { font-weight: 600!important; }
 
-.my-font { font-family: 'Work Sans', sans-serif!important; }
 .my-small { font-size: medium; }
 .my-small2 { font-size: small; }
 .no-borders *{ border: none !important; }
@@ -251,6 +252,11 @@ button#action {
 
 .showtime > div { border-radius: 0.35em; }
 
+.collapse-table {
+    overflow-y:scroll;
+    height:400px;
+}
+
 .toggle-visibility-1, .toggle-visibility-2 { cursor: pointer; }
 
 #trailer  {
@@ -259,6 +265,10 @@ button#action {
 }
 
 .trailer > img { width: 70px; }
+
+.ticket-available  { color: rgba(44, 104, 22, .7) !important;}
+
+.ticket-unavailable  { color: rgba(0,0,0,.2) !important; }
 
 .watchlist-item { width: 50% }
 
@@ -340,9 +350,10 @@ button.seat { border:none; }
     display: inline-block;
 }
 
-.seat:not(.empty){ cursor: pointer;}
-.empty{ cursor:default; }
-.unavailable{ cursor:default !important }
+.seat{ cursor: pointer;}
+.empty{ cursor:default !important;}
+.not-pointer{ cursor:default !important;}
+.unavailable:not(.pointer){ cursor:default !important }
 
 .available:hover { background-color: rgba(44, 104, 22, 1); }
 .available { background-color: rgba(44, 104, 22, .7); }

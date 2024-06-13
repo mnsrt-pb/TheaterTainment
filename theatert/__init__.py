@@ -19,7 +19,7 @@ login_manager.blueprint_login_views = {
     'members': 'users.member_login',
     'employees': 'users.employee_login',
 }
-login_manager.login_message_category = "light"
+login_manager.login_message_category = "danger"
 
 
 def create_app(config_class=Config):

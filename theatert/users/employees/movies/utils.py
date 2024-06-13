@@ -3,7 +3,7 @@ import tmdbsimple as tmdb
 import os
 
 from theatert import db
-from theatert.models import Genre, genres, Auditorium, Seat
+from theatert.models import Genre, genres
 
 
 tmdb.API_KEY = os.environ.get('TMDB_API_KEY')

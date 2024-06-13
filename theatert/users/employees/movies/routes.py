@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user
 from sqlalchemy import collate
@@ -14,10 +14,71 @@ import tmdbsimple as tmdb
 movies = Blueprint('movies', __name__, url_prefix='/movies')
 
 
+@movies.route('/active', methods=['GET', 'POST'])
+@login_required(role="EMPLOYEE")
+def active():
+    '''Display activated movies.'''
+    
+    page = request.args.get('page', 1, type=int)
+    sort_by = request.args.get('sort_by', 1, type=int)
+
+    if sort_by == 2:
+        movies = Movie.query.filter(
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
+                .order_by(Movie.release_date.desc())
+        
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
+    else:
+        movies = Movie.query.filter(
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(True)))\
+                .order_by(collate(Movie.title, 'NOCASE'))
+        
+        length = movies.count()
+        movies = movies.paginate(page=page, per_page=10)
+    
+    # Inactivate Form
+    inactivate_form = InactivateForm()
+    # If an active movie has upcoming screenings, they cannot be inactivated
+    subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.now()))
+    active = Movie.query.filter(db.and_(
+                            Movie.active.is_(True), 
+                            Movie.deleted.is_(False),
+                            Movie.id.not_in(subquery)))\
+                        .order_by(collate(Movie.title, 'NOCASE'))
+    choices = [(None, 'Select Movie')]
+    for m in active:
+        choices.append((m.id, m.title))
+    inactivate_form.m_id.choices = choices
+
+    if inactivate_form.validate_on_submit():
+            # Inactivate Movie
+            movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
+            if movie:
+                movie.active = False
+
+            # Add Employee Change
+            change = Change(
+                action = "inactivated",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+            db.session.add(change)
+
+            db.session.commit()
+            flash('Movie inactivated.', 'custom')
+            return redirect(url_for('employees.movies.inactive'))
+
+    return render_template('other/movies.html', ext="employee/layout.html", title="Active", inactivate_form=inactivate_form,\
+                           movies=movies, url='employees.movies.active', sort_by=sort_by, length=length)   
+
+
 @movies.route('/add-movie', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def add_movie():
     '''Add movie to theater database'''
+
     search_form = SearchMovieForm()
     add_form =  AddMovieForm()
     movies = Movie.query.filter_by(deleted=False).all()
@@ -62,9 +123,9 @@ def add_movie():
                 movie.backdrop_path = None
                 movie.trailer_path = None
                 change.action = "added"
-                flash('Movie was added.', 'light')
+                flash('Movie was added.', 'custom')
             else:
-                flash('Fetched new data.', 'light')
+                flash('Fetched new data.', 'custom')
 
         else: 
             # Add Movie
@@ -97,7 +158,7 @@ def add_movie():
                 data_id = movie.id,
                 employee_id = current_user.id
             )
-            flash('Movie was added.', 'light')
+            flash('Movie was added.', 'custom')
 
         db.session.add(change)
         db.session.commit()
@@ -114,6 +175,7 @@ def all_movies():
     Display all movies in theater database.
     Activate/Inactivate movies.
     '''
+
     page = request.args.get('page', 1, type=int)
     sort_by = request.args.get('sort_by', 1, type=int)
 
@@ -146,60 +208,58 @@ def all_movies():
 
     # Inactivate Form
     inactivate_form = InactivateForm()
-
     # If an active movie has upcoming screenings, they cannot be inactivated
     subquery = db.session.query(Screening.movie_id).filter(db.ColumnOperators.__gt__(Screening.end_datetime, datetime.now()))
-
     active = Movie.query.filter(db.and_(
                             Movie.active.is_(True), 
                             Movie.deleted.is_(False),
                             Movie.id.not_in(subquery)))\
                         .order_by(collate(Movie.title, 'NOCASE'))
-    
     choices = [(None, 'Select Movie')]
     for m in active:
         choices.append((m.id, m.title))
     inactivate_form.m_id.choices = choices
 
     # Check form submissions
-    if activate_form.validate_on_submit():
-        # Activate movie
-        movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
-        if movie:
-            movie.active = True
+    if 'Activate' in request.form.to_dict().values():
+        if activate_form.validate_on_submit():
+            # Activate movie
+            movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
+            if movie:
+                movie.active = True
 
-        # Add Employee Change
-        change = Change(
-            action = "activated",
-            table_name = "movie",
-            data_id = movie.id,
-            employee_id = current_user.id
-        )
-        db.session.add(change)
+            # Add Employee Change
+            change = Change(
+                action = "activated",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+            db.session.add(change)
 
-        db.session.commit()
-        flash('Movie activated.', 'light')
-        return redirect(url_for('employees.movies.all_movies'))
+            db.session.commit()
+            flash('Movie activated.', 'custom')
+            return redirect(url_for('employees.movies.all_movies'))
 
+    if 'Inactivate' in request.form.to_dict().values():
+        if inactivate_form.validate_on_submit():
+            # Inactivate Movie
+            movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
+            if movie:
+                movie.active = False
 
-    if inactivate_form.validate_on_submit():
-        # Inactivate Movie
-        movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
-        if movie:
-            movie.active = False
+            # Add Employee Change
+            change = Change(
+                action = "inactivated",
+                table_name = "movie",
+                data_id = movie.id,
+                employee_id = current_user.id
+            )
+            db.session.add(change)
 
-        # Add Employee Change
-        change = Change(
-            action = "inactivated",
-            table_name = "movie",
-            data_id = movie.id,
-            employee_id = current_user.id
-        )
-        db.session.add(change)
-
-        db.session.commit()
-        flash('Movie inactivated.', 'light')
-        return redirect(url_for('employees.movies.all_movies'))
+            db.session.commit()
+            flash('Movie inactivated.', 'custom')
+            return redirect(url_for('employees.movies.all_movies'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
                            movies=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
@@ -235,7 +295,7 @@ def coming_soon():
 @movies.route('/movie/<int:movie_id>/delete', methods=['POST'])
 @login_required(role="EMPLOYEE")
 def delete_movie(movie_id):
-    '''Delete movies.'''
+    '''Delete movie.'''
 
     movie = Movie.query.filter_by(id = movie_id, deleted=False).first_or_404()
 
@@ -262,41 +322,74 @@ def delete_movie(movie_id):
         db.session.add(change)
 
         db.session.commit()
-        flash(f'{movie.title} has been deleted!', 'light')
+        flash(f'{movie.title} has been deleted!', 'custom')
     else: 
         flash(f'{movie.title} cannot be deleted! It has upcoming showtimes.', 'danger')
 
     return redirect (url_for('employees.movies.all_movies'))
 
 
-@movies.route('/now-playing')
+@movies.route('/inactive', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
-def now_playing():
-    '''Display movies that are now playing'''
+def inactive():
+    '''Display movies that are inactive'''
     
     page = request.args.get('page', 1, type=int)
     sort_by = request.args.get('sort_by', 1, type=int)
 
     if sort_by == 2:
         movies = Movie.query.filter(
-                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(False)))\
                 .order_by(Movie.release_date.desc())
         
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
     else:
         movies = Movie.query.filter(
-                db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now() + timedelta(days=20)))))\
+                db.and_(Movie.deleted.is_(False), Movie.active.is_(False)))\
                 .order_by(collate(Movie.title, 'NOCASE'))
         
         length = movies.count()
         movies = movies.paginate(page=page, per_page=10)
         
+    # Activate Form
+    activate_form = ActivateForm()
+    # Filter for movies that have not been 'deleted', are inactive AND have a poster_path, backdrop_path, trailer_path, and a release data
+    inactive = Movie.query.filter(db.and_(
+                            Movie.release_date.is_not(None),
+                            Movie.poster_path.is_not(None),
+                            Movie.backdrop_path.is_not(None),
+                            Movie.trailer_path.is_not(None),
+                            Movie.active.is_(False), 
+                            Movie.deleted.is_(False)))\
+                    .order_by(collate(Movie.title, 'NOCASE'))
+    choices = [(None, 'Select Movie')]
+    for m in inactive:
+        choices.append((m.id, m.title))
+    activate_form.m_id.choices = choices
 
-    return render_template('other/movies.html', ext="employee/layout.html", title="Now Playing", \
-                           movies=movies, url='employees.movies.now_playing', sort_by=sort_by, length=length)
+    # Check form submissions
+    if activate_form.validate_on_submit():
+        # Activate movie
+        movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
+        if movie:
+            movie.active = True
+
+        # Add Employee Change
+        change = Change(
+            action = "activated",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
+
+        db.session.commit()
+        flash('Movie activated.', 'custom')
+        return redirect(url_for('employees.movies.active'))
+
+    return render_template('other/movies.html', ext="employee/layout.html", title="Inactive", activate_form=activate_form,\
+                           movies=movies, url='employees.movies.inactive', sort_by=sort_by, length=length)
     
 
 @movies.route('/<string:movie_route>')
@@ -320,7 +413,7 @@ def movie(movie_route):
 @movies.route('/<string:movie_route>/update', methods=['GET', 'POST'])
 @login_required(role="EMPLOYEE")
 def update_movie(movie_route):
-    '''Update movie backdrop, poster, and trailer.'''
+    '''Update movie backdrop, poster, and/or trailer.'''
 
     movie = Movie.query.filter_by(route = movie_route, deleted=False).first_or_404()
     data = tmdb.Movies(movie.tmdb_id)
@@ -356,7 +449,7 @@ def update_movie(movie_route):
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie updated.', 'light')
+            flash('Movie updated.', 'custom')
             return redirect(url_for('employees.movies.movie', movie_route = movie.route))
         else:
             flash('Must select something.', 'danger')

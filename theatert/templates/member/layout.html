@@ -33,7 +33,7 @@
 
     </head>
 
-    <body class="d-flex flex-column h-100 my-font pt-5">
+    <body class="d-flex flex-column h-100 pt-5">
         <nav class="bg-light border fixed-top navbar navbar-expand-sm navbar-light shadow">
             <div class="container-fluid">
                 <div class="d-flex justify-content-between flex-wrap">
@@ -70,7 +70,7 @@
                 <header class="mt-4">
                     {% for category, message in messages %}
                         <div class="alert alert-{{category}} mb-0 d-flex justify-content-center" role="alert">
-                            <div class="text-center flex-grow-1 color-dark">
+                            <div class="text-center flex-grow-1">
                                 {{ message|safe }} 
                             </div>
                             <div class="text-end">

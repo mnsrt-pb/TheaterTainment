@@ -1,4 +1,4 @@
-{% extends "member/layout.html" %}
+{% extends "employee/layout.html" %}
 
 {% block title %}
     Purchased!
@@ -9,12 +9,19 @@
     <h2 class="text-center mb-4"><span class="color-dark">THEATER</span><span class="color-light">TAINMENT</span></h2>
     <h3 class="fw-bold mb-4 mt-3 mx-3">Order Details</h3>
     
+    <!-- Confirmation Token -->
     <div class="col-12 p-3 mb-5">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-5 col-lg-8 pe-3">
-                <h5 class="fw-bold">Thank you for your purchase</h5>
-                {% if current_user.is_authenticated %}
-                    <p>Your tickets have been saved to your account.</p>
+                <h5 class="fw-bold">Customer Info</h5>
+
+                {% if purchase.member %}
+                    <p>{{ purchase.member.fname }} {{ purchase.member.lname }}<br>
+                    {{ purchase.member.email }}<br>
+                    {{ purchase.member.phone }}</p>
+                {% else %}
+                    Purchased by a guest.<br>
+                    {{ purchase.email }}
                 {% endif %}
             </div>
             <div class="col-xs-12 col-sm-12 col-md-7 col-lg-4 rounded shadow p-3">
@@ -27,11 +34,11 @@
                         <p class="my-small2">{{ purchase.confirmation }}</p>
                     </div>
                 </div>
-                <small>Show your barcode at the theatre podium to pick up your tickets.</small>
             </div>
         </div>
     </div>
 
+    <!-- Movie and Seat Info -->
     <div class="d-flex flex-wrap flex-sm-nowrap flex-md-nowrap flex-lg-nowrap rounded shadow p-3 mb-5">
         <div class="showtime left-align me-4 my-3">
             <img src="https://image.tmdb.org/t/p/original{{screening.movie.poster_path}}" alt="Poster for {{screening.movie.title}}" class="rounded">
@@ -56,23 +63,26 @@
         </div>
     </div>
 
-    <h4 class="fw-bold mb-3">Transactions</h4>
-    <h6 class="fw-bold mb-3">{{ purchase.datetime.strftime("%B %d") }} Purchase Summary&emsp;
-        <span class="info"  data-bs-toggle="modal" data-bs-target="#modal-details">View Details</span>
-    </h6>
-    <div class="d-flex justify-content-between">
-        <p>{{purchase.card.card_type}} ... {{ (purchase.card.card_num| string)[-4:]  }}</p>
-        <p>{{ "$%.2f"|format(
-            screening.adult_price * purchase.adult_tickets +
-            screening.child_price * purchase.child_tickets +
-            screening.senior_price * purchase.senior_tickets)}}</p>
-    </div>
-    <div class="d-flex justify-content-between fw-bold">
-        <p>Total</p>
-        <p>{{ "$%.2f"|format(
-            screening.adult_price * purchase.adult_tickets +
-            screening.child_price * purchase.child_tickets +
-            screening.senior_price * purchase.senior_tickets)}}</p>
+    <!-- Transaction Info -->
+    <div>
+        <h4 class="fw-bold mb-3">Transactions</h4>
+        <h6 class="fw-bold mb-3">{{ purchase.datetime.strftime("%B %d") }} Purchase Summary&emsp;
+            <span class="info"  data-bs-toggle="modal" data-bs-target="#modal-details">View Details</span>
+        </h6>
+        <div class="d-flex justify-content-between">
+            <p>{{purchase.card.card_type}} ... {{ (purchase.card.card_num| string)[-4:]  }}</p>
+            <p>{{ "$%.2f"|format(
+                screening.adult_price * purchase.adult_tickets +
+                screening.child_price * purchase.child_tickets +
+                screening.senior_price * purchase.senior_tickets)}}</p>
+        </div>
+        <div class="d-flex justify-content-between fw-bold">
+            <p>Total</p>
+            <p>{{ "$%.2f"|format(
+                screening.adult_price * purchase.adult_tickets +
+                screening.child_price * purchase.child_tickets +
+                screening.senior_price * purchase.senior_tickets)}}</p>
+        </div>
     </div>
 </div>
 
@@ -127,8 +137,7 @@
 
             <hr>
             <h5 class="movie-title mb-3">Payments</h5>
-
-            <p class="my-small2">Your payment was successfully charged on {{ utc.localize(purchase.datetime).astimezone(tz).strftime("%m/%d/%Y") }} 
+            <p class="my-small2">Payment was successfully charged on {{ utc.localize(purchase.datetime).astimezone(tz).strftime("%m/%d/%Y") }} 
                 at {{ utc.localize(purchase.datetime).astimezone(tz).strftime(" %I:%M %p") }}</p>
 
             <div class="d-flex justify-content-between my-small2">

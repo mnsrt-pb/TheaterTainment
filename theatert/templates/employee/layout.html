@@ -46,8 +46,9 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{{ url_for('employees.movies.all_movies') }}">All Movies</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.now_playing') }}">Now Playing</a></li>
                                     <li><a class="dropdown-item" href="{{ url_for('employees.movies.coming_soon') }}">Coming Soon</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.active') }}">Active</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.movies.inactive') }}">Inactive</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ url_for('employees.movies.add_movie') }}">Add Movie</a></li>
                                 </ul>
@@ -59,7 +60,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.all_showtimes') }}">All Showtimes</a></li> 
                                     <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.past_showtimes') }}">Past Showtimes</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.showtimes_now') }}">Showtimes Now</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.upcoming_showtimes') }}">Upcoming Showtimes</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ url_for('employees.showtimes.add_showtime') }}">Add Showtime</a></li>
                                 </ul>
@@ -84,7 +85,7 @@
 
         {% with messages =  get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <header class="mt-4">
+                <header class="mt-5 mb-0">
                     {% for category, message in messages %}
                         <div class="alert alert-{{category}} mb-0 text-center" role="alert">
                             {{ message }} 
@@ -108,9 +109,7 @@
                         <li class="nav-item"><a href="{{ url_for('employees.movies.add_movie') }}" class="nav-link px-2 text-muted">Add Movie</a></li>   
                         <li class="nav-item"><a href="{{ url_for('employees.showtimes.add_showtime') }}" class="nav-link px-2 text-muted">Add Showtime</a></li>   
                     {% else %}
-                        <li class="nav-item"><a href="{{ url_for('employees.home') }}" class="nav-link px-2 text-muted">Home</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Movies</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Showtimes</a></li>
+                        <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
                     {% endif %}
                 </ul>
 
