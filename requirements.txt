@@ -17,12 +17,19 @@ NPM INSTALLS:
     popperjs
     bootstrap
     card-validator
+
+    
 --------------------------------------------
+
+
 cd cs50x-project/theatert/static/javascript 
 watchify main.js -o bundle.js 
 
+
 flask --app app run --debug
 
+
+# Create and  delete tables
 flask shell
 from theatert import db
 from flask import current_app
@@ -33,11 +40,25 @@ db.drop_all()
 Table.__table__.drop(db.engine)
 Purchase.__table__.drop(db.engine)
 
+
+# Delete by id
 User.query.filter_by(id=3).delete()
 
+
+# Delete genres
+db.session.execute(genres.delete())
+db.session.commit()
+
+
+# Get by id
 audi1 = Auditorium.query.get(1)
 
+
+# Request data to dict
 request.form.to_dict()
+
+
+--------------------------------------------
 
 ASDF123!!45
 HelloWorld#3

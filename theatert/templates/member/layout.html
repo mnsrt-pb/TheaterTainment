@@ -47,15 +47,15 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if current_user.is_authenticated %}
-                        <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('users.movies') }}">Movies</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item align-self-center"><a class="nav-link" href="{{ url_for('users.movies') }}">Movies</a></li>
+                            <li class="nav-item align-self-center"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
                         </ul>
                     {% else %}
-                        <ul class="navbar-nav me-auto mt-2">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.movies') }}">Movies</a></li>
                         </ul>
-                        <ul class="navbar-nav ms-auto mt-2">
+                        <ul class="navbar-nav ms-auto">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.member_login') }}">Sign In</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('members.register') }}">Create Account</a></li>
                         </ul>

@@ -388,11 +388,6 @@ function checkout_form_control(){
     }
   })
 
-  // FIXME: After uncommenting code that disables copy/paste remove this code
-  $('#card-number').on('change', function(){
-    $("input[name=card_type]").val(valid.number($(this).val()).card.niceType)
-  })
-
   $('#zip-code').on('focusout', function(){
     if ($(this).val().length == 0){
       $('#zip-code-e').text('The Billing ZIP Code field is required.')
@@ -543,7 +538,6 @@ function checkout_form_control(){
   })
 
   /* Disable paste and copy */
-  /*
   $('#card-number').on("paste", function(e) { 
     return false;
   }); 
@@ -567,7 +561,6 @@ function checkout_form_control(){
   $('#sec-code').on("copy", function(e) { 
     return false;
   }); 
-  */
 }
 
 

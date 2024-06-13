@@ -9,7 +9,7 @@ from theatert.models import Employee, Member, Movie, Screening, Seat, Ticket, Ca
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
-from theatert.users.utils import apology, date_obj, guest_or_member
+from theatert.users.utils import apology, date_obj, guest_or_member, populate_db
 from werkzeug.datastructures import MultiDict
 
 import calendar
