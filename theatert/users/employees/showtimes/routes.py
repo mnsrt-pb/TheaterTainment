@@ -148,10 +148,11 @@ def movie(movie_route):
     form.senior_price.data = 9.00
 
     form.date_time.data = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)
+    active = Movie.query.filter_by(route = movie_route).first_or_404().active
 
     return render_template('employee/showtimes-movie.html', title=movie.title, screenings=screenings, \
                            seats_total=seats_total, total=total, url='employees.showtimes.movie', \
-                            movie_route=movie_route, choices=choices, form=form)
+                            movie_route=movie_route, choices=choices, form=form, active=active)
 
 
 @showtimes.route('/past-showtimes')

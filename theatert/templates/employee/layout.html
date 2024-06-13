@@ -39,7 +39,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if current_user.is_authenticated %}
-                        <ul class="navbar-nav me-auto mt-2">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                   Movies
@@ -67,14 +67,14 @@
                             </li>
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('employees.auditoriums') }}">Auditoriums</a></li>
                         </ul>
-                        <ul class="navbar-nav ms-auto mt-2">
+                        <ul class="navbar-nav ms-auto">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a></li>
                         </ul>
                     {% else %}
-                        <ul class="navbar-nav me-auto mt-2">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                         </ul>
-                        <ul class="navbar-nav ms-auto mt-2">
+                        <ul class="navbar-nav ms-auto">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.employee_login') }}">Sign In</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('employees.register') }}">Create Account</a></li>
                         </ul>

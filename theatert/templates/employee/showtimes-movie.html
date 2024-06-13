@@ -97,17 +97,19 @@
     <div class="modal fade" id="modal-showtime" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-body left-align">
                 <div class="d-flex justify-content-between">
                     <h5 class="modal-title fw-bolder">Add Showtime</h5>
                 </div>
                 <div class="mt-3">
+                    {% if not active %}
+                        <h6 class="my-4"><i class="font-sm bg-danger rounded text-white p-2">This movie is inactive; you cannot add showtimes!</i></h6>
+                    {% endif %}
+                    <div class="font-sm mx-auto w-auto text-muted mb-3">
+                        You can start assigning screenings to unreleased movies 20 days prior to release date.
+                    </div>
                     <form action="{{ url_for('employees.showtimes.add_showtime') }}" id="add-showtime-form" method="POST" class="needs-validation" novalidate>
                         {{ form.hidden_tag() }}
-                        <div class="font-sm left-align mx-auto w-auto text-muted mb-3">
-                            You can start assigning screenings to unreleased movies 20 days prior to release date.
-                        </div>
 
                         <div class="form-floating mb-3">
                             {{ form.m_id(autofocus=true, class="form-select") }}
@@ -191,7 +193,11 @@
                     </form>
                 </div>
                 <div class="mt-4 d-flex justify-content-between">
-                    <button type="submit" class="btn btn-primary" form="add-showtime-form">Add Showtime</button>
+                    {% if not active %}
+                        <button type="submit" class="btn btn-primary" form="add-showtime-form" disabled>Add Showtime</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary" form="add-showtime-form">Add Showtime</button>
+                    {% endif %}
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
