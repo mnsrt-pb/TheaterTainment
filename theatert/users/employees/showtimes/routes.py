@@ -102,7 +102,7 @@ def add_showtime():
                         )
                         db.session.add(ticket)
 
-                flash('Showtime was created and tickets have been generated.', 'light')
+                flash('Showtime was created and tickets have been generated.', 'custom')
 
                 db.session.commit()
             

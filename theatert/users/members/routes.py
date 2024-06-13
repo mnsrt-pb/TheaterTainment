@@ -33,7 +33,7 @@ def add_watchlist(m_id):
                     movie_id = m_id
                     )
         db.session.add(item)
-        flash(f'<b><i>{movie.title}</i></b> added to Watch List', 'light')
+        flash(f'<b><i>{movie.title}</i></b> added to Watch List', 'custom')
         db.session.commit()
         
     return redirect(request.referrer)
@@ -57,7 +57,7 @@ def checkout():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -75,7 +75,7 @@ def checkout():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -92,7 +92,7 @@ def checkout():
             .filter(Screening.id.is_(form_data_login['screening_id'])) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -113,7 +113,7 @@ def checkout():
             .filter(Screening.id.is_(request.form.get('screening_id'))) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -154,7 +154,7 @@ def checkout_validate():
                 .filter(Screening.id.is_(form.screening_id.data)) \
                 .first_or_404()
             
-            if screening.start_datetime < datetime.now(tz):
+            if screening.start_datetime < datetime.now():
                 abort(404)
 
             form_data = session.get('form_data') 
@@ -263,7 +263,7 @@ def checkout_validate():
                 .filter(Screening.id.is_(form.screening_id.data)) \
                 .first_or_404()
             
-            if screening.start_datetime < datetime.now(tz):
+            if screening.start_datetime < datetime.now():
                 abort(404)
 
             form2_data = session.get('form2_data') 
@@ -355,7 +355,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your information has been updated!', 'light')
+            flash('Your information has been updated!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'email' in request.form:
@@ -373,7 +373,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your email has been updated!', 'light')
+            flash('Your email has been updated!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'new_password' in request.form:
@@ -392,7 +392,7 @@ def profile():
             db.session.commit()
 
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-            flash('Your password has been updated!', 'light')
+            flash('Your password has been updated!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'card_number' in request.form:
@@ -467,7 +467,7 @@ def profile():
                 db.session.add(cards)
             db.session.commit()
 
-            flash('Default Payment Saved!', 'light')
+            flash('Default Payment Saved!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'delete' in request.form:
@@ -476,7 +476,7 @@ def profile():
         saved_data.active = False
         db.session.commit()
 
-        flash('Saved Card Removed!', 'light')
+        flash('Saved Card Removed!', 'custom')
         return redirect(url_for('members.profile'))
 
     else:
@@ -484,9 +484,10 @@ def profile():
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
 
         email_form.email.data = current_user.email
     
@@ -524,7 +525,7 @@ def purchases():
         
         s = Screening.query.filter(Screening.id.is_(t.first().ticket.screening_id)).first()
         
-        if s.start_datetime < datetime.now(tz):
+        if s.start_datetime < datetime.now():
             purchases['past']['purchase'].append(p)
             purchases['past']['tickets'].append(t)
             purchases['past']['screenings'].append(s)
@@ -560,7 +561,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Your account has been created! You are now able to log in.', 'light')
+        flash('Your account has been created! You are now able to log in.', 'custom')
         return redirect(url_for('users.member_login'))
     else:
         return render_template('member/register.html', form=form)
@@ -579,7 +580,7 @@ def remove_watchlist(m_id):
         db.session.delete(remove)
         db.session.commit()
         url = url_for('members.add_watchlist', m_id=movie.id)
-        flash(f'<b><i>{movie.title}</i></b> removed from Watch List <a href="{url}" class=" ms-3 info fw-bold">UNDO</a>', 'light')
+        flash(f'<b><i>{movie.title}</i></b> removed from Watch List <a href="{url}" class=" ms-3 info fw-bold">UNDO</a>', 'custom')
 
     return redirect(request.referrer)
 
@@ -593,16 +594,16 @@ def watchlist():
     
     now_playing = watchlist.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now(tz)))))\
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     not_playing = watchlist.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(False),\
-                db.ColumnOperators.__le__(Movie.release_date, (datetime.now(tz)))))\
+                db.ColumnOperators.__le__(Movie.release_date, (datetime.now()))))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     coming_soon = watchlist.filter(db.and_(Movie.deleted.is_(False), \
-                db.ColumnOperators.__gt__(Movie.release_date, datetime.now(tz))))\
+                db.ColumnOperators.__gt__(Movie.release_date, datetime.now())))\
                 .order_by(collate(Movie.title, 'NOCASE'))
 
     return render_template('member/watchlist.html', now_playing=now_playing, not_playing=not_playing, coming_soon=coming_soon)

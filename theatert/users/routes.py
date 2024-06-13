@@ -36,7 +36,7 @@ def checkout():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -55,7 +55,7 @@ def checkout():
             .filter(Screening.id.is_(request.form.get('screening_id'))) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
 
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
@@ -94,7 +94,7 @@ def checkout_validate():
             .filter(Screening.id.is_(form.screening_id.data)) \
             .first_or_404()
         
-        if screening.start_datetime < datetime.now(tz):
+        if screening.start_datetime < datetime.now():
             abort(404)
 
         form_data = session.get('form_data') 
@@ -389,7 +389,7 @@ def ticket_seat_map(showtime_id):
         .filter(Screening.id.is_(showtime_id)) \
         .first_or_404()
     
-    if screening.start_datetime < datetime.now(tz):
+    if screening.start_datetime < datetime.now():
         abort(404)
     
     seats = Seat.query.filter_by(auditorium_id = screening.auditorium.id).order_by(Seat.id) 

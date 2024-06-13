@@ -123,7 +123,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash('Your account has been created! You are now able to log in.', 'light')
+        flash('Your account has been created! You are now able to log in.', 'custom')
         return redirect(url_for('users.employee_login'))
     else:
         return render_template('employee/register.html', form=form)

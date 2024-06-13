@@ -1,6 +1,7 @@
 @import "../javascript/node_modules/bootstrap/scss/_functions";
 @import "../javascript/node_modules/bootstrap/scss/_variables";
 
+
 a.page:link {
     color: $pink-700;
 }
@@ -13,8 +14,14 @@ a.page-current:link {
     background-color: $pink-700;
 }
 
+.alert-custom {
+  color: $pink-700 !important; 
+  background-color: rgba($pink-700, .20) !important; 
+  border-color: rgba($pink-700, .20) !important; 
+}
+
 #all-movies .card:hover {
-  box-shadow: $box-shadow-lg;
+  box-shadow: $box-shadow-lg; 
 }
 
 $card-height: 100%;
@@ -108,29 +115,6 @@ $theme-colors: map-merge($theme-colors, (
   "other": $gray-300,
   "other-darker": $gray-700
 ));
-
-@mixin button-outline-variant(
-  $color,
-  $color-hover: color-contrast($color),
-  $active-background: $color,
-  $active-border: $color,
-  $active-color: color-contrast($active-background)
-) {
-  --#{$prefix}btn-color: #{$color};
-  --#{$prefix}btn-border-color: #{$color};
-  --#{$prefix}btn-hover-color: #{$color-hover};
-  --#{$prefix}btn-hover-bg: #{$active-background};
-  --#{$prefix}btn-hover-border-color: #{$active-border};
-  --#{$prefix}btn-focus-shadow-rgb: #{to-rgb($color)};
-  --#{$prefix}btn-active-color: #{$active-color};
-  --#{$prefix}btn-active-bg: #{$active-background};
-  --#{$prefix}btn-active-border-color: #{$active-border};
-  --#{$prefix}btn-active-shadow: #{$btn-active-box-shadow};
-  --#{$prefix}btn-disabled-color: #{$color};
-  --#{$prefix}btn-disabled-bg: transparent;
-  --#{$prefix}btn-disabled-border-color: #{$color};
-  --#{$prefix}gradient: none;
-}
 
 /* Customize navbar colors */
 $navbar-light-color: rgba($pink-700, .55);
@@ -233,3 +217,4 @@ body {
 
 /* import bootstrap */
 @import "../javascript/node_modules/bootstrap/scss/bootstrap";
+

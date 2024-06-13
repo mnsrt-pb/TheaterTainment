@@ -67,7 +67,7 @@ def active():
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie inactivated.', 'light')
+            flash('Movie inactivated.', 'custom')
             return redirect(url_for('employees.movies.inactive'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Active", inactivate_form=inactivate_form,\
@@ -123,9 +123,9 @@ def add_movie():
                 movie.backdrop_path = None
                 movie.trailer_path = None
                 change.action = "added"
-                flash('Movie was added.', 'light')
+                flash('Movie was added.', 'custom')
             else:
-                flash('Fetched new data.', 'light')
+                flash('Fetched new data.', 'custom')
 
         else: 
             # Add Movie
@@ -158,7 +158,7 @@ def add_movie():
                 data_id = movie.id,
                 employee_id = current_user.id
             )
-            flash('Movie was added.', 'light')
+            flash('Movie was added.', 'custom')
 
         db.session.add(change)
         db.session.commit()
@@ -238,7 +238,7 @@ def all_movies():
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie activated.', 'light')
+            flash('Movie activated.', 'custom')
             return redirect(url_for('employees.movies.all_movies'))
 
     if 'Inactivate' in request.form.to_dict().values():
@@ -258,7 +258,7 @@ def all_movies():
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie inactivated.', 'light')
+            flash('Movie inactivated.', 'custom')
             return redirect(url_for('employees.movies.all_movies'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
@@ -322,7 +322,7 @@ def delete_movie(movie_id):
         db.session.add(change)
 
         db.session.commit()
-        flash(f'{movie.title} has been deleted!', 'light')
+        flash(f'{movie.title} has been deleted!', 'custom')
     else: 
         flash(f'{movie.title} cannot be deleted! It has upcoming showtimes.', 'danger')
 
@@ -385,7 +385,7 @@ def inactive():
         db.session.add(change)
 
         db.session.commit()
-        flash('Movie activated.', 'light')
+        flash('Movie activated.', 'custom')
         return redirect(url_for('employees.movies.active'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Inactive", activate_form=activate_form,\
@@ -449,7 +449,7 @@ def update_movie(movie_route):
             db.session.add(change)
 
             db.session.commit()
-            flash('Movie updated.', 'light')
+            flash('Movie updated.', 'custom')
             return redirect(url_for('employees.movies.movie', movie_route = movie.route))
         else:
             flash('Must select something.', 'danger')
