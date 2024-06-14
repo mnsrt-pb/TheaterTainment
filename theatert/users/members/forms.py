@@ -193,16 +193,18 @@ class RegistrationForm(FlaskForm):
 
     def validate_phone(self, phone):
         p = '+1'+ phone.data
-        if not phonenumbers.is_valid_number(phonenumbers.parse(p, None)):
-            raise ValidationError('Invalid Phone Number.') 
-
+        try:
+            if not phonenumbers.is_valid_number(phonenumbers.parse(p, None)):
+                raise ValidationError('Invalid Phone Number.') 
+        except:
+                raise ValidationError('Invalid Phone Number.') 
 
     fname = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
     lname = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=50)])
     email = EmailField('Email Address', validators=[DataRequired(), Email()])
     confirm_email = EmailField('Confirm Email Address', validators=[DataRequired(), Email(), EqualTo('email', message='Emails must match.')])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    confirmation = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
     phone = StringField('Phone', validators=[DataRequired(),
                                              Length(min=7, max=15, message='The value for the Phone Number field is invalid.')])
     zip_code = StringField('ZIP Code', validators=[DataRequired(),

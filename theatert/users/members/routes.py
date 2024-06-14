@@ -536,7 +536,6 @@ def purchases():
             purchases['upcoming']['screenings'].append(s)
             purchases['upcoming']['totals'].append(t.count())
     
-    print(token_urlsafe(12))
     return render_template('/member/purchases.html', purchases=purchases)
 
 

@@ -62,11 +62,6 @@ request.form.to_dict()
 
 --------------------------------------------
 
-ASDF123!!45
-HelloWorld#3
-
---------------------------------------------
-
 form = RegistrationForm(data=data)
 form.validate()  
 print(form.errors)  

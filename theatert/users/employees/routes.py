@@ -121,13 +121,8 @@ def register():
 
     form = RegistrationForm()
 
-
-    print(request.form.to_dict())
-
     if form.validate_on_submit():
         # Insert a new user to database
-        print('FUCKING HERE')
-
         user = Employee(
             username = form.username.data,
             password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -138,7 +133,6 @@ def register():
         flash('Your account has been created! You are now able to log in.', 'custom')
         return redirect(url_for('users.employee_login'))
     else:
-        print(form.errors)
         return render_template('employee/register.html', form=form)
 
 

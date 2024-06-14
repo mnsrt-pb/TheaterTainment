@@ -5,13 +5,22 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 
+import os
+
 
 load_dotenv()
+
 
 # Create extensions
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
+
+
+# Get employee key
+base_dir = os.path.abspath(os.path.dirname(__file__))
+employee_key = os.environ.get('EMPLOYEE_KEY')
+
 
 # login_manager.login_view = 'users.member_login'
 login_manager.blueprint_login_views = {

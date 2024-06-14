@@ -1,6 +1,9 @@
 from theatert import create_app, db
 from theatert.users.utils import populate_db
 
+from theatert import bcrypt, db
+from theatert.models import Employee, Member
+
 import os
 import pytest
 
@@ -20,7 +23,9 @@ def app():
     with app.app_context():
         db.create_all()
         populate_db()
+
         yield app
+        
         db.session.remove()
         db.drop_all()
 
@@ -28,4 +33,47 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture()
+def client_employee(client):
+    ''' Employee user in database. '''
+
+    with client.application.app_context():
+        user = Employee (
+            username = 'testuser',
+            password = bcrypt.generate_password_hash('Valid*123').decode('utf-8')
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        yield client
+
+        db.session.delete(user)
+        db.session.commit
+
+
+@pytest.fixture()
+def client_member(client):
+    ''' Member user in database. '''
+    # NOTE: Phone number was taken from import phonenumbers' documentation
+
+    with client.application.app_context():
+        user = Member (
+            username = 'test@user.com',
+            password = bcrypt.generate_password_hash('valid*123').decode('utf-8'),
+            email = 'test@user.com',
+            fname = 'Test',
+            lname = 'User',
+            phone = '5107488230',
+            zip_code = '12345'
+        )
+        db.session.add(user)
+        db.session.commit()
+
+
+        yield client
+
+        db.session.delete(user)
+        db.session.commit
 
