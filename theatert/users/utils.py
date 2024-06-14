@@ -4,7 +4,6 @@ from flask_login import current_user
 from functools import wraps
 from theatert import login_manager
 from theatert import db
-from theatert.models import Seat, Auditorium
 
 
 def apology(message, extends, code=400):
@@ -85,6 +84,8 @@ def login_required(role="ANY"):
 
 
 def populate_db():
+    from theatert.models import Seat, Auditorium
+
     # Auditoriums 
     auditoriums = [
         Auditorium(rows=8, cols=12),

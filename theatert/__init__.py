@@ -4,7 +4,6 @@ from flask_qrcode import QRcode
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from theatert.config import Config
 
 
 load_dotenv()
@@ -19,10 +18,10 @@ login_manager.blueprint_login_views = {
     'members': 'users.member_login',
     'employees': 'users.employee_login',
 }
-login_manager.login_message_category = "danger"
+login_manager.login_message_category = "custom"
 
 
-def create_app(config_class=Config):
+def create_app(Config):
     # Configure application
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -34,15 +33,12 @@ def create_app(config_class=Config):
     QRcode(app)
 
     # Blueprints
-    from theatert.users.employees.movies.routes import movies
-    from theatert.users.employees.showtimes.routes import showtimes
     from theatert.users.employees.routes import employees
     from theatert.users.members.routes import members
     from theatert.users.routes import users
     from theatert.errors.handlers import errors
 
-    employees.register_blueprint(movies)
-    employees.register_blueprint(showtimes)
+
     app.register_blueprint(employees)
     app.register_blueprint(members)
     app.register_blueprint(users)

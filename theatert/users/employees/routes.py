@@ -3,11 +3,18 @@ from flask_login import current_user
 from pytz import timezone, utc
 from theatert import db, bcrypt
 from theatert.users.employees.forms import RegistrationForm
+from theatert.users.employees.movies.routes import movies
+from theatert.users.employees.showtimes.routes import showtimes
 from theatert.models import Auditorium, Change, Employee, Movie, Purchase, Purchased_Ticket, Seat, Screening, Ticket
 from theatert.users.utils import  guest, login_required
 
 
 employees = Blueprint('employees', __name__, url_prefix='/employee')
+
+#  Register nested blueprints
+employees.register_blueprint(movies, url_prefix='/movies')
+employees.register_blueprint(showtimes, url_prefix='/showtimes')
+
 
 tz = timezone('US/Eastern')
 
@@ -114,8 +121,13 @@ def register():
 
     form = RegistrationForm()
 
+
+    print(request.form.to_dict())
+
     if form.validate_on_submit():
         # Insert a new user to database
+        print('FUCKING HERE')
+
         user = Employee(
             username = form.username.data,
             password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -126,6 +138,7 @@ def register():
         flash('Your account has been created! You are now able to log in.', 'custom')
         return redirect(url_for('users.employee_login'))
     else:
+        print(form.errors)
         return render_template('employee/register.html', form=form)
 
 
