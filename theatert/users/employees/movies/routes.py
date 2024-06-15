@@ -52,23 +52,23 @@ def active():
     inactivate_form.m_id.choices = choices
 
     if inactivate_form.validate_on_submit():
-            # Inactivate Movie
-            movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
-            if movie:
-                movie.active = False
+        # Inactivate Movie
+        movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
+        if movie:
+            movie.active = False
 
-            # Add Employee Change
-            change = Change(
-                action = "inactivated",
-                table_name = "movie",
-                data_id = movie.id,
-                employee_id = current_user.id
-            )
-            db.session.add(change)
+        # Add Employee Change
+        change = Change(
+            action = "inactivated",
+            table_name = "movie",
+            data_id = movie.id,
+            employee_id = current_user.id
+        )
+        db.session.add(change)
 
-            db.session.commit()
-            flash('Movie inactivated.', 'custom')
-            return redirect(url_for('employees.movies.inactive'))
+        db.session.commit()
+        flash('Movie inactivated.', 'custom')
+        return redirect(url_for('employees.movies.inactive'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="Active", inactivate_form=inactivate_form,\
                            movies=movies, url='employees.movies.active', sort_by=sort_by, length=length)   
@@ -93,77 +93,83 @@ def add_movie():
         movie = Movie.query.filter_by(tmdb_id=add_form.m_id.data).first()
         
         # Fetch movie's info from TMDB
-        data = tmdb.Movies(add_form.m_id.data)
-        info = data.info()
+        try: 
+            data = tmdb.Movies(add_form.m_id.data)
+            info = data.info()
+            print(info)
 
-        if movie:
-            # Fetch new data
-            movie.status = info['status']
-            movie.overview = info['overview']
-            movie.runtime = info['runtime']
-            movie.tagline = info['tagline']
-            add_genres(movie, info)
-            add_rating(movie, data)
-            try:
-                movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
-            except:
-                pass
+            if movie:
+                # Fetch new data
+                movie.status = info['status']
+                movie.overview = info['overview']
+                movie.runtime = info['runtime']
+                movie.tagline = info['tagline']
+                add_genres(movie, info)
+                add_rating(movie, data)
+                try:
+                    movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+                except:
+                    pass
 
-            # Add Employee Change
-            change = Change(
-                action = "fetched new data",
-                table_name = "movie",
-                data_id = movie.id,
-                employee_id = current_user.id
-            )
+                # Add Employee Change
+                change = Change(
+                    action = "fetched new data",
+                    table_name = "movie",
+                    data_id = movie.id,
+                    employee_id = current_user.id
+                )
 
-            if movie.deleted:
-                movie.deleted = False
-                movie.poster_path = info['poster_path']
-                movie.backdrop_path = None
-                movie.trailer_path = None
-                change.action = "added"
+                if movie.deleted:
+                    movie.deleted = False
+                    movie.poster_path = info['poster_path']
+                    movie.backdrop_path = None
+                    movie.trailer_path = None
+                    change.action = "added"
+                    flash('Movie was added.', 'custom')
+                else:
+                    flash('Fetched new data.', 'custom')
+
+            else: 
+                # Add Movie
+                route_name(info['title'])
+                movie = Movie(
+                    tmdb_id = add_form.m_id.data,
+                    title = info['title'],
+                    status = info['status'],
+                    overview = info['overview'],
+                    poster_path = info['poster_path'],
+                    runtime = info['runtime'],
+                    tagline = info['tagline']
+                )
+                try:
+                    movie.route = route_name(movie.title)
+                except:
+                    movie.route = route_name(movie.title) + '-' + str(movie.id)
+                db.session.add(movie)
+                add_genres(movie, info)
+                add_rating(movie, data)
+                try:
+                    movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
+                except:
+                    pass
+            
+                # Add Employee Change
+                change = Change(
+                    action = "added",
+                    table_name = "movie",
+                    data_id = movie.id,
+                    employee_id = current_user.id
+                )
                 flash('Movie was added.', 'custom')
-            else:
-                flash('Fetched new data.', 'custom')
 
-        else: 
-            # Add Movie
-            route_name(info['title'])
-            movie = Movie(
-                tmdb_id = add_form.m_id.data,
-                title = info['title'],
-                status = info['status'],
-                overview = info['overview'],
-                poster_path = info['poster_path'],
-                runtime = info['runtime'],
-                tagline = info['tagline']
-            )
-            try:
-                movie.route = route_name(movie.title)
-            except:
-                movie.route = route_name(movie.title) + '-' + str(movie.id)
-            db.session.add(movie)
-            add_genres(movie, info)
-            add_rating(movie, data)
-            try:
-                movie.release_date = datetime.strptime(info['release_date'], '%Y-%m-%d').date()
-            except:
-                pass
-        
-            # Add Employee Change
-            change = Change(
-                action = "added",
-                table_name = "movie",
-                data_id = movie.id,
-                employee_id = current_user.id
-            )
-            flash('Movie was added.', 'custom')
+            db.session.add(change)
+            db.session.commit()
 
-        db.session.add(change)
-        db.session.commit()
+            return redirect(url_for('employees.movies.all_movies'))
+        except:
+            flash('Cannot add movie at this time.', 'danger')
+            return render_template('employee/add-movie.html', form=search_form)
 
-        return redirect(url_for('employees.movies.all_movies'))
     else:
         return render_template('employee/add-movie.html', form=search_form)
 
@@ -196,8 +202,11 @@ def all_movies():
     inactive = Movie.query.filter(db.and_(
                             Movie.release_date.is_not(None),
                             Movie.poster_path.is_not(None),
+                            Movie.poster_path.is_not(''),
                             Movie.backdrop_path.is_not(None),
+                            Movie.backdrop_path.is_not(''),
                             Movie.trailer_path.is_not(None),
+                            Movie.trailer_path.is_not(''),
                             Movie.active.is_(False), 
                             Movie.deleted.is_(False)))\
                     .order_by(collate(Movie.title, 'NOCASE'))
@@ -292,7 +301,7 @@ def coming_soon():
                            movies=movies, url='employees.movies.coming_soon', sort_by=sort_by, length=length)
 
 
-@movies.route('/movie/<int:movie_id>/delete', methods=['POST'])
+@movies.route('/delete/<int:movie_id>/', methods=['POST'])
 @login_required(role="EMPLOYEE")
 def delete_movie(movie_id):
     '''Delete movie.'''
@@ -305,7 +314,7 @@ def delete_movie(movie_id):
     can_delete = Movie.query.filter(db.and_(
                             Movie.id.is_(movie.id), 
                             Movie.id.in_(subquery)))\
-                        .count()
+                            .count()
     
     can_delete = not bool(can_delete)
 
@@ -358,8 +367,11 @@ def inactive():
     inactive = Movie.query.filter(db.and_(
                             Movie.release_date.is_not(None),
                             Movie.poster_path.is_not(None),
+                            Movie.poster_path.is_not(''),
                             Movie.backdrop_path.is_not(None),
+                            Movie.backdrop_path.is_not(''),
                             Movie.trailer_path.is_not(None),
+                            Movie.trailer_path.is_not(''),
                             Movie.active.is_(False), 
                             Movie.deleted.is_(False)))\
                     .order_by(collate(Movie.title, 'NOCASE'))
@@ -374,6 +386,7 @@ def inactive():
         movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
         if movie:
             movie.active = True
+        
 
         # Add Employee Change
         change = Change(

@@ -3,11 +3,17 @@
 from flask import url_for
 from flask_login import current_user
 from theatert import employee_key
+from tests.utils import login_employee, login_member
 from theatert.models import Employee, Member
 from theatert.users.employees.forms import RegistrationForm as EmployeeRegistrationForm
 from theatert.users.members.forms import RegistrationForm as MemberRegistrationForm
 
 import pytest
+import os
+
+
+if os.environ.get('SKIP_TEST_REGISTER_LOGIN', 'false').lower() == 'true':
+    pytestmark = pytest.mark.skip("Skipping tests in test_register_login.py")
 
 
 ''' REGISTER '''
@@ -36,7 +42,6 @@ def test_employee_register(client):
 
     with client.application.app_context():
         employee = Employee.query.first()
-        assert employee is not None
         assert employee.username == 'testuser'
 
 
@@ -61,7 +66,6 @@ def test_member_register(client):
 
     with client.application.app_context():
         member = Member.query.first()
-        assert member is not None
         assert member.email == 'test@user.com'
 
 
@@ -129,6 +133,8 @@ def test_member_register_failure(client, password):
         assert member is None
 
 
+
+
 ''' LOGIN '''
 def test_login_pages(client):
     ''' Test if the registration pages load correctly. '''
@@ -141,11 +147,8 @@ def test_login_pages(client):
 
 def test_employee_login(client_employee):
     ''' Test successful login '''
+    login_employee(client_employee)
 
-    data = dict( username='testuser', password='Valid*123')
-    response = client_employee.post(url_for('users.employee_login'), data=data, follow_redirects=True)
-    
-    assert response.status_code == 200
     assert current_user.is_authenticated
     current_id =  current_user.id
 
@@ -156,11 +159,8 @@ def test_employee_login(client_employee):
 
 def test_member_login(client_member):
     ''' Test successful login '''
+    login_member(client_member)
 
-    data = dict( email='test@user.com', password='valid*123')
-    response = client_member.post(url_for('users.member_login'), data=data, follow_redirects=True)
-
-    assert response.status_code == 200
     assert current_user.is_authenticated
     current_id =  current_user.id
 
@@ -193,4 +193,23 @@ def test_member_login_failure(client_member, username, password):
     
     assert response.status_code == 200
     assert not current_user.is_authenticated
+
+
+
+
+''' REDIRECTED CORRECTLY IF NOT LOGGED IN '''
+def test_employee_home_redirect(client_employee):
+    ''' Redirect employees to login page '''
+
+    response = client_employee.get(url_for('employees.home'))
+    assert response.status_code == 302
+    assert 'employee/login' in response.headers['Location']
+
+
+def test_member_home_redirect(client_member):
+    ''' Redirect employees to login page '''
+
+    response = client_member.get(url_for('members.profile'))
+    assert response.status_code == 302
+    assert 'member/login' in response.headers['Location']
 

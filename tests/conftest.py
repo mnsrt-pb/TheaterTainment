@@ -2,7 +2,7 @@ from theatert import create_app, db
 from theatert.users.utils import populate_db
 
 from theatert import bcrypt, db
-from theatert.models import Employee, Member
+from theatert.models import Employee, Member, Movie, Genre, genres
 
 import os
 import pytest
@@ -76,4 +76,23 @@ def client_member(client):
 
         db.session.delete(user)
         db.session.commit
+
+
+@pytest.fixture()
+def client_movie(client_employee):
+    with client_employee.application.app_context():
+        movie = Movie(
+            tmdb_id = 129,
+            title = 'Spirited Away',
+            route = 'spirited-away'
+        )
+
+        db.session.add(movie)
+        db.session.commit()
+
+        yield client_employee
+
+        db.session.delete(movie)
+        db.session.commit
+
 

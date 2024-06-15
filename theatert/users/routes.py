@@ -9,7 +9,7 @@ from theatert.models import Employee, Member, Movie, Screening, Seat, Ticket, Ca
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
-from theatert.users.utils import apology, date_obj, guest_or_member, populate_db
+from theatert.users.utils import apology, date_obj, guest, guest_or_member, populate_db
 from werkzeug.datastructures import MultiDict
 
 import calendar
@@ -184,14 +184,9 @@ def checkout_validate():
 
 
 @users.route('/employee/login', methods=['GET', 'POST'])
+@guest()
 def employee_login():
     ''' Login employee '''
-
-    if current_user.is_authenticated:
-        if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.home'))
-        else:
-            return redirect(url_for('users.home'))
 
     form = EmployeeLoginForm()
     if form.validate_on_submit():
@@ -210,14 +205,9 @@ def employee_login():
 
 
 @users.route('/member/login', methods=['GET', 'POST'])
+@guest()
 def member_login():
     ''' Login member '''
-
-    if current_user.is_authenticated:
-        if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.home'))
-        else:
-            return redirect(url_for('users.home'))
 
     form = MemberLoginForm()
     if form.validate_on_submit():
