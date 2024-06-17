@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from pytz import timezone, utc
 from theatert import db, bcrypt
 from theatert.users.employees.forms import RegistrationForm
@@ -131,6 +131,7 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'custom')
+        logout_user()
         return redirect(url_for('users.employee_login'))
     else:
         return render_template('employee/register.html', form=form)

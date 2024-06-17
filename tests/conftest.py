@@ -1,8 +1,9 @@
+from datetime import datetime
 from theatert import create_app, db
 from theatert.users.utils import populate_db
 
 from theatert import bcrypt, db
-from theatert.models import Employee, Member, Movie, Genre, genres
+from theatert.models import Employee, Member, Movie
 
 import os
 import pytest
@@ -84,7 +85,15 @@ def client_movie(client_employee):
         movie = Movie(
             tmdb_id = 129,
             title = 'Spirited Away',
-            route = 'spirited-away'
+            route = 'spirited-away',
+            status = 'Released',
+            release_date = datetime.strptime('2001-07-20', '%Y-%m-%d').date(),
+            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
+            runtime = 125,
+            rating = 'PG',
+            poster_path = '/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg',
+            backdrop_path = '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg',
+            trailer_path = 'GAp2_0JJskk'
         )
 
         db.session.add(movie)

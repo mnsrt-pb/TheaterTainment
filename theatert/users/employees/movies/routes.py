@@ -96,7 +96,6 @@ def add_movie():
         try: 
             data = tmdb.Movies(add_form.m_id.data)
             info = data.info()
-            print(info)
 
             if movie:
                 # Fetch new data
@@ -228,47 +227,6 @@ def all_movies():
     for m in active:
         choices.append((m.id, m.title))
     inactivate_form.m_id.choices = choices
-
-    # Check form submissions
-    if 'Activate' in request.form.to_dict().values():
-        if activate_form.validate_on_submit():
-            # Activate movie
-            movie = Movie.query.filter_by(id=activate_form.m_id.data).first()
-            if movie:
-                movie.active = True
-
-            # Add Employee Change
-            change = Change(
-                action = "activated",
-                table_name = "movie",
-                data_id = movie.id,
-                employee_id = current_user.id
-            )
-            db.session.add(change)
-
-            db.session.commit()
-            flash('Movie activated.', 'custom')
-            return redirect(url_for('employees.movies.all_movies'))
-
-    if 'Inactivate' in request.form.to_dict().values():
-        if inactivate_form.validate_on_submit():
-            # Inactivate Movie
-            movie = Movie.query.filter_by(id=inactivate_form.m_id.data).first()
-            if movie:
-                movie.active = False
-
-            # Add Employee Change
-            change = Change(
-                action = "inactivated",
-                table_name = "movie",
-                data_id = movie.id,
-                employee_id = current_user.id
-            )
-            db.session.add(change)
-
-            db.session.commit()
-            flash('Movie inactivated.', 'custom')
-            return redirect(url_for('employees.movies.all_movies'))
 
     return render_template('other/movies.html', ext="employee/layout.html", title="All Movies", \
                            movies=movies, activate_form=activate_form, inactivate_form=inactivate_form, \
@@ -437,19 +395,17 @@ def update_movie(movie_route):
     form = UpdateMovieForm()
     form.poster.choices, form.backdrop.choices, form.trailer.choices = update_choices(images, videos)
 
-
     if form.validate_on_submit():
-        if not ((form.poster.data == None or form.poster.data == 'None') and \
-        (form.backdrop.data == None or form.backdrop.data == 'None') and \
-        (form.trailer.data == None or form.trailer.data == 'None')):
-            
-            if form.poster.data != None and form.poster.data != 'None':
+        if not ((form.poster.data is None or form.poster.data == 'None') and \
+        (form.backdrop.data is None or form.backdrop.data == 'None') and \
+        (form.trailer.data is None or form.trailer.data == 'None')):            
+            if form.poster.data is not None and form.poster.data != 'None':
                 movie.poster_path = form.poster.data
             
-            if form.backdrop.data != None and form.backdrop.data != 'None':
+            if form.backdrop.data is not None and form.backdrop.data != 'None':
                 movie.backdrop_path = form.backdrop.data
             
-            if form.trailer.data != None and form.trailer.data != 'None':
+            if form.trailer.data is not None and form.trailer.data != 'None':
                 movie.trailer_path = form.trailer.data
         
             # Add Employee Change

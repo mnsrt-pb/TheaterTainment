@@ -84,7 +84,7 @@ def login_required(role="ANY"):
 
 
 def populate_db():
-    from theatert.models import Seat, Auditorium
+    from theatert.models import Seat, Auditorium, Movie, Employee
 
     # Auditoriums 
     auditoriums = [

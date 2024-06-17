@@ -2,7 +2,7 @@
 
 from flask import url_for
 from tests.utils import login_employee
-from theatert.models import Auditorium, Employee, Seat
+from theatert.models import Auditorium, Seat
 
 import pytest
 import os
@@ -13,6 +13,7 @@ if os.environ.get('SKIP_TEST_EMPLOYEE', 'false').lower() == 'true':
 
 
 ''' AUDITORIUMS '''
+#@pytest.mark.skip
 def test_auditoriums(client_employee):
     ''' Test if the registration pages load correctly. '''
     # NOTE: This tests the auditoriums inserted from populate_db()
@@ -33,6 +34,7 @@ def test_auditoriums(client_employee):
 
 ''' HOME '''
 # NOTE: Home page will also be tested inside tests where employee makes changes. 
+#@pytest.mark.skip
 def test_home(client_employee):
     login_employee(client_employee)
 

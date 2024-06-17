@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import abort, Blueprint, flash, render_template, redirect, request, session, url_for
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from pytz import timezone
 from secrets import token_urlsafe
 from sqlalchemy import collate
@@ -545,6 +545,7 @@ def register():
     ''' Register associate '''
 
     form = RegistrationForm()
+    
     if form.validate_on_submit():
         # Insert a new user to database
         user = Member(
@@ -561,6 +562,7 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'custom')
+        logout_user()
         return redirect(url_for('users.member_login'))
     else:
         return render_template('member/register.html', form=form)

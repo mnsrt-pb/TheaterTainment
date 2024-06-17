@@ -17,6 +17,7 @@ if os.environ.get('SKIP_TEST_REGISTER_LOGIN', 'false').lower() == 'true':
 
 
 ''' REGISTER '''
+#@pytest.mark.skip
 def test_register_pages(client):
     ''' Test if the registration pages load correctly. '''
 
@@ -27,6 +28,7 @@ def test_register_pages(client):
     assert response.status_code == 200
     
 
+#@pytest.mark.skip
 def test_employee_register(client):
     ''' Test successful registration. '''
 
@@ -45,6 +47,7 @@ def test_employee_register(client):
         assert employee.username == 'testuser'
 
 
+#@pytest.mark.skip
 def test_member_register(client):
     ''' Test successful registration. '''
     # NOTE: Phone number was taken from import phonenumbers' documentation
@@ -69,6 +72,7 @@ def test_member_register(client):
         assert member.email == 'test@user.com'
 
 
+#@pytest.mark.skip
 @pytest.mark.parametrize('password', ['short', 'missingstuff'])
 def test_employee_register_failure(client, password):
     '''Test registration with invalid data.'''
@@ -96,6 +100,7 @@ def test_employee_register_failure(client, password):
         assert member is None
     
 
+#@pytest.mark.skip
 @pytest.mark.parametrize('password', ['short', 'missingstuff'])
 def test_member_register_failure(client, password):
     '''Test registration with invalid data.'''
@@ -136,6 +141,7 @@ def test_member_register_failure(client, password):
 
 
 ''' LOGIN '''
+#@pytest.mark.skip
 def test_login_pages(client):
     ''' Test if the registration pages load correctly. '''
     response = client.get(url_for('users.employee_login'))
@@ -145,6 +151,7 @@ def test_login_pages(client):
     assert response.status_code == 200
 
 
+#@pytest.mark.skip
 def test_employee_login(client_employee):
     ''' Test successful login '''
     login_employee(client_employee)
@@ -157,6 +164,7 @@ def test_employee_login(client_employee):
         assert current_id == user.id
     
 
+#@pytest.mark.skip
 def test_member_login(client_member):
     ''' Test successful login '''
     login_member(client_member)
@@ -169,6 +177,7 @@ def test_member_login(client_member):
         assert current_id == user.id
 
 
+#@pytest.mark.skip
 @pytest.mark.parametrize('username, password', [
     ('wronguser', 'wrongpassword'),
     ('testuser', 'wrongpassword')])
@@ -182,6 +191,7 @@ def test_employee_login_failure(client_employee, username, password):
     assert not current_user.is_authenticated
 
 
+#@pytest.mark.skip
 @pytest.mark.parametrize('username, password', [
     ('wrong@user.com', 'wrongpassword'),
     ('test@user.com', 'wrongpassword')])
@@ -198,6 +208,7 @@ def test_member_login_failure(client_member, username, password):
 
 
 ''' REDIRECTED CORRECTLY IF NOT LOGGED IN '''
+#@pytest.mark.skip
 def test_employee_home_redirect(client_employee):
     ''' Redirect employees to login page '''
 
@@ -206,6 +217,7 @@ def test_employee_home_redirect(client_employee):
     assert 'employee/login' in response.headers['Location']
 
 
+#@pytest.mark.skip
 def test_member_home_redirect(client_member):
     ''' Redirect employees to login page '''
 
