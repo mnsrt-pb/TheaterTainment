@@ -53,7 +53,7 @@ class Member(User):
 
 
     def __repr__(self):
-        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.fname}, {self.lname})"
+        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.fname}, {self.lname}, {self.dob})"
 
 
 class Change(db.Model):

@@ -294,6 +294,7 @@ def movie(movie_route):
 
 
 @users.route('/movies')
+@users.route('/movies/now-playing')
 @guest_or_member()
 def movies():
     ''' Display all movies '''

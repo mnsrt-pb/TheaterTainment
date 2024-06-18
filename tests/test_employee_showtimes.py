@@ -137,6 +137,8 @@ def test_add_showtime_(client_movie):
     # NOTE: add showtime in showtimes.movie redirects to showtimes.add_showtime 
     # so adding showtimes is only tested inside showtimes.add_showtim
     login_employee(client_movie)
+    current_id =  current_user.id
+
 
     with client_movie.application.app_context():
         movie = Movie.query.first()
@@ -170,8 +172,17 @@ def test_add_showtime_(client_movie):
 
     # Screening and Tickets generated!
     with client_movie.application.app_context():
-        assert Screening.query.first() is not None
+        screening = Screening.query.first()
+        assert screening is not None
         assert Ticket.query.count() is not 0
+
+        change = Change.query
+        change_total, change = change.count(), change.first()
+        change_total == 1
+        assert change.employee_id == current_id
+        assert change.action == 'added'
+        assert change.table_name == 'screening'
+        assert change.data_id == screening.id
 
 
 @pytest.mark.skip
@@ -320,6 +331,7 @@ def test_add_showtime_failure(client_employee):
     with client_employee.application.app_context():
         assert Screening.query.count() == 0
         assert Ticket.query.count() == 0
+        assert Change.query.count() == 0
 
 
 @pytest.mark.skip
@@ -370,5 +382,5 @@ def test_add_showtime_failure_2(client_movie, hour, minute):
     with client_movie.application.app_context():
         assert Screening.query.count() == 1
         assert Ticket.query.count() == 0
-
+        assert Change.query.count() == 0
 
