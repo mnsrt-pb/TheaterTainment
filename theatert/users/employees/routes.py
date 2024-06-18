@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
 from flask_login import current_user, logout_user
-from pytz import timezone, utc
-from theatert import db, bcrypt
+from pytz import utc
+from theatert import db, bcrypt, tz
 from theatert.users.employees.forms import RegistrationForm
 from theatert.users.employees.movies.routes import movies
 from theatert.users.employees.showtimes.routes import showtimes
@@ -15,8 +15,6 @@ employees = Blueprint('employees', __name__, url_prefix='/employee')
 employees.register_blueprint(movies, url_prefix='/movies')
 employees.register_blueprint(showtimes, url_prefix='/showtimes')
 
-
-tz = timezone('US/Eastern')
 
 @employees.route('/auditoriums')
 @login_required(role='EMPLOYEE')
@@ -47,7 +45,7 @@ def home():
         Show all changes employees have made. 
         They have the option to filter these changes: All, Movies, and Showtimes.
     '''
-
+    
     page = request.args.get('page', 1, type=int)
     type = request.args.get('type', 1, type=int)
 

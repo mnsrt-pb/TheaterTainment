@@ -4,6 +4,7 @@ from flask_qrcode import QRcode
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+from pytz import timezone
 
 import os
 
@@ -28,6 +29,14 @@ login_manager.blueprint_login_views = {
     'employees': 'users.employee_login',
 }
 login_manager.login_message_category = "custom"
+
+
+# Global Vars
+min_price = 5 # max price for tickets
+max_price = 25 # min price for tickets
+start_time = 10 # earliest screening time
+end_time = 22 # latest screening time
+tz = timezone('US/Eastern')
 
 
 def create_app(Config):

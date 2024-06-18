@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from flask import abort, Blueprint, flash, render_template,  redirect, request, session, url_for
 from flask_login import current_user, login_user, logout_user
-from pytz import timezone, utc
+from pytz import utc
 from secrets import token_urlsafe
 from sqlalchemy import extract, collate
-from theatert import bcrypt, db
+from theatert import bcrypt, db, tz
 from theatert.models import Employee, Member, Movie, Screening, Seat, Ticket, Card, Purchase, Purchased_Ticket, Watchlist
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
@@ -16,8 +16,6 @@ import calendar
 
 
 users = Blueprint('users', __name__)
-
-tz = timezone('US/Eastern')
 
 
 @users.route('/checkout', methods=['GET', 'POST'])

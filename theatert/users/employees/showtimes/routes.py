@@ -45,7 +45,7 @@ def add_showtime():
         form.date_time.data = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)
     else:
         if form.validate_on_submit():
-            movie = Movie.query.get(form.m_id.data)
+            movie = Movie.query.filter_by(id=form.m_id.data).first()
             end_dt = form.date_time.data + timedelta(minutes=(movie.runtime)+20) # 20 min for advertisements
 
             # Ensure a movie isn't screening at auditorium during the entered time.
@@ -64,12 +64,12 @@ def add_showtime():
                 )).first()
             
             if exists:
-                flash(f'A movie will screen at Auditorium {form.a_id.data} at this time. Try a different auditorium or time.', 'danger')
+                flash(f'A movie will screen in Auditorium {form.a_id.data} at this time. Try a different auditorium or time.', 'danger')
             elif form.date_time.data < movie.release_date:
-                # Ensure movie's date and time are after movie's release date
+                # Ensure showtime's date and time are after movie's release date
                 flash(f'{movie.title} has not been released for the date entered.', 'danger')
             else: 
-                # Add screening
+                # Add screening 
                 screening = Screening(
                     start_datetime = form.date_time.data,
                     end_datetime = end_dt,
@@ -107,7 +107,6 @@ def add_showtime():
                 db.session.commit()
             
                 return redirect(url_for('employees.showtimes.movie', movie_route=movie.route))
-
     return render_template('employee/add-showtime.html', form=form)
 
 

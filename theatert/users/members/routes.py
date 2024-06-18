@@ -1,7 +1,6 @@
 from datetime import datetime
 from flask import abort, Blueprint, flash, render_template, redirect, request, session, url_for
 from flask_login import current_user, logout_user
-from pytz import timezone
 from secrets import token_urlsafe
 from sqlalchemy import collate
 from theatert import db, bcrypt
@@ -15,8 +14,6 @@ import calendar
 
 
 members = Blueprint('members', __name__, url_prefix='/member')
-
-tz = timezone('US/Eastern')
 
 
 @members.route('/<int:m_id>/add_watchlist', methods=['GET'])

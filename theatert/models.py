@@ -1,7 +1,6 @@
 from datetime import datetime 
 from theatert import db, login_manager
 from flask_login import UserMixin
-from secrets import token_urlsafe
 
 
 @login_manager.user_loader

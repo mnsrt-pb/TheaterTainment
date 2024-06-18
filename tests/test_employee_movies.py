@@ -16,7 +16,7 @@ if os.environ.get('SKIP_TEST_EMPLOYEE_MOVIES', 'false').lower() == 'true':
 
 
 ''' SEARCH, ADD, DELETE AND FETCH MOVIE '''
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_search_movie(client_employee):
     ''' Test search movie successfully'''
     login_employee(client_employee)
@@ -41,7 +41,7 @@ def test_search_movie(client_employee):
     assert b'Add Movie' in response.data
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_add_movie(client_employee):
     ''' Test add movie successfully'''
     login_employee(client_employee)
@@ -79,7 +79,7 @@ def test_add_movie(client_employee):
     assert b"Spirited Away</td>" in response.data
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_fetch_movie(client_movie):
     ''' Test adding a movie that already exists. 
     This should fetch new data and update movie. '''
@@ -125,7 +125,7 @@ def test_fetch_movie(client_movie):
     assert b"Spirited Away</td>" in response.data
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_delete_movie(client_movie):
     ''' Test delete movie successfully. Deleted Movie should not be displayed in inactive and active. (All-movies and coming-soon tested elsewhere.)'''
     login_employee(client_movie)
@@ -171,7 +171,7 @@ def test_delete_movie(client_movie):
     assert b'Spirited Away</option>' not in response.data # activate movie select option
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_add_deleted_movie(client_employee):
     ''' Test adding a movie that was deleted. 
     This should also fetch new data and update movie. '''
@@ -218,7 +218,7 @@ def test_add_deleted_movie(client_employee):
         assert genres != 0
 
 
-#@pytest.mark.skip   
+@pytest.mark.skip   
 def test_search_add_movie_failure(client_employee):
     ''' Test searching/adding movie with invalid data '''
     login_employee(client_employee)
@@ -254,7 +254,7 @@ def test_search_add_movie_failure(client_employee):
     assert b'href="/employee/movies/spirited-away"' not in response.data
 
 
-#@pytest.mark.skip 
+@pytest.mark.skip 
 def test_delete_movie_failure(client_employee):
     ''' Test delete movie given invalid data '''   
     login_employee(client_employee)
@@ -265,7 +265,7 @@ def test_delete_movie_failure(client_employee):
 
     
 # TODO: Test deleting a movie that can't be deleted (has showtimes)
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_delete_movie_showtimes_failure(client_employee):
     ''' Test delete movie with showtimes '''
     login_employee(client_employee)
@@ -275,7 +275,7 @@ def test_delete_movie_showtimes_failure(client_employee):
 
 
 ''' ACTIVATE AND INACTIVATE MOVIE'''
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_display_active(client_movie):
     ''' Display active movie. Coming-soon tested elsewhere. '''
     login_employee(client_movie)
@@ -305,7 +305,7 @@ def test_display_active(client_movie):
     assert b'href="/employee/movies/spirited-away"' in response.data
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_display_inactive(client_movie):
     ''' Display inactive movie. Coming-soon tested elsewhere. '''
     login_employee(client_movie)
@@ -340,13 +340,19 @@ def test_display_inactive(client_movie):
     assert b'href="/employee/movies/spirited-away"' in response.data
 
 
-#@pytest.mark.skip
-@pytest.mark.parametrize('poster_path, backdrop_path, trailer_path, release_date', 
-    [(None, '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date()),
-     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', None, 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date()), 
-     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', None, datetime.strptime("2001-07-20", "%Y-%m-%d").date()), 
-     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', None)])
-def test_display_inactive_2(client_employee, poster_path, backdrop_path, trailer_path, release_date):
+@pytest.mark.skip
+@pytest.mark.parametrize('poster_path, backdrop_path, trailer_path, release_date, runtime', 
+    [(None, '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125),
+     ('', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125), 
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', None, 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125), 
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125), 
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', None, datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125), 
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', '', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 125), 
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', None, 125),
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), None),
+     ('/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg', '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg', 'GAp2_0JJskk', datetime.strptime("2001-07-20", "%Y-%m-%d").date(), 0)
+    ])
+def test_display_inactive_2(client_employee, poster_path, backdrop_path, trailer_path, release_date, runtime):
     ''' Inactive movies with missing data should not be displayed as options to activate. '''
     login_employee(client_employee)
 
@@ -357,12 +363,12 @@ def test_display_inactive_2(client_employee, poster_path, backdrop_path, trailer
             route = 'spirited-away',
             status = 'Released',
             release_date = release_date,
-            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
-            runtime = 125,
+            runtime = runtime,
             rating = 'PG',
             poster_path = poster_path,
             backdrop_path = backdrop_path,
-            trailer_path = trailer_path
+            trailer_path = trailer_path,
+            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits.',
         )
         db.session.add(movie)
         db.session.commit()
@@ -373,7 +379,7 @@ def test_display_inactive_2(client_employee, poster_path, backdrop_path, trailer
     assert b'Spirited Away</option>' not in response.data # activate movie select option
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_activate_movie(client_movie):
     ''' Test activate movie sucessfully '''
     login_employee(client_movie)
@@ -388,6 +394,14 @@ def test_activate_movie(client_movie):
     with client_movie.application.app_context():
         movie = Movie.query.first()
         assert movie.active is True
+        assert movie.poster_path is not None
+        assert movie.poster_path is not ''
+        assert movie.backdrop_path is not None
+        assert movie.backdrop_path is not ''
+        assert movie.trailer_path is not None
+        assert movie.trailer_path is not ''
+        assert movie.runtime is not None
+        assert movie.runtime is not 0
     
         change = Change.query.first()
         assert change.employee_id == current_id
@@ -396,7 +410,7 @@ def test_activate_movie(client_movie):
         assert change.data_id == movie.id
     
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_inactivate_movie(client_movie):
     ''' Test inactivate movie sucessfully '''
     login_employee(client_movie)
@@ -424,26 +438,28 @@ def test_inactivate_movie(client_movie):
         assert change.data_id == movie.id
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_activate_movie_failure(client_employee):
-    ''' Test activate movie with invalid data '''
+    ''' Test activate movie with invalid data. (Movie is not listed in inactivated movies to activate) '''
     login_employee(client_employee)
 
     response = client_employee.post(url_for('employees.movies.active'),
                                     data={'m_id': 1}, 
                                     follow_redirects=True)
+    # Nothing happens
     assert response.status_code == 200
-    assert response.request.path == '/employee/movies/active'
+    assert response.request.path == '/employee/movies/active' 
 
     
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_inactivate_movie_failure(client_employee):
-    ''' Test inactivate movie with invalid data '''
+    ''' Test inactivate movie with invalid data. (Movie is not listed in activated movies to inactivate) '''
     login_employee(client_employee)
 
     response = client_employee.post(url_for('employees.movies.inactive'),
                                     data={'m_id': 1}, 
                                     follow_redirects=True)
+    # Nothing happens
     assert response.status_code == 200
     assert response.request.path == '/employee/movies/inactive'
 
@@ -451,7 +467,7 @@ def test_inactivate_movie_failure(client_employee):
 
 
 ''' DISPLAY MOVIES AND MOVIE INFO PAGE'''
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_display_movies(client_employee):
     '''  Movies are correctly displayed in all-movies and coming-soon '''
     login_employee(client_employee)
@@ -511,7 +527,7 @@ def test_display_movies(client_employee):
     assert b'href="/employee/movies/deleted"' not in response.data 
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_display_movie(client_movie):
     ''' Display movie info page '''
     login_employee(client_movie)
@@ -549,7 +565,7 @@ def test_display_movie(client_movie):
 
 
 ''' UPDATE MOVIE '''
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_update_movie(client_movie):
     ''' Test update poster, backdrop, and trailer path '''
     login_employee(client_movie)
@@ -588,7 +604,7 @@ def test_update_movie(client_movie):
         assert change.data_id == movie.id
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_update_movie_poster(client_movie):
     ''' Test update poster only '''
     login_employee(client_movie)
@@ -617,7 +633,7 @@ def test_update_movie_poster(client_movie):
         assert change.data_id == movie.id
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_update_movie_failure(client_movie):
     ''' Test update poster, backdrop, and trailer path with invalid data '''
     login_employee(client_movie)

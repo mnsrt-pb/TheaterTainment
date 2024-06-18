@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_wtf import FlaskForm
+from theatert import min_price, max_price, start_time, end_time
 from wtforms import DecimalField, SelectField, SubmitField
 from wtforms.fields import DateTimeLocalField
 from wtforms.validators import DataRequired, ValidationError
@@ -16,11 +17,11 @@ def places():
     
     return _places
 
-def price(min=0, max=25):
-    message = f'Must be between ${min} and ${max}.'
+def price():
+    message = f'Must be between ${min_price} and ${max_price}.'
 
     def _price(form, field):
-        if field.data < min or field.data > max:
+        if field.data < min_price or field.data > max_price:
             raise ValidationError(message)
     
     return _price
@@ -42,9 +43,9 @@ class AddShowtime(FlaskForm):
         '''Ensure the date has not passed and time is within screening hours.'''
         if date_time.data < datetime.now():
             raise ValidationError('This date/time has passed!')
-        elif date_time.data < datetime(date_time.data.year, date_time.data.month, date_time.data.day, 10, 00):
+        elif date_time.data < datetime(date_time.data.year, date_time.data.month, date_time.data.day, start_time, 00):
             raise ValidationError('Invalid time.')
-        elif date_time.data > datetime(date_time.data.year, date_time.data.month, date_time.data.day, 22, 00):
+        elif date_time.data > datetime(date_time.data.year, date_time.data.month, date_time.data.day, end_time, 00):
             raise ValidationError('Invalid time.')
 
         

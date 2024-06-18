@@ -330,6 +330,8 @@ def inactive():
                             Movie.backdrop_path.is_not(''),
                             Movie.trailer_path.is_not(None),
                             Movie.trailer_path.is_not(''),
+                            Movie.runtime.is_not(None),
+                            Movie.runtime.is_not(0),
                             Movie.active.is_(False), 
                             Movie.deleted.is_(False)))\
                     .order_by(collate(Movie.title, 'NOCASE'))
