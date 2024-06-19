@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
-from flask import url_for
 from theatert import create_app, db
 from theatert.users.utils import populate_db
 
 from theatert import bcrypt, db
 from theatert.models import Employee, Member, Movie
+from theatert.config_test import movie_a, movie_b
 
 import os
 import pytest
@@ -38,30 +37,16 @@ def client(app):
 
 
 @pytest.fixture()
-def client_employee(client):
+def client_users(client):
     ''' Employee user in database. '''
+    # NOTE: Phone number was taken from import phonenumbers' documentation
 
     with client.application.app_context():
-        user = Employee (
+        employee = Employee (
             username = 'testuser',
             password = bcrypt.generate_password_hash('Valid*123').decode('utf-8')
         )
-        db.session.add(user)
-        db.session.commit()
-
-        yield client
-
-        db.session.delete(user)
-        db.session.commit
-
-
-@pytest.fixture()
-def client_both(client_employee):
-    ''' Member user in database. '''
-    # NOTE: Phone number was taken from import phonenumbers' documentation
-
-    with client_employee.application.app_context():
-        user = Member (
+        member = Member (
             username = 'test@user.com',
             password = bcrypt.generate_password_hash('valid*123').decode('utf-8'),
             email = 'test@user.com',
@@ -70,82 +55,84 @@ def client_both(client_employee):
             phone = '5107488230',
             zip_code = '12345'
         )
-        db.session.add(user)
+        
+        db.session.add(employee)
+        db.session.add(member)
+
         db.session.commit()
 
+        yield client
 
-        yield client_employee
-
-        db.session.delete(user)
+        db.session.delete(employee)
+        db.session.delete(member)
         db.session.commit
 
 
 @pytest.fixture()
-def client_movie(client_employee):
-    with client_employee.application.app_context():
+def client_movie(client_users):
+    with client_users.application.app_context():
         movie = Movie(
-            tmdb_id = 129,
-            title = 'Spirited Away',
-            route = 'spirited-away',
-            status = 'Released',
-            release_date = datetime.strptime('2001-07-20', '%Y-%m-%d').date(),
-            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
-            runtime = 125,
-            rating = 'PG',
-            poster_path = '/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg',
-            backdrop_path = '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg',
-            trailer_path = 'GAp2_0JJskk'
+            tmdb_id = movie_a['tmdb_id'],
+            title = movie_a['title'],
+            route = movie_a['route'],
+            status = movie_a['status'],
+            release_date = movie_a['release_date'],
+            overview = movie_a['overview'],
+            runtime = movie_a['runtime'],
+            rating = movie_a['rating'],
+            poster_path = movie_a['poster_path'],
+            backdrop_path = movie_a['backdrop_path'],
+            trailer_path = movie_a['trailer_path']
         )
 
         db.session.add(movie)
         db.session.commit()
 
-        yield client_employee
+        yield client_users
 
         db.session.delete(movie)
         db.session.commit
 
 
 @pytest.fixture()
-def client_movies(client_both):
-    with client_both.application.app_context():
+def client_movies(client_users):
+    with client_users.application.app_context():
         now_playing = Movie(
-            tmdb_id = 129,
-            title = 'Spirited Away',
-            route = 'spirited-away',
-            status = 'Released',
-            release_date = datetime.strptime('2001-07-20', '%Y-%m-%d').date(),
-            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
-            runtime = 125,
-            rating = 'PG',
-            poster_path = '/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg',
-            backdrop_path = '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg',
-            trailer_path = 'GAp2_0JJskk',
+            tmdb_id = movie_a['tmdb_id'],
+            title = movie_a['title'],
+            route = movie_a['route'],
+            status = movie_a['status'],
+            release_date = movie_a['release_date'],
+            overview = movie_a['overview'],
+            runtime = movie_a['runtime'],
+            rating = movie_a['rating'],
+            poster_path = movie_a['poster_path'],
+            backdrop_path = movie_a['backdrop_path'],
+            trailer_path = movie_a['trailer_path'],
             active = True
         )
         db.session.add(now_playing)
-
-        day_after_tomorrow = datetime.now() + timedelta(days=2)
-        day_after_tomorrow = day_after_tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
+        
         coming_soon = Movie(
-            tmdb_id = 128,
-            title = 'Princess Mononoke',
-            route = 'princess-mononoke',
-            status = 'Released',
-            release_date = day_after_tomorrow,
-            overview = 'Ashitaka, a prince of the disappearing Emishi people, is cursed by a demonized boar god and must journey to the west to find a cure. Along the way, he encounters San, a young human woman fighting to protect the forest, and Lady Eboshi, who is trying to destroy it. Ashitaka must find a way to bring balance to this conflict.',
-            runtime = 134,
-            rating = 'PG-13',
-            poster_path = '/kifrm5sCZNMa1GsSAANg040Hay5.jpg',
-            backdrop_path = '/yoIybVuiUWtDf2X8dCt4vZgfC3q.jpg',
-            trailer_path = 'opCxPAwdB6U',
+            tmdb_id = movie_b['tmdb_id'],
+            title = movie_b['title'],
+            route = movie_b['route'],
+            status = movie_b['status'],
+            release_date = movie_b['release_date'],
+            overview = movie_b['overview'],
+            runtime = movie_b['runtime'],
+            rating = movie_b['rating'],
+            poster_path = movie_b['poster_path'],
+            backdrop_path = movie_b['backdrop_path'],
+            trailer_path = movie_b['trailer_path'],
             active = True
         )
         db.session.add(coming_soon)
         db.session.commit()
 
-        yield client_both
+        yield client_users
 
         db.session.delete(now_playing)
         db.session.delete(coming_soon)
         db.session.commit
+

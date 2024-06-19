@@ -5,7 +5,8 @@ from flask import url_for
 from flask_login import current_user
 from tests.utils import login_employee
 from theatert import db, max_price, min_price
-from theatert.models import Auditorium, Movie, Change, Genre, genres, Screening, Ticket
+from theatert.models import Movie, Change, Screening, Ticket
+from theatert.config_test import movie_a
 
 import pytest
 import os
@@ -109,18 +110,18 @@ def test_display_showtimes(client_movie):
     assert b'/employee/tickets/1' in response.data
     assert b'/employee/tickets/2' not in response.data
 
-    response = client_movie.get(url_for('employees.showtimes.movie', movie_route='spirited-away'))
+    response = client_movie.get(url_for('employees.showtimes.movie', movie_route=movie_a['route']))
     assert response.status_code == 200
     assert b'10:00 AM' in response.data
     assert b'10:30 AM' in response.data
     assert b'/employee/tickets/1' in response.data
     assert b'/employee/tickets/2' in response.data
     
-    response = client_movie.get(url_for('employees.showtimes.movie', movie_route='spirited-away') + '?auditorium=2')
+    response = client_movie.get(url_for('employees.showtimes.movie', movie_route=movie_a['route']) + '?auditorium=2')
     assert response.status_code == 200
     assert b'There are no showtimes.' in response.data
     
-    response = client_movie.get(url_for('employees.showtimes.movie', movie_route='spirited-away') + '?date=' + datetime.now().strftime("%Y-%m-%d"))
+    response = client_movie.get(url_for('employees.showtimes.movie', movie_route=movie_a['route']) + '?date=' + datetime.now().strftime("%Y-%m-%d"))
     assert response.status_code == 200
     assert b'There are no showtimes.' in response.data
 
@@ -167,7 +168,7 @@ def test_add_showtime_(client_movie):
     )
     response = client_movie.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
-    assert response.request.path == '/employee/showtimes/spirited-away'
+    assert response.request.path == '/employee/showtimes/' + movie_a['route']
     assert b'Showtime was created and tickets have been generated.' in response.data
 
     # Screening and Tickets generated!
@@ -186,7 +187,7 @@ def test_add_showtime_(client_movie):
 
 
 @pytest.mark.skip
-def test_add_showtime_failure(client_employee):
+def test_add_showtime_failure(client_users):
     ''' Test add showtime with incorrect data
         Users can add a showtime to a movie if it exists, is not deleted, active, 
         and its release date is at most 20 days from today's date.
@@ -195,11 +196,11 @@ def test_add_showtime_failure(client_employee):
     # NOTE: if a movie is active it must have poster, backdrop, and trailer paths but it can be ignored for this test
             # This is checked in test_activate_movie
 
-    login_employee(client_employee)
-    response = client_employee.get(url_for('employees.showtimes.add_showtime'))
+    login_employee(client_users)
+    response = client_users.get(url_for('employees.showtimes.add_showtime'))
     assert response.status_code == 200
 
-    with client_employee.application.app_context():
+    with client_users.application.app_context():
         deleted = Movie (
             tmdb_id = 12429, # Ponyo's tmdb id
             title = 'Deleted',
@@ -227,17 +228,17 @@ def test_add_showtime_failure(client_employee):
         
         # Correct movie entry but other data will be incorrect
         movie = Movie(
-            tmdb_id = 129,
-            title = 'Spirited Away',
-            route = 'spirited-away',
-            status = 'Released',
+            tmdb_id = movie_a['tmdb_id'],
+            title = movie_a['title'],
+            route = movie_a['route'],
+            status = movie_a['status'],
             release_date = datetime.now() + timedelta(days=3),
-            overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
-            runtime = 125,
-            rating = 'PG',
-            poster_path = '/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg',
-            backdrop_path = '/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg',
-            trailer_path = 'GAp2_0JJskk',
+            overview = movie_a['overview'],
+            runtime = movie_a['runtime'],
+            rating = movie_a['rating'],
+            poster_path = movie_a['poster_path'],
+            backdrop_path = movie_a['backdrop_path'],
+            trailer_path = movie_a['trailer_path'],
             active = True
         )
         db.session.add(movie)
@@ -254,21 +255,21 @@ def test_add_showtime_failure(client_employee):
         senior_price = 9.00
     )
 
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Not a valid choice.' in response.data
 
     # Add showtime to an inactivated movie
     data['m_id'] = 2 # inactive
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Not a valid choice.' in response.data
     
     # Add showtime to a movie when its release date is more than 20 days from today's date
     data['m_id'] = 3 # coming soon incorrect
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Not a valid choice.' in response.data
@@ -276,14 +277,14 @@ def test_add_showtime_failure(client_employee):
     # Add showtime with an auditorium that doesn't exist
     data['m_id'] = 4 # valid movie
     data['a_id'] = 5
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Not a valid choice.' in response.data
 
     # Showtimes date and time are before movie's releasae date
     data['a_id'] = 1 # valid auditorium
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'has not been released for the date entered.' in response.data
@@ -291,14 +292,14 @@ def test_add_showtime_failure(client_employee):
     # Showtime time has passed
     yesterday =  datetime.now() - timedelta(days=1)
     data['date_time'] = yesterday.replace(hour=10, minute=0, second=0, microsecond=0)
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'This date/time has passed!' in response.data
 
     # Showtime time is before earliest screening time
     data['date_time'] = tomorrow.replace(hour=9, minute=59, second=0, microsecond=0)
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Invalid time.' in response.data
@@ -306,7 +307,7 @@ def test_add_showtime_failure(client_employee):
 
     # Showtime time is after latest screening time
     data['date_time'] = tomorrow.replace(hour=22, minute=1, second=0, microsecond=0)
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Invalid time.' in response.data
@@ -314,7 +315,7 @@ def test_add_showtime_failure(client_employee):
     # Price is less than min price 
     data['date_time'] = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0) # valid entry
     data['adult_price'] = min_price - 1
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Must be between $' in response.data
@@ -322,13 +323,13 @@ def test_add_showtime_failure(client_employee):
     # Price is greater than max price
     data['date_time'] = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0) # valid entry
     data['adult_price'] = max_price + 1
-    response = client_employee.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/add-showtime'
     assert b'Must be between $' in response.data
 
     # Check that no screenigs or tickets have been added :)
-    with client_employee.application.app_context():
+    with client_users.application.app_context():
         assert Screening.query.count() == 0
         assert Ticket.query.count() == 0
         assert Change.query.count() == 0

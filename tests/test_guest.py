@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from flask import url_for
 from tests.utils import showtime_tomorrow
+from theatert.config_test import movie_a, movie_b
 
 import pytest
 import os
@@ -22,14 +23,14 @@ def test_home(client_movies):
     assert response.status_code == 200
     assert b'/member/profile' not in response.data
 
-    assert b'Spirited Away' in response.data
-    assert b'Princess Mononoke' in response.data
+    assert movie_a['title'].encode('utf-8') in response.data
+    assert movie_b['title'].encode('utf-8') in response.data
 
-    assert b'/movie/spirited-away' in response.data
-    assert b'/movie/princess-mononoke' in response.data
+    assert movie_a['route'].encode('utf-8') in response.data
+    assert movie_b['route'].encode('utf-8') in response.data
 
-    assert b'/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg' in response.data
-    assert b'/kifrm5sCZNMa1GsSAANg040Hay5.jpg' in response.data
+    assert movie_a['poster_path'].encode('utf-8') in response.data
+    assert movie_b['poster_path'].encode('utf-8') in response.data
 
     assert b'/member/1/add_watchlist' in response.data
     assert b'/member/2/add_watchlist' in response.data
@@ -48,21 +49,22 @@ def test_display_movie(client_movies):
     ''' Movie info page is displayed '''
     showtime_tomorrow(client_movies) 
 
-    response = client_movies.get(url_for('users.movie', movie_route='spirited-away'))
+    response = client_movies.get(url_for('users.movie', movie_route=movie_a['route']))
     assert response.status_code == 200
     assert b'/member/profile' not in response.data
 
-    assert b'Spirited Away' in response.data
-    assert b'PG' in response.data
-    assert b'Jul 20, 2001' in response.data
-    assert b'/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg' in response.data
-    assert b'/ogRfsqklWMRpzmq4ZJcI0MvqzlN.jpg' in response.data
-    assert b'GAp2_0JJskk' in response.data
-    assert b'A young girl, Chihiro, becomes trapped in a strange new world of spirits.' in response.data
+    assert movie_a['title'].encode('utf-8') in response.data
+    assert movie_a['rating'].encode('utf-8') in response.data
+    assert movie_a['release_date'].strftime("%b %d, %Y").encode('utf-8') in response.data
+    assert movie_a['poster_path'].encode('utf-8') in response.data
+    assert movie_a['backdrop_path'].encode('utf-8') in response.data
+    assert movie_a['trailer_path'].encode('utf-8') in response.data
+    assert movie_a['overview'].encode('utf-8') in response.data
+
     assert b'/member/1/add_watchlist' in response.data
 
     tomorrow = datetime.now() + timedelta(days=1)
-    response = client_movies.get(url_for('users.movie', movie_route='spirited-away') + '?date=' + tomorrow.strftime("%Y-%m-%d"))
+    response = client_movies.get(url_for('users.movie', movie_route=movie_a['route']) + '?date=' + tomorrow.strftime("%Y-%m-%d"))
 
     assert response.status_code == 200
     assert b'/ticket-seat-map/1' in response.data
@@ -76,30 +78,28 @@ def test_display_movies(client_movies):
     assert response.status_code == 200
     assert b'/member/profile' not in response.data
 
-    assert b'Spirited Away' in response.data
-    assert b'Princess Mononoke' not in response.data
+    assert movie_a['title'].encode('utf-8') in response.data
+    assert movie_b['title'].encode('utf-8')  not in response.data
 
-    assert b'/movie/spirited-away' in response.data
-    assert b'/movie/princess-mononoke' not in response.data
+    assert movie_a['route'].encode('utf-8') in response.data
+    assert movie_b['route'].encode('utf-8') not in response.data
 
-    assert b'/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg' in response.data
-    assert b'/kifrm5sCZNMa1GsSAANg040Hay5.jpg' not in response.data
+    assert movie_a['poster_path'].encode('utf-8') in response.data
+    assert movie_b['poster_path'].encode('utf-8') not in response.data
 
     assert b'/member/1/add_watchlist' in response.data
     assert b'/member/2/add_watchlist' not in response.data
 
     response = client_movies.get(url_for('users.movies_coming_soon'))
     assert response.status_code == 200
-    assert b'Spirited Away' not in response.data
-    assert b'Princess Mononoke' in response.data
+    assert movie_a['title'].encode('utf-8') not in response.data
+    assert movie_b['title'].encode('utf-8') in response.data
 
-    assert b'/movie/spirited-away' not in response.data
-    assert b'/movie/princess-mononoke' in response.data
+    assert movie_a['route'].encode('utf-8') not in response.data
+    assert movie_b['route'].encode('utf-8') in response.data
 
-    assert b'/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg' not in response.data
-    assert b'/kifrm5sCZNMa1GsSAANg040Hay5.jpg' in response.data
+    assert movie_a['poster_path'].encode('utf-8') not in response.data
+    assert movie_b['poster_path'].encode('utf-8') in response.data
 
     assert b'/member/1/add_watchlist' not in response.data
     assert b'/member/2/add_watchlist' in response.data
-
-    

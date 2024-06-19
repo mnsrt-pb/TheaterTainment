@@ -41,12 +41,11 @@ class BaseCheckoutForm(FlaskForm):
 
 
 class BasePaymentForm(FlaskForm):
-    def validate_card_type(self, type):
+    def validate_card_number(self, number):
         '''Ensure Select Movie was not selected.'''
-
-        if (type.data != 'Visa') and (type.data != 'American Express') and (type.data != 'Discover') and (type.data != 'Mastercard'):
-            flash('Invalid Entry.', 'danger')
-            raise ValidationError('Invalid Card Type.')
+        if (self.card_type.data != 'Visa') and (self.card_type.data != 'American Express') \
+        and (self.card_type.data != 'Discover') and (self.card_type.data != 'Mastercard'):
+            raise ValidationError('Cedit card must be Visa, Mastercard, American Express, or Discover')
         
     card_type = HiddenField(validators=[DataRequired()])
 
@@ -108,8 +107,11 @@ class EmailForm(FlaskForm):
     def validate_email(self, email):
         '''Ensure email does not exist'''
 
-        email = Member.query.filter_by(email=email.data).first()
-        if email:
+        email_exists = Member.query.filter_by(email=email.data).first()
+
+        if email.data == current_user.email:
+            raise ValidationError('You must use a different email.')
+        elif email_exists:
             raise ValidationError('An account with this email already exists.')
     
     def validate_password(self,password):

@@ -360,7 +360,8 @@ def profile():
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -378,7 +379,8 @@ def profile():
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -391,13 +393,14 @@ def profile():
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
             flash('Your password has been updated!', 'custom')
             return redirect(url_for('members.profile'))
-
+        
     elif 'card_number' in request.form:
         hidden1, hidden2, hidden3, hidden4, hidden5 = 'hidden', 'hidden', 'hidden', 'hidden', ''
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -464,7 +467,7 @@ def profile():
                 db.session.add(cards)
             db.session.commit()
 
-            flash('Default Payment Saved!', 'custom')
+            flash('Default payment saved!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'delete' in request.form:
@@ -473,7 +476,7 @@ def profile():
         saved_data.active = False
         db.session.commit()
 
-        flash('Saved Card Removed!', 'custom')
+        flash('Default payment removed!', 'custom')
         return redirect(url_for('members.profile'))
 
     else:
@@ -574,7 +577,7 @@ def remove_watchlist(m_id):
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
     
     if added:
-        remove = Watchlist.query.get(added.id)
+        remove = Watchlist.query.filter_by(id = added.id).first()
         db.session.delete(remove)
         db.session.commit()
         url = url_for('members.add_watchlist', m_id=movie.id)
