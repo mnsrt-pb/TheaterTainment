@@ -44,5 +44,3 @@ def test_home(client_users):
     assert response.status_code == 200
     assert b'You have made no changes to the database.' in response.data
 
-
-

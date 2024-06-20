@@ -1,4 +1,4 @@
-''' Test watchlist and profile management.   '''
+''' Test watchlist and profile management. '''
 
 from datetime import datetime
 from flask import url_for
@@ -8,6 +8,7 @@ from theatert import bcrypt, db
 from theatert.models import Member, Card, Cards, Watchlist
 from theatert.config_test import visa, movie_a, movie_b, tomorrow
 
+import copy
 import calendar
 import pytest
 import os
@@ -263,16 +264,7 @@ def test_add_default_payment(client_users):
     current_id =  current_user.id
 
     # Add card if card does't exist
-    data = dict(
-        card_type = visa['card_type'],
-        card_number = visa['card_number'],
-        exp_month = visa['exp_month'],
-        exp_year = visa['exp_year'],
-        zip_code = visa['zip_code'],
-        sec_code = visa['sec_code']
-    )
-
-    response = client_users.post(url_for('members.profile'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('members.profile'), data=visa, follow_redirects=True)
     assert response.status_code == 200
     assert b'Default payment saved!' in response.data
 
@@ -287,7 +279,7 @@ def test_add_default_payment(client_users):
         cards.active = False
         db.session.commit()
 
-    response = client_users.post(url_for('members.profile'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('members.profile'), data=visa, follow_redirects=True)
     assert response.status_code == 200
     assert b'Default payment saved!' in response.data
 
@@ -301,7 +293,7 @@ def test_add_default_payment(client_users):
         cards.active = False
         db.session.commit()
 
-    response = client_users.post(url_for('members.profile'), data=data, follow_redirects=True)
+    response = client_users.post(url_for('members.profile'), data=visa, follow_redirects=True)
     assert response.status_code == 200
     assert b'Default payment saved!' in response.data
 
@@ -334,35 +326,29 @@ def test_add_default_payment_failure(client_users, exp_month, exp_year, zip_code
         zip_code = '44444',
         sec_code = '335'
     )
-    guest_data = dict(
-        card_type = visa['card_type'],
-        card_number = visa['card_number'],
-        exp_month = visa['exp_month'],
-        exp_year = visa['exp_year'],
-        zip_code = visa['zip_code'],
-        sec_code = visa['sec_code']
-    )
+
+    guest_data = copy.deepcopy(visa)
 
     with client_users.application.app_context():
         day = str(calendar.monthrange(guest_data['exp_year'], guest_data['exp_month'])[1])
         exp_date = datetime.strptime(str(guest_data['exp_month']) + '/' + day + '/' + str(guest_data['exp_year']), '%m/%d/%Y').date()
 
         member_card = Card(
-                    card_num = guest_data['card_number'],
-                    exp_date = exp_date,
-                    card_type = guest_data['card_type'],
-                    billing_zip = guest_data['zip_code'],
-                    sec_code = bcrypt.generate_password_hash(guest_data['sec_code']).decode('utf-8'),
-                    )
-        db.session.add(member_card)
-
-        guest_card = Card(
                     card_num = member_data['card_number'],
                     exp_date = exp_date,
                     card_type = member_data['card_type'],
                     billing_zip = member_data['zip_code'],
                     sec_code = bcrypt.generate_password_hash(member_data['sec_code']).decode('utf-8'), 
                     member = False
+                    )
+        db.session.add(member_card)
+
+        guest_card = Card(
+                    card_num = guest_data['card_number'],
+                    exp_date = exp_date,
+                    card_type = guest_data['card_type'],
+                    billing_zip = guest_data['zip_code'],
+                    sec_code = bcrypt.generate_password_hash(guest_data['sec_code']).decode('utf-8'),
                     )
         db.session.add(guest_card)
 
@@ -469,3 +455,16 @@ def test_remove_watchlist(client_movies):
     with client_movies.application.app_context():
         assert not Watchlist.query.filter_by(member_id = current_id).first()
 
+
+
+
+''' PURCHASES (NO PURCHASE) '''
+@pytest.mark.skip
+def test_watchlist_empty(client_users):
+    ''' Test purchases page'''
+    login_member(client_users)
+
+    response = client_users.get(url_for('members.purchases'))
+    assert response.status_code == 200
+    assert b'No past purchases found for this account.' in response.data
+    assert b'You have no upcoming tickets associated with this account.' in response.data

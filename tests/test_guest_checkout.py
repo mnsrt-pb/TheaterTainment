@@ -11,6 +11,7 @@ import pytest
 import os
 
 
+''' MAP '''
 @pytest.mark.skip
 def test_map_display(client_movies):
     ''' Ticket seat map is displayed '''
@@ -42,34 +43,24 @@ def test_map_display(client_movies):
 @pytest.mark.skip
 def test_post_map(client_movies):
     ''' Test proceeding to checkout '''
-
     showtime_tomorrow(client_movies)
-    seats_selected = ''
-    with client_movies.application.app_context():
-        tickets = Ticket.query.filter_by(screening_id = 1).order_by(Ticket.screening_id)
-        
-        for index, ticket in enumerate(tickets):
-            if index < 2:
-                seats_selected += str(ticket.seat_id) + ','
-            elif index == 2:
-                seats_selected += str(ticket.seat_id)
-            else:
-                break
 
     data = dict(
         screening_id = 1,
-        seats_selected = seats_selected,
+        seats_selected = '1, 2, 3',
         adult_tickets = 1,
         child_tickets = 1,
         senior_tickets = 1
     )
-    # data.update(visa)
 
     response = client_movies.post(url_for('users.checkout'), data=data, follow_redirects=True)
     assert response.status_code == 200
     assert b'Sign in to use saved payment information. If you don\'t have an account, you can register for a Cinemark account.' in response.data
 
 
+
+
+''' CHECKOUT '''
 @pytest.mark.skip
 def test_checkout(client_movies):
     ''' Test checkout and receipt '''
@@ -129,8 +120,8 @@ def test_checkout(client_movies):
 @pytest.mark.skip
 def test_checkout_failure(client_movies):
     ''' Test checkout with invalid data'''
-
     showtime_tomorrow(client_movies)
+
     seats_selected = ''
 
     data = dict(

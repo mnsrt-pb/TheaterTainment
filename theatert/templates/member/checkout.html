@@ -17,9 +17,9 @@
     <div class="d-flex flex-wrap justify-content-between">
         <div id="checkout-form" class="cont-10 shadow rounded align-self-start p-3 mb-5">
             <form id="checkout-validate" action="{{ url_for('members.checkout_validate' )}}" method="POST" class="needs-validation" novalidate>
-                {{ form.hidden_tag() }}
                 <h5 class="fw-bolder mb-4">Credit Card</h5>
                 {% if not saved_card %}
+                    {{ form.hidden_tag() }}
                     <div id="payment-form">
                         <div id="default-payment-form">
                             <div id= "cc_holder" class="d-flex align-items-center mb-3">
@@ -119,6 +119,7 @@
                         </div>
                     </div>
                 {% else %}
+                    {{ form2.hidden_tag() }}
                     <div class="d-flex align-items-center">
                         <div id="cc_holder_2" class="d-flex align-items-center">
                             {% if saved_card.card_type == 'Visa' %}
@@ -149,16 +150,16 @@
 
                     <div class="row g-3 my-3">
                         <div class="col">
-                            {{ form.sec_code.label(class_="fw-bold mb-2") }}
-                            {% if form.sec_code.errors and not get_flashed_messages(with_categories=true)%}
-                                {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="sec-code")}}
+                            {{ form2.sec_code.label(class_="fw-bold mb-2") }}
+                            {% if form2.sec_code.errors and not get_flashed_messages(with_categories=true)%}
+                                {{ form2.sec_code(autocomplete="off", autofocus=true, class="form-control is-invalid", id="sec-code")}}
                                 <div class="invalid-feedback">
-                                    {% for error in form.sec_code.errors %}
+                                    {% for error in form2.sec_code.errors %}
                                         <span id="sec-code-e">{{ error }}</span>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                {{ form.sec_code(autocomplete="off", autofocus=true, class="form-control", id="sec-code")}}
+                                {{ form2.sec_code(autocomplete="off", autofocus=true, class="form-control", id="sec-code")}}
                                 <div class="invalid-feedback">
                                     <span id="sec-code-e"></span>
                                 </div>
@@ -226,7 +227,11 @@
             
             <div >
                 <div class="d-grid gap-2 mx-auto">
+                {% if not saved_card %}
                     {{ form.submit(class_="btn btn-primary btn-rounded my-3", form='checkout-validate') }} 
+                {% else %}
+                    {{ form2.submit(class_="btn btn-primary btn-rounded my-3", form='checkout-validate') }} 
+                {% endif %}
                 </div>
             </div>
         </div>
