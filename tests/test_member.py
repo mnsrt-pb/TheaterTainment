@@ -1,12 +1,12 @@
-''' Test guest pages '''
+''' Test watchlist and profile management.   '''
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import url_for
 from flask_login import current_user
 from tests.utils import showtime_tomorrow, login_member
 from theatert import bcrypt, db
 from theatert.models import Member, Card, Cards, Watchlist
-from theatert.config_test import visa, movie_a, movie_b
+from theatert.config_test import visa, movie_a, movie_b, tomorrow
 
 import calendar
 import pytest
@@ -42,7 +42,6 @@ def test_home(client_movies):
 
     assert b'/ticket-seat-map/1' not in response.data
 
-    tomorrow = datetime.now() + timedelta(days=1)
     response = client_movies.get(url_for('users.home') + '?date=' + tomorrow.strftime("%Y-%m-%d"))
 
     assert response.status_code == 200
@@ -69,7 +68,6 @@ def test_display_movie(client_movies):
 
     assert b'/member/1/add_watchlist' in response.data
 
-    tomorrow = datetime.now() + timedelta(days=1)
     response = client_movies.get(url_for('users.movie', movie_route=movie_a['route']) + '?date=' + tomorrow.strftime("%Y-%m-%d"))
 
     assert response.status_code == 200
@@ -177,7 +175,6 @@ def test_change_email(client_users):
         assert member.email == 'different@email.com'
 
 
-
 @pytest.mark.skip
 def test_change_email_failure(client_users):
     ''' Test change email with invalid data '''
@@ -259,7 +256,7 @@ def test_change_password_failure(client_users):
 
 
 @pytest.mark.skip
-def test_add_cc(client_users):
+def test_add_default_payment(client_users):
     ''' Test add credit card '''
     # NOTE: card number was taken from Paypal's card testing data 
     login_member(client_users)
@@ -324,7 +321,7 @@ def test_add_cc(client_users):
                           (visa['exp_month'], visa['exp_year'] + 1, visa['zip_code'], visa['sec_code']),
                           (visa['exp_month'], visa['exp_year'], '00000', visa['sec_code']),
                           (visa['exp_month'], visa['exp_year'], visa['zip_code'], '000')])
-def test_add_cc_failure(client_users, exp_month, exp_year, zip_code, sec_code):
+def test_add_default_payment_failure(client_users, exp_month, exp_year, zip_code, sec_code):
     ''' Test add credit card with incorrect data '''
     # NOTE: card number was taken from Paypal's card testing data 
     login_member(client_users)
@@ -394,7 +391,7 @@ def test_add_cc_failure(client_users, exp_month, exp_year, zip_code, sec_code):
 
 
 @pytest.mark.skip
-def test_delete_cc(client_users):
+def test_delete_default_payment(client_users):
     ''' Test delete default payment method '''
     login_member(client_users)
     current_id = current_user.id

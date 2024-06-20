@@ -1,9 +1,8 @@
 ''' Test guest pages '''
 
-from datetime import datetime, timedelta
 from flask import url_for
 from tests.utils import showtime_tomorrow
-from theatert.config_test import movie_a, movie_b
+from theatert.config_test import movie_a, movie_b, tomorrow
 
 import pytest
 import os
@@ -37,7 +36,6 @@ def test_home(client_movies):
 
     assert b'/ticket-seat-map/1' not in response.data
 
-    tomorrow = datetime.now() + timedelta(days=1)
     response = client_movies.get(url_for('users.home') + '?date=' + tomorrow.strftime("%Y-%m-%d"))
 
     assert response.status_code == 200
@@ -63,7 +61,6 @@ def test_display_movie(client_movies):
 
     assert b'/member/1/add_watchlist' in response.data
 
-    tomorrow = datetime.now() + timedelta(days=1)
     response = client_movies.get(url_for('users.movie', movie_route=movie_a['route']) + '?date=' + tomorrow.strftime("%Y-%m-%d"))
 
     assert response.status_code == 200
@@ -103,3 +100,4 @@ def test_display_movies(client_movies):
 
     assert b'/member/1/add_watchlist' not in response.data
     assert b'/member/2/add_watchlist' in response.data
+

@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
 
 
+yesterday =  datetime.now() - timedelta(days=1)
+tomorrow = datetime.now() + timedelta(days=1)
+day_after_tomorrow = datetime.now() + timedelta(days=2)
+
 movie_a = dict(
     tmdb_id = 128,
     title = 'Princess Mononoke',
@@ -15,16 +19,13 @@ movie_a = dict(
     overview = 'Ashitaka, a prince of the disappearing Emishi people, is cursed by a demonized boar god and must journey to the west to find a cure. Along the way, he encounters San, a young human woman fighting to protect the forest, and Lady Eboshi, who is trying to destroy it. Ashitaka must find a way to bring balance to this conflict.',
 )
 
-day_after_tomorrow = datetime.now() + timedelta(days=2)
-day_after_tomorrow = day_after_tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
-
 movie_b = dict(
     tmdb_id = 129,
     title = 'Spirited Away',
     route = 'spirited-away',
     status = 'Released',
     overview = 'A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.',
-    release_date = day_after_tomorrow,
+    release_date = day_after_tomorrow.replace(hour=0, minute=0, second=0, microsecond=0),
     runtime = 125,
     rating = 'PG',
     poster_path = '/u1gGwSHTqTJ4hyclrC8owtJO66Y.jpg',
@@ -39,5 +40,14 @@ visa = dict(
     exp_year = datetime.today().year + 1,
     zip_code = '44444', # NOTE: cannot be '00000' because of tests
     sec_code = '335' # NOTE: cannot be '000' because of tests
+)
+
+showtime_data = dict(
+    m_id = 1, # NOTE: It is assumed that there is at least one movie
+    a_id = 1, # NOTE: This is dependent on the auditoriums in the theater
+    date_time = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0), # tomorrow at 10AM
+    adult_price = 12.5,
+    child_price = 10.5,
+    senior_price = 9
 )
 

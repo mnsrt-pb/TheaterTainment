@@ -1,4 +1,4 @@
-''' Test movie management '''
+''' Test movie management and track changes made by employee. '''
 
 from datetime import datetime, timedelta
 from flask import url_for

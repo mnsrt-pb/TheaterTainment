@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
 from flask import url_for
-
+from flask_login import current_user
+from theatert.config_test import showtime_data
 
 def login_employee(user):
     data = dict( username='testuser', password='Valid*123')
@@ -22,21 +22,13 @@ def logout(user):
 def showtime_tomorrow(user):
     ''' NOTE: tests that use this function will fail if test_add_showtime fails '''
     login_employee(user)
+    current_id =  current_user.id
 
-    # Showtime
-    tomorrow = datetime.now() + timedelta(days=1)
-    tomorrow = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
-    data = dict( 
-        m_id = 1,
-        a_id = 4,
-        date_time = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0),
-        adult_price = 12.5,
-        child_price = 10.5,
-        senior_price = 9
-    )
-    response = user.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    response = user.post(url_for('employees.showtimes.add_showtime'), data=showtime_data, follow_redirects=True)
     assert response.status_code == 200
 
     logout(user)
+    
+    return response, current_id
 
 

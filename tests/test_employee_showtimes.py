@@ -1,19 +1,15 @@
-''' Test showtime management '''
+''' Test showtime management and track changes made by employee. '''
 
 from datetime import datetime, timedelta
 from flask import url_for
 from flask_login import current_user
 from tests.utils import login_employee
 from theatert import db, max_price, min_price
-from theatert.models import Movie, Change, Screening, Ticket
-from theatert.config_test import movie_a
+from theatert.models import Movie, Change, Screening, Seat, Ticket
+from theatert.config_test import movie_a, showtime_data, tomorrow, yesterday
 
 import pytest
 import os
-
-
-if os.environ.get('SKIP_TEST_EMPLOYEE_SHOWTIMES', 'false').lower() == 'true':
-    pytestmark = pytest.mark.skip("Skipping tests in test_employee_movies.py")
 
 
 ''' DISPLAY SHOWTIMES '''
@@ -37,8 +33,7 @@ def test_display_showtimes(client_movie):
     assert response.status_code == 200
     assert b'There are no showtimes.' in response.data
 
-    tomorrow =  datetime.now() + timedelta(days=1)
-    yesterday =  datetime.now() - timedelta(days=1)
+    
     data = dict( 
         m_id = 1,
         a_id = 1,
@@ -140,7 +135,6 @@ def test_add_showtime_(client_movie):
     login_employee(client_movie)
     current_id =  current_user.id
 
-
     with client_movie.application.app_context():
         movie = Movie.query.first()
         movie.active = True
@@ -151,22 +145,15 @@ def test_add_showtime_(client_movie):
             title = 'Not Released',
             route = 'not-released',
             release_date = datetime.now() + timedelta(days=20),
+            runtime = 50,
             active = True)
         # NOTE: if a movie is active it must have poster, backdrop, and trailer paths but it can be ignored for this test
             # This is checked in test_activate_movie
         db.session.add(coming_soon)
         db.session.commit()
 
-    tomorrow =  datetime.now() + timedelta(days=1)
-    data = dict( 
-        m_id = 1,
-        a_id = 1,
-        date_time = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0),
-        adult_price = 12.50,
-        child_price = 10.50,
-        senior_price = 9.00
-    )
-    response = client_movie.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    # RELEASED MOVIE
+    response = client_movie.post(url_for('employees.showtimes.add_showtime'), data=showtime_data, follow_redirects=True)
     assert response.status_code == 200
     assert response.request.path == '/employee/showtimes/' + movie_a['route']
     assert b'Showtime was created and tickets have been generated.' in response.data
@@ -174,12 +161,51 @@ def test_add_showtime_(client_movie):
     # Screening and Tickets generated!
     with client_movie.application.app_context():
         screening = Screening.query.first()
-        assert screening is not None
-        assert Ticket.query.count() is not 0
+        assert screening
+
+        seat_count = Seat.query.filter(
+                            db.and_(
+                                Seat.auditorium_id.is_(screening.auditorium_id), 
+                                Seat.seat_type.is_not('empty'))).count()
+        assert Ticket.query.count() == seat_count
 
         change = Change.query
         change_total, change = change.count(), change.first()
         change_total == 1
+        assert change.employee_id == current_id
+        assert change.action == 'added'
+        assert change.table_name == 'screening'
+        assert change.data_id == screening.id
+
+    # UNRELEASED MOVIE
+    data = dict(
+        m_id = 2, 
+        a_id = 2, 
+        date_time = (datetime.now() + timedelta(days=21)).replace(hour=10, minute=0, second=0, microsecond=0), # tomorrow at 10AM
+        adult_price = showtime_data['adult_price'],
+        child_price = showtime_data['child_price'],
+        senior_price = showtime_data['senior_price']
+    )
+
+    response = client_movie.post(url_for('employees.showtimes.add_showtime'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+    assert response.request.path == '/employee/showtimes/not-released'
+    assert b'Showtime was created and tickets have been generated.' in response.data
+
+    # Screening and Tickets generated!
+    with client_movie.application.app_context():
+        screening = Screening.query.order_by(Screening.id.desc()).first()
+        assert screening
+
+        seat_count = Seat.query.filter(
+                            db.and_(
+                                Seat.auditorium_id.is_(screening.auditorium_id), 
+                                Seat.seat_type.is_not('empty'))).count()
+        assert Ticket.query.filter(Ticket.screening_id.is_(screening.id)).count() == seat_count
+
+        change = Change.query
+        change_total, change = change.count(), change.order_by(Change.id.desc()).first()
+        change_total == 2
         assert change.employee_id == current_id
         assert change.action == 'added'
         assert change.table_name == 'screening'
@@ -245,7 +271,6 @@ def test_add_showtime_failure(client_users):
         db.session.commit()
 
     # Add showtime to a deleted movie
-    tomorrow =  datetime.now() + timedelta(days=1)
     data = dict( 
         m_id = 1, #deleted
         a_id = 1,
@@ -344,7 +369,6 @@ def test_add_showtime_failure_2(client_movie, hour, minute):
     
     login_employee(client_movie)
 
-    tomorrow =  datetime.now() + timedelta(days=1)
     data = dict( 
         m_id = 1,
         a_id = 1,
