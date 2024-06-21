@@ -45,7 +45,7 @@ This project is a web-based application called TheaterTainment, designed to emul
     EMPLOYEE_KEY = 'your_employee_key_here'
     ```
     
-    *Note: EMPLOYEE_KEY is needed to register employee users*
+    *Note: EMPLOYEE_KEY is needed to register employees*
     
 3. Navigate to the project directory:
     
