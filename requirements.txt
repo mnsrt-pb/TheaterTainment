@@ -6,6 +6,8 @@ PIP INSTALLS:
     flask-login
     flask-sqlalchemy
     phonenumbers
+    pytest
+    pytest-flask
     python-dotenv
     pytz
     requests
@@ -60,5 +62,8 @@ request.form.to_dict()
 
 --------------------------------------------
 
-ASDF123!!45
-HelloWorld#3
+form = RegistrationForm(data=data)
+form.validate()  
+print(form.errors)  
+assert form.validate()
+

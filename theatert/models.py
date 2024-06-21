@@ -1,12 +1,11 @@
 from datetime import datetime 
 from theatert import db, login_manager
 from flask_login import UserMixin
-from secrets import token_urlsafe
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.filter(User.id.is_(user_id)).first()
 
 
 # Users
@@ -54,7 +53,7 @@ class Member(User):
 
 
     def __repr__(self):
-        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.fname}, {self.lname})"
+        return f"User({self.id}, {self.role}, {self.username}, {self.email}, {self.fname}, {self.lname}, {self.dob})"
 
 
 class Change(db.Model):
@@ -100,7 +99,7 @@ class Movie(db.Model):
     watchlist = db.relationship('Watchlist', backref='movie', lazy=True) # Can be a part of many watchlists
     
     def __repr__(self):
-        return f"Movie({self.id}, {self.tmdb_id}, {self.title}, {self.status}, {self.overview}, {self.release_date}, {self.runtime}, {self.tagline}, {self.active}, {self.deleted}, {self.genres})"
+        return f"Movie({self.id}, {self.tmdb_id}, {self.title}, Active:{self.active}, Deleted:{self.deleted}, Poster:{self.poster_path}, Backdrop:{self.backdrop_path}, Trailer:{self.trailer_path}, {self.status}, {self.overview}, {self.release_date}, {self.runtime}, {self.tagline}, {self.genres})"
 
 
 class Genre(db.Model):

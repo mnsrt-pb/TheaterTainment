@@ -41,12 +41,11 @@ class BaseCheckoutForm(FlaskForm):
 
 
 class BasePaymentForm(FlaskForm):
-    def validate_card_type(self, type):
+    def validate_card_number(self, number):
         '''Ensure Select Movie was not selected.'''
-
-        if (type.data != 'Visa') and (type.data != 'American Express') and (type.data != 'Discover') and (type.data != 'Mastercard'):
-            flash('Invalid Entry.', 'danger')
-            raise ValidationError('Invalid Card Type.')
+        if (self.card_type.data != 'Visa') and (self.card_type.data != 'American Express') \
+        and (self.card_type.data != 'Discover') and (self.card_type.data != 'Mastercard'):
+            raise ValidationError('Cedit card must be Visa, Mastercard, American Express, or Discover')
         
     card_type = HiddenField(validators=[DataRequired()])
 
@@ -108,8 +107,11 @@ class EmailForm(FlaskForm):
     def validate_email(self, email):
         '''Ensure email does not exist'''
 
-        email = Member.query.filter_by(email=email.data).first()
-        if email:
+        email_exists = Member.query.filter_by(email=email.data).first()
+
+        if email.data == current_user.email:
+            raise ValidationError('You must use a different email.')
+        elif email_exists:
             raise ValidationError('An account with this email already exists.')
     
     def validate_password(self,password):
@@ -193,16 +195,18 @@ class RegistrationForm(FlaskForm):
 
     def validate_phone(self, phone):
         p = '+1'+ phone.data
-        if not phonenumbers.is_valid_number(phonenumbers.parse(p, None)):
-            raise ValidationError('Invalid Phone Number.') 
-
+        try:
+            if not phonenumbers.is_valid_number(phonenumbers.parse(p, None)):
+                raise ValidationError('Invalid Phone Number.') 
+        except:
+                raise ValidationError('Invalid Phone Number.') 
 
     fname = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
     lname = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=50)])
     email = EmailField('Email Address', validators=[DataRequired(), Email()])
     confirm_email = EmailField('Confirm Email Address', validators=[DataRequired(), Email(), EqualTo('email', message='Emails must match.')])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    confirmation = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
     phone = StringField('Phone', validators=[DataRequired(),
                                              Length(min=7, max=15, message='The value for the Phone Number field is invalid.')])
     zip_code = StringField('ZIP Code', validators=[DataRequired(),

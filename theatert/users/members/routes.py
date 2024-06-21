@@ -1,14 +1,13 @@
 from datetime import datetime
 from flask import abort, Blueprint, flash, render_template, redirect, request, session, url_for
-from flask_login import current_user
-from pytz import timezone
+from flask_login import current_user, logout_user
 from secrets import token_urlsafe
 from sqlalchemy import collate
 from theatert import db, bcrypt
 from theatert.users.members.forms import AccountInfoForm, DefaultPaymentForm, DeleteDefaultPayemnt, \
     EmailForm, MemberCheckoutForm, MemberCheckoutForm2, RegistrationForm, PasswordForm
 from theatert.models import Card, Cards, Member, Movie, Purchase, Purchased_Ticket, Screening, Seat, Ticket, Watchlist
-from theatert.users.utils import guest, login_required
+from theatert.users.utils import guest, login_required, clear_session
 from werkzeug.datastructures import MultiDict
 
 import calendar
@@ -16,13 +15,12 @@ import calendar
 
 members = Blueprint('members', __name__, url_prefix='/member')
 
-tz = timezone('US/Eastern')
 
-
-@members.route('/<int:m_id>/add_watchlist', methods=['GET'])
+@members.route('/<int:m_id>/add_watchlist')
 @login_required(role='MEMBER')
 def add_watchlist(m_id):
     ''' Add movie to member's watchlist '''
+    clear_session()
 
     movie = Movie.query.filter_by(id = m_id, deleted=False, active=True).first_or_404()
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
@@ -35,7 +33,7 @@ def add_watchlist(m_id):
         db.session.add(item)
         flash(f'<b><i>{movie.title}</i></b> added to Watch List', 'custom')
         db.session.commit()
-        
+    
     return redirect(request.referrer)
 
 
@@ -45,29 +43,30 @@ def checkout():
     ''' Checkout page'''
 
     form = MemberCheckoutForm()
+    form2 = MemberCheckoutForm2()
 
     form_data = session.get('form_data')
     form2_data = session.get('form2_data')
     form_data_login = session.get('form_data_login')
 
     if form2_data:
-        form = MemberCheckoutForm2(MultiDict(form2_data))
+        form2 = MemberCheckoutForm2(MultiDict(form2_data))
 
         screening = Screening.query \
-            .filter(Screening.id.is_(form.screening_id.data)) \
+            .filter(Screening.id.is_(form2.screening_id.data)) \
             .first_or_404()
         
         if screening.start_datetime < datetime.now():
             abort(404)
         
         seats = [ Seat.query.filter_by(auditorium_id = screening.auditorium.id, id = x).first()
-            for x in form.seats_selected.data.split(',') ]
+            for x in form2.seats_selected.data.split(',') ]
         
-        tickets = { 'adult': int(form.adult_tickets.data), 
-            'child': int(form.child_tickets.data), 
-            'senior': int(form.senior_tickets.data) }
+        tickets = { 'adult': int(form2.adult_tickets.data), 
+                    'child': int(form2.child_tickets.data), 
+                    'senior': int(form2.senior_tickets.data) }
         
-        form.validate()
+        form2.validate()
 
     elif form_data:
         form = MemberCheckoutForm(MultiDict(form_data))
@@ -82,8 +81,8 @@ def checkout():
             for x in form.seats_selected.data.split(',') ]
         
         tickets = { 'adult': int(form.adult_tickets.data), 
-            'child': int(form.child_tickets.data), 
-            'senior': int(form.senior_tickets.data) }
+                    'child': int(form.child_tickets.data), 
+                    'senior': int(form.senior_tickets.data) }
 
         form.validate()
 
@@ -107,6 +106,12 @@ def checkout():
         form.adult_tickets.data = form_data_login['adult_tickets']
         form.child_tickets.data = form_data_login['child_tickets']
         form.senior_tickets.data = form_data_login['senior_tickets']
+        
+        form2.screening_id.data = screening.id
+        form2.seats_selected.data = form_data_login['seats_selected']
+        form2.adult_tickets.data = form_data_login['adult_tickets']
+        form2.child_tickets.data = form_data_login['child_tickets']
+        form2.senior_tickets.data = form_data_login['senior_tickets']
 
     else:
         screening = Screening.query \
@@ -129,10 +134,16 @@ def checkout():
         form.child_tickets.data = request.form.get('child_tickets')
         form.senior_tickets.data = request.form.get('senior_tickets')
 
+        form2.screening_id.data = screening.id
+        form2.seats_selected.data = request.form.get('seats_selected')
+        form2.adult_tickets.data = request.form.get('adult_tickets')
+        form2.child_tickets.data = request.form.get('child_tickets')
+        form2.senior_tickets.data = request.form.get('senior_tickets')
+
     saved_data = Cards.query.filter_by(member_id=current_user.id, active=True).first()
     saved_card = Card.query.filter_by(id=saved_data.card_id).first() if saved_data else None
 
-    return render_template('member/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, saved_card=saved_card)
+    return render_template('member/checkout.html', screening=screening, seats=seats, tickets=tickets, form=form, form2=form2, saved_card=saved_card)
 
 
 @members.route('/checkout-validate', methods=['POST'])
@@ -143,11 +154,8 @@ def checkout_validate():
     form = MemberCheckoutForm()
     form2 = MemberCheckoutForm2()
 
-    form_data_login = session.get('form_data_login')
-    if form_data_login:
+    if session.get('form_data_login'):
             session.pop('form_data_login')
-
-
     if 'form1' in request.form:
         if form.validate_on_submit():
             screening = Screening.query \
@@ -157,8 +165,7 @@ def checkout_validate():
             if screening.start_datetime < datetime.now():
                 abort(404)
 
-            form_data = session.get('form_data') 
-            if form_data: 
+            if session.get('form_data') : 
                 # saved data form previously submitted form because current submission failed 
                 # (screening_id, adult_tickets, etc.)
                 session.pop('form_data')
@@ -204,10 +211,9 @@ def checkout_validate():
             if form.save.data:
                 cards = Cards.query.filter_by(card_id = card.id, member_id=current_user.id).first()
 
-                if cards:
+                if cards and cards.active:
                     if not cards.active:
                         cards.active = True
-
                 else:
                     cards = Cards(
                         card_id = card.id,
@@ -215,6 +221,24 @@ def checkout_validate():
                     )
                     db.session.add(cards)
 
+            seat_ids = list(form.seats_selected.data.split(","))
+            tickets, ticket_ids = '', []
+
+            for s in seat_ids:
+                ticket = Ticket.query \
+                    .filter( db.and_(Ticket.seat_id.is_(s),
+                                     Ticket.screening_id.is_(form.screening_id.data))).first()
+                
+                tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
+                purchased_ticket = Purchased_Ticket.query.filter_by(ticket_id = ticket.id).first()
+                
+                if purchased_ticket:
+                    flash(ticket.seat.row_name + str(ticket.seat.col) + ' is unavailable.', 'danger')
+                    return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data))
+                
+                ticket_ids.append(ticket.id)
+
+            db.session.commit() # commit card data
             purchase = Purchase(
                 email = current_user.email,
                 member_id = current_user.id,
@@ -225,33 +249,16 @@ def checkout_validate():
                 confirmation = token_urlsafe(12)
             )
             db.session.add(purchase)
-
-            seat_ids = list(form.seats_selected.data.split(","))
-            tickets = ''
-
-            for s in seat_ids:
-                ticket = Ticket.query \
-                    .filter(
-                        db.and_(Ticket.seat_id.is_(s),
-                                Ticket.screening_id.is_(form.screening_id.data))).first()
-                
-                tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
-                
-                purchased_ticket = Purchased_Ticket.query.filter_by(ticket_id = ticket.id).first()
-                
-                if purchased_ticket:
-                    flash(ticket.seat.row_name + str(ticket.seat.col) + ' is unavailable.', 'danger')
-                    return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data))
-                else:
-                    purchased_ticket = Purchased_Ticket(
-                        ticket_id = ticket.id,
-                        purchase_id = purchase.id
-                    )
-                    db.session.add(purchased_ticket)
-
-            # Everything's ok, commit changes
             db.session.commit()
 
+            for t in ticket_ids:
+                purchased_ticket = Purchased_Ticket(
+                    ticket_id = t,
+                    purchase_id = purchase.id
+                )
+                db.session.add(purchased_ticket)
+
+            db.session.commit()
             return redirect(url_for('users.receipt', confirmation=purchase.confirmation))
         
         else:
@@ -260,57 +267,56 @@ def checkout_validate():
     else: 
         if form2.validate_on_submit():
             screening = Screening.query \
-                .filter(Screening.id.is_(form.screening_id.data)) \
+                .filter(Screening.id.is_(form2.screening_id.data)) \
                 .first_or_404()
             
             if screening.start_datetime < datetime.now():
                 abort(404)
 
-            form2_data = session.get('form2_data') 
-            if form2_data: 
+            if session.get('form2_data'): 
                 # saved data form previously submitted form because current submission failed 
                 # (screening_id, adult_tickets, etc.)
                 session.pop('form2_data')
-                
-            saved_data = Cards.query.filter_by(member_id=current_user.id, active=True).first()
+
+            saved_data = Cards.query.filter_by(member_id=current_user.id, active=True).first_or_404()
             saved_card = Card.query.filter_by(id=saved_data.card_id).first() if saved_data else None
 
             if bcrypt.check_password_hash(saved_card.sec_code, form2.sec_code.data):
-                purchase = Purchase(
-                    email = current_user.email,
-                    member_id = current_user.id,
-                    adult_tickets = form.adult_tickets.data,
-                    child_tickets = form.child_tickets.data,
-                    senior_tickets = form.senior_tickets.data,
-                    card_id = saved_card.id,
-                    confirmation = token_urlsafe(12)
-                )
-                db.session.add(purchase)
-
                 seat_ids = list(form.seats_selected.data.split(","))
-                tickets = ''
+                tickets, ticket_ids = '', []
 
                 for s in seat_ids:
                     ticket = Ticket.query \
-                        .filter(
-                            db.and_(Ticket.seat_id.is_(s),
-                                    Ticket.screening_id.is_(form.screening_id.data))).first()
+                        .filter(db.and_(Ticket.seat_id.is_(s),
+                                        Ticket.screening_id.is_(form.screening_id.data))).first()
                     
                     tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
-                    
                     purchased_ticket = Purchased_Ticket.query.filter_by(ticket_id = ticket.id).first()
                     
                     if purchased_ticket:
                         flash(ticket.seat.row_name + str(ticket.seat.col) + ' is unavailable.', 'danger')
-                        return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data))
-                    else:
-                        purchased_ticket = Purchased_Ticket(
-                            ticket_id = ticket.id,
-                            purchase_id = purchase.id
-                        )
-                        db.session.add(purchased_ticket)
+                        return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data)) 
+                    ticket_ids.append(ticket.id)
 
-                # Everything's ok, commit changes
+                purchase = Purchase(
+                    email = current_user.email,
+                    member_id = current_user.id,
+                    adult_tickets = form2.adult_tickets.data,
+                    child_tickets = form2.child_tickets.data,
+                    senior_tickets = form2.senior_tickets.data,
+                    card_id = saved_card.id,
+                    confirmation = token_urlsafe(12)
+                )
+                db.session.add(purchase)
+                db.session.commit()
+
+                for t in ticket_ids:
+                    purchased_ticket = Purchased_Ticket(
+                        ticket_id = t,
+                        purchase_id = purchase.id
+                    )
+                    db.session.add(purchased_ticket)
+
                 db.session.commit()
                 return redirect(url_for('users.receipt', confirmation=purchase.confirmation))
 
@@ -328,17 +334,13 @@ def checkout_validate():
 @login_required(role='MEMBER')
 def profile():
     ''' Member's profile page '''
+    clear_session()
 
     info_form = AccountInfoForm()
     email_form = EmailForm()
     password_form = PasswordForm()
     payment_form = DefaultPaymentForm()
     delete_default = DeleteDefaultPayemnt()
-
-    form2_data = session.get('form2_data') 
-
-    if form2_data: 
-        session.pop('form2_data')
 
     if 'fname' in request.form:
         hidden1, hidden2, hidden3, hidden4, hidden5 = 'hidden', '', 'hidden', 'hidden', 'hidden'
@@ -363,7 +365,8 @@ def profile():
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -381,7 +384,8 @@ def profile():
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -394,13 +398,14 @@ def profile():
             hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
             flash('Your password has been updated!', 'custom')
             return redirect(url_for('members.profile'))
-
+        
     elif 'card_number' in request.form:
         hidden1, hidden2, hidden3, hidden4, hidden5 = 'hidden', 'hidden', 'hidden', 'hidden', ''
 
         info_form.fname.data = current_user.fname
         info_form.lname.data = current_user.lname
-        info_form.dob.data = current_user.dob.strftime('%m/%d')
+        if current_user.dob:
+            info_form.dob.data = current_user.dob.strftime('%m/%d')
         info_form.zip_code.data = current_user.zip_code
         info_form.phone.data = current_user.phone
 
@@ -422,6 +427,7 @@ def profile():
                         sec_code = bcrypt.generate_password_hash(payment_form.sec_code.data).decode('utf-8')
                     )
                 db.session.add(card)
+                db.session.commit()
                 
             else:
                 if card_member: 
@@ -452,6 +458,7 @@ def profile():
                             sec_code = bcrypt.generate_password_hash(payment_form.sec_code.data).decode('utf-8')
                         )
                         db.session.add(card)
+                        db.session.commit()
 
             cards = Cards.query.filter_by(card_id = card.id, member_id=current_user.id).first()
 
@@ -467,16 +474,16 @@ def profile():
                 db.session.add(cards)
             db.session.commit()
 
-            flash('Default Payment Saved!', 'custom')
+            flash('Default payment saved!', 'custom')
             return redirect(url_for('members.profile'))
 
     elif 'delete' in request.form:
         hidden1, hidden2, hidden3, hidden4, hidden5 = '', 'hidden', 'hidden', 'hidden', 'hidden'
-        saved_data = Cards.query.filter_by(member_id=current_user.id, active=True).first()
+        saved_data = Cards.query.filter_by(member_id=current_user.id, active=True).first_or_404()
         saved_data.active = False
         db.session.commit()
 
-        flash('Saved Card Removed!', 'custom')
+        flash('Default payment removed!', 'custom')
         return redirect(url_for('members.profile'))
 
     else:
@@ -499,10 +506,11 @@ def profile():
                            hidden1=hidden1, hidden2=hidden2, hidden3=hidden3, hidden4=hidden4, hidden5=hidden5, saved_card=saved_card)
 
 
-@members.route('/purchases', methods=['GET'])
+@members.route('/purchases')
 @login_required(role='MEMBER')
 def purchases():
     ''' Display member's purchases '''
+    clear_session()
 
     ps = Purchase.query.filter_by(member_id = current_user.id)
 
@@ -536,7 +544,6 @@ def purchases():
             purchases['upcoming']['screenings'].append(s)
             purchases['upcoming']['totals'].append(t.count())
     
-    print(token_urlsafe(12))
     return render_template('/member/purchases.html', purchases=purchases)
 
 
@@ -544,8 +551,10 @@ def purchases():
 @guest()
 def register():
     ''' Register associate '''
+    clear_session()
 
     form = RegistrationForm()
+    
     if form.validate_on_submit():
         # Insert a new user to database
         user = Member(
@@ -562,21 +571,23 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'custom')
+        logout_user()
         return redirect(url_for('users.member_login'))
     else:
         return render_template('member/register.html', form=form)
 
 
-@members.route('/<int:m_id>/remove_watchlist', methods=['GET'])
+@members.route('/<int:m_id>/remove_watchlist')
 @login_required(role='MEMBER')
 def remove_watchlist(m_id):
     ''' Remove movie from member's watchlist '''
+    clear_session()
 
     movie = Movie.query.filter_by(id = m_id, deleted=False).first_or_404()
     added = Watchlist.query.filter_by(member_id = current_user.id, movie_id = m_id).first()
     
     if added:
-        remove = Watchlist.query.get(added.id)
+        remove = Watchlist.query.filter_by(id = added.id).first()
         db.session.delete(remove)
         db.session.commit()
         url = url_for('members.add_watchlist', m_id=movie.id)
@@ -585,10 +596,11 @@ def remove_watchlist(m_id):
     return redirect(request.referrer)
 
 
-@members.route('/watchlist', methods=['GET'])
+@members.route('/watchlist')
 @login_required(role='MEMBER')
 def watchlist():
     '''Member's Watchlist'''
+    clear_session()
     
     watchlist = Watchlist.query.join(Movie).filter(Watchlist.member_id.is_(current_user.id))
     

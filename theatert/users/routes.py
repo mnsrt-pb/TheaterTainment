@@ -1,23 +1,21 @@
 from datetime import datetime, timedelta
 from flask import abort, Blueprint, flash, render_template,  redirect, request, session, url_for
 from flask_login import current_user, login_user, logout_user
-from pytz import timezone, utc
+from pytz import utc
 from secrets import token_urlsafe
 from sqlalchemy import extract, collate
-from theatert import bcrypt, db
+from theatert import bcrypt, db, tz
 from theatert.models import Employee, Member, Movie, Screening, Seat, Ticket, Card, Purchase, Purchased_Ticket, Watchlist
 from theatert.users.members.forms import CheckoutForm
 from theatert.users.employees.forms import LoginForm as EmployeeLoginForm
 from theatert.users.members.forms import LoginForm as MemberLoginForm, MemberCheckoutForm
-from theatert.users.utils import apology, date_obj, guest_or_member, populate_db
+from theatert.users.utils import apology, date_obj, guest, guest_or_member, populate_db, clear_session
 from werkzeug.datastructures import MultiDict
 
 import calendar
 
 
 users = Blueprint('users', __name__)
-
-tz = timezone('US/Eastern')
 
 
 @users.route('/checkout', methods=['GET', 'POST'])
@@ -85,7 +83,7 @@ def checkout():
 @users.route('/checkout-validate', methods=['POST'])
 @guest_or_member()
 def checkout_validate():
-    '''  Validate checkout data  '''
+    '''  Validate checkout data '''
 
     form = CheckoutForm()
 
@@ -140,8 +138,24 @@ def checkout_validate():
                 member = False
             )
             db.session.add(card)
-            db.session.commit()
 
+        seat_ids = list(form.seats_selected.data.split(","))
+        tickets, ticket_ids = '', []
+
+        for s in seat_ids:
+            ticket = Ticket.query \
+                .filter( db.and_(Ticket.seat_id.is_(s),
+                                 Ticket.screening_id.is_(form.screening_id.data))).first()
+            
+            tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
+            purchased_ticket = Purchased_Ticket.query.filter_by(ticket_id = ticket.id).first()
+            
+            if purchased_ticket:
+                flash(ticket.seat.row_name + str(ticket.seat.col) + ' is unavailable.', 'danger')
+                return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data)) 
+            ticket_ids.append(ticket.id)
+
+        db.session.commit() # commit card data
         purchase = Purchase(
             email = form.email.data,
             adult_tickets = form.adult_tickets.data,
@@ -150,32 +164,16 @@ def checkout_validate():
             card_id = card.id,
             confirmation = token_urlsafe(12)
         )
-        db.session.add(purchase)
+        db.session.add(purchase) 
+        db.session.commit()
 
-        seat_ids = list(form.seats_selected.data.split(","))
-        tickets = ''
+        for t in ticket_ids:
+            purchased_ticket = Purchased_Ticket(
+                ticket_id = t,
+                purchase_id = purchase.id
+            )
+            db.session.add(purchased_ticket)
 
-        for s in seat_ids:
-            ticket = Ticket.query \
-                .filter(
-                    db.and_(Ticket.seat_id.is_(s),
-                            Ticket.screening_id.is_(form.screening_id.data))).first()
-            
-            tickets += ticket.seat.row_name + str(ticket.seat.col) + ' '
-            
-            purchased_ticket = Purchased_Ticket.query.filter_by(ticket_id = ticket.id).first()
-            
-            if purchased_ticket:
-                flash(ticket.seat.row_name + str(ticket.seat.col) + ' is unavailable.', 'danger')
-                return redirect(url_for('users.ticket_seat_map', showtime_id = form.screening_id.data))
-            else:
-                purchased_ticket = Purchased_Ticket(
-                    ticket_id = ticket.id,
-                    purchase_id = purchase.id
-                )
-                db.session.add(purchased_ticket)
-
-        # Everything's ok, commit changes
         db.session.commit()
         return redirect(url_for('users.receipt', confirmation=purchase.confirmation))
     else:
@@ -184,14 +182,10 @@ def checkout_validate():
 
 
 @users.route('/employee/login', methods=['GET', 'POST'])
+@guest()
 def employee_login():
     ''' Login employee '''
-
-    if current_user.is_authenticated:
-        if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.home'))
-        else:
-            return redirect(url_for('users.home'))
+    clear_session()
 
     form = EmployeeLoginForm()
     if form.validate_on_submit():
@@ -210,14 +204,10 @@ def employee_login():
 
 
 @users.route('/member/login', methods=['GET', 'POST'])
+@guest()
 def member_login():
     ''' Login member '''
-
-    if current_user.is_authenticated:
-        if current_user.role == 'EMPLOYEE':
-            return redirect(url_for('employees.home'))
-        else:
-            return redirect(url_for('users.home'))
+    clear_session()
 
     form = MemberLoginForm()
     if form.validate_on_submit():
@@ -239,6 +229,7 @@ def member_login():
 @guest_or_member()
 def home():
     ''' Home page '''
+    clear_session()
 
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 41
@@ -281,8 +272,8 @@ def movie(movie_route):
     ''' 
         Display movie details along with a poster, backdrop, and trailer.
         Display upcoming showtimes.
-     
     '''
+    clear_session()
 
     date = request.args.get('date', default=datetime.today(), type=date_obj)
     max_days = 12
@@ -306,9 +297,11 @@ def movie(movie_route):
 
 
 @users.route('/movies')
+@users.route('/movies/now-playing')
 @guest_or_member()
 def movies():
     ''' Display all movies '''
+    clear_session()
 
     movies = Movie.query.filter(
                 db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
@@ -324,6 +317,7 @@ def movies():
 @guest_or_member()
 def movies_coming_soon():
     ''' Display movies that are coming soon '''
+    clear_session()
 
     movies = Movie.query.filter(db.and_(Movie.deleted.is_(False), Movie.active.is_(True), \
                 db.ColumnOperators.__ge__(Movie.release_date, datetime.now(tz))))\
@@ -337,8 +331,8 @@ def movies_coming_soon():
 @users.route('/logout')
 def logout():
     '''Log user out'''
-
     logout_user()
+    clear_session()
 
     # Redirect user to login form 
     return redirect(url_for('users.home'))
@@ -348,6 +342,7 @@ def logout():
 @guest_or_member()
 def receipt(confirmation):
     ''' Display receipt with purchase, showtime, and transaction info. '''
+    clear_session()
 
     tickets = Purchased_Ticket.query.join(Purchase) \
         .filter(Purchase.confirmation.is_(confirmation))
@@ -373,7 +368,8 @@ def ticket_seat_map(showtime_id):
             Cannot purchase a ticket for a movie that's already playing or has played
             Links to these showtimes become unavailable if the movie has played or is currently playing
     '''
-
+    clear_session()
+    
     form_data = session.get('form_data')
     form2_data = session.get('form2_data')
     form_data_login = session.get('form_data_login')

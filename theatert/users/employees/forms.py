@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from theatert import employee_key
 from theatert.models import Employee
 from wtforms import BooleanField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length, ValidationError
@@ -17,7 +18,7 @@ class RegistrationForm(FlaskForm):
 
 
     def validate_key(self, key):
-        if key.data != 'HelloWorld#3': 
+        if key.data != employee_key: 
             raise ValidationError('Invalid Employee Key.')
         
 
@@ -40,7 +41,7 @@ class RegistrationForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    confirmation = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
     key = PasswordField('Employee Key', validators=[DataRequired()])
     submit = SubmitField('Register')
 

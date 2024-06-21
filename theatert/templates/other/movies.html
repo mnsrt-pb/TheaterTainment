@@ -49,7 +49,7 @@
                             </div>
                             <div class="modal-body">
                                 <p class="left-align text-body-secondary">Only movies with a release date, poster, backdrop, and trailer can be activated.</p>
-                                <form action="" method="POST" id="activate" class="needs-validation" novalidate>
+                                <form action="{{ url_for('employees.movies.inactive' )}}" method="POST" id="activate" class="needs-validation" novalidate>
                                     {{ activate_form.hidden_tag() }}
                                     <div class="form-floating">
                                         {{ activate_form.m_id(class="form-select") }}
@@ -79,7 +79,7 @@
                             </div>
                             <div class="modal-body">
                                 <p class="left-align text-body-secondary">Only movies with no upcoming showtimes can be inactivated.</p>
-                                <form action="" method="POST" id="inactivate" class="needs-validation" novalidate>
+                                <form action="{{ url_for('employees.movies.active' )}}" method="POST" id="inactivate" class="needs-validation" novalidate>
                                     {{ inactivate_form.hidden_tag() }}
                                     <div class="form-floating">
                                         {{ inactivate_form.m_id(class="form-select") }}
@@ -174,9 +174,6 @@
                     {% endif %}
             {% endfor %}
         </div>
-
-    </div>
     {% endif %}
-
+</div>
 {% endblock %}
-

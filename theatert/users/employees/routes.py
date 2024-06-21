@@ -1,15 +1,20 @@
 from flask import Blueprint, flash, render_template,  redirect, request, url_for
-from flask_login import current_user
-from pytz import timezone, utc
-from theatert import db, bcrypt
+from flask_login import current_user, logout_user
+from pytz import utc
+from theatert import db, bcrypt, tz
 from theatert.users.employees.forms import RegistrationForm
+from theatert.users.employees.movies.routes import movies
+from theatert.users.employees.showtimes.routes import showtimes
 from theatert.models import Auditorium, Change, Employee, Movie, Purchase, Purchased_Ticket, Seat, Screening, Ticket
 from theatert.users.utils import  guest, login_required
 
 
 employees = Blueprint('employees', __name__, url_prefix='/employee')
 
-tz = timezone('US/Eastern')
+#  Register nested blueprints
+employees.register_blueprint(movies, url_prefix='/movies')
+employees.register_blueprint(showtimes, url_prefix='/showtimes')
+
 
 @employees.route('/auditoriums')
 @login_required(role='EMPLOYEE')
@@ -40,7 +45,7 @@ def home():
         Show all changes employees have made. 
         They have the option to filter these changes: All, Movies, and Showtimes.
     '''
-
+    
     page = request.args.get('page', 1, type=int)
     type = request.args.get('type', 1, type=int)
 
@@ -124,12 +129,13 @@ def register():
         db.session.commit()
 
         flash('Your account has been created! You are now able to log in.', 'custom')
+        logout_user()
         return redirect(url_for('users.employee_login'))
     else:
         return render_template('employee/register.html', form=form)
 
 
-@employees.route('/tickets/<int:s_id>', methods=['GET', 'POST'])
+@employees.route('/tickets/<int:s_id>')
 @login_required(role='EMPLOYEE')
 def tickets(s_id):
     '''

@@ -4,25 +4,42 @@ from flask_qrcode import QRcode
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from theatert.config import Config
+from pytz import timezone
+
+import os
 
 
 load_dotenv()
+
 
 # Create extensions
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 
+
+# Get employee key
+base_dir = os.path.abspath(os.path.dirname(__file__))
+employee_key = os.environ.get('EMPLOYEE_KEY')
+
+
 # login_manager.login_view = 'users.member_login'
 login_manager.blueprint_login_views = {
     'members': 'users.member_login',
     'employees': 'users.employee_login',
 }
-login_manager.login_message_category = "danger"
+login_manager.login_message_category = "custom"
 
 
-def create_app(config_class=Config):
+# Global Vars
+min_price = 5 # max price for tickets
+max_price = 25 # min price for tickets
+start_time = 10 # earliest screening time
+end_time = 22 # latest screening time
+tz = timezone('US/Eastern')
+
+
+def create_app(Config):
     # Configure application
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -34,15 +51,12 @@ def create_app(config_class=Config):
     QRcode(app)
 
     # Blueprints
-    from theatert.users.employees.movies.routes import movies
-    from theatert.users.employees.showtimes.routes import showtimes
     from theatert.users.employees.routes import employees
     from theatert.users.members.routes import members
     from theatert.users.routes import users
     from theatert.errors.handlers import errors
 
-    employees.register_blueprint(movies)
-    employees.register_blueprint(showtimes)
+
     app.register_blueprint(employees)
     app.register_blueprint(members)
     app.register_blueprint(users)
