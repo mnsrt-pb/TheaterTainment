@@ -11,15 +11,10 @@ from theatert.config_test import visa, movie_a, movie_b, tomorrow
 import copy
 import calendar
 import pytest
-import os
-
-
-if os.environ.get('SKIP_TEST_MEMBER', 'false').lower() == 'true':
-    pytestmark = pytest.mark.skip("Skipping tests in test_register_login.py")
 
 
 ''' MOVIES '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_home(client_movies):
     ''' Movies and their showtimes are displayed'''
     showtime_tomorrow(client_movies) # added one showtime so showtime id is 1
@@ -49,7 +44,7 @@ def test_home(client_movies):
     assert b'/ticket-seat-map/1' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movie(client_movies):
     ''' Movie info page is displayed '''
     showtime_tomorrow(client_movies) 
@@ -75,7 +70,7 @@ def test_display_movie(client_movies):
     assert b'/ticket-seat-map/1' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movies(client_movies):
     ''' Now playing and coming soon are correctly displayed '''
     login_member(client_movies)
@@ -114,7 +109,7 @@ def test_display_movies(client_movies):
 
 
 ''' PROFILE '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_profile_display(client_users):
     ''' Profile info is correctly displayed. Without DOB or CC. '''
     login_member(client_users)
@@ -128,7 +123,7 @@ def test_profile_display(client_users):
     assert b'Date of Birth:' not in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_edit_personal_info(client_users):
     ''' Test changes in personal information '''
     # NOTE: Phone number was taken from import phonenumbers' documentation
@@ -156,7 +151,7 @@ def test_edit_personal_info(client_users):
     assert b'Date of Birth: 12/25' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_change_email(client_users):
     ''' Test change email '''
     login_member(client_users)
@@ -176,7 +171,7 @@ def test_change_email(client_users):
         assert member.email == 'different@email.com'
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_change_email_failure(client_users):
     ''' Test change email with invalid data '''
     login_member(client_users)
@@ -215,7 +210,7 @@ def test_change_email_failure(client_users):
     assert b'An account with this email already exists.' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_change_password(client_users):
     ''' Test change password '''
     login_member(client_users)
@@ -235,7 +230,7 @@ def test_change_password(client_users):
         assert bcrypt.check_password_hash(member.password, data['new_password'])
         
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_change_password_failure(client_users):
     ''' Test change password with incorrect data '''
     login_member(client_users)
@@ -256,7 +251,7 @@ def test_change_password_failure(client_users):
         assert member.password == current_password # same hash
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_add_default_payment(client_users):
     ''' Test add credit card '''
     # NOTE: card number was taken from Paypal's card testing data 
@@ -307,7 +302,7 @@ def test_add_default_payment(client_users):
         assert cards
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 @pytest.mark.parametrize('exp_month, exp_year, zip_code, sec_code', 
                          [(visa['exp_month'] + 1, visa['exp_year'], visa['zip_code'], visa['sec_code']), 
                           (visa['exp_month'], visa['exp_year'] + 1, visa['zip_code'], visa['sec_code']),
@@ -376,7 +371,7 @@ def test_add_default_payment_failure(client_users, exp_month, exp_year, zip_code
         assert Cards.query.count() == 0
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_delete_default_payment(client_users):
     ''' Test delete default payment method '''
     login_member(client_users)
@@ -412,7 +407,7 @@ def test_delete_default_payment(client_users):
 
 
 ''' WATCHLIST '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_watchlist_empty(client_movie):
     ''' Test watchlist display '''
     login_member(client_movie)
@@ -422,10 +417,11 @@ def test_watchlist_empty(client_movie):
     assert b'Don\'t miss that movie you want to see. Tap the' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_add_watchlist(client_movies):
     ''' Test watchlist display '''
     login_member(client_movies)
+    
     current_id = current_user.id
     m_id = 1
 
@@ -437,7 +433,7 @@ def test_add_watchlist(client_movies):
         assert watchlist.movie_id == m_id
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_remove_watchlist(client_movies):
     ''' Test watchlist display '''
     login_member(client_movies)
@@ -459,7 +455,7 @@ def test_remove_watchlist(client_movies):
 
 
 ''' PURCHASES (NO PURCHASE) '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_watchlist_empty(client_users):
     ''' Test purchases page'''
     login_member(client_users)

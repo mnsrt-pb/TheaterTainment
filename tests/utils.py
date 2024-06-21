@@ -31,4 +31,3 @@ def showtime_tomorrow(user):
     
     return response, current_id
 
-

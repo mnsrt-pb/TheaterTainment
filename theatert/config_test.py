@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
 
-yesterday =  datetime.now() - timedelta(days=1)
-tomorrow = datetime.now() + timedelta(days=1)
-day_after_tomorrow = datetime.now() + timedelta(days=2)
+yesterday =  (datetime.now() - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+tomorrow = (datetime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+day_after_tomorrow = (datetime.now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+
 
 movie_a = dict(
     tmdb_id = 128,

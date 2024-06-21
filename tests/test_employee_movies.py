@@ -5,21 +5,14 @@ from flask import url_for
 from flask_login import current_user
 from tests.utils import login_employee
 from theatert import db
-from theatert.models import Movie, Change, Genre, genres
-from theatert.config_test import movie_a
-
-
+from theatert.models import Movie, Change, Genre, genres, Screening
+from theatert.config_test import movie_a, showtime_data, tomorrow, yesterday
 
 import pytest
-import os
 
 
-if os.environ.get('SKIP_TEST_EMPLOYEE_MOVIES', 'false').lower() == 'true':
-    pytestmark = pytest.mark.skip("Skipping tests in test_employee_movies.py")
-
-
-''' SEARCH, ADD, DELETE AND FETCH MOVIE '''
-@pytest.mark.skip
+''' SEARCH, ADD, AND FETCH MOVIE '''
+#@pytest.mark.skip
 def test_search_movie(client_users):
     ''' Test search movie successfully'''
     login_employee(client_users)
@@ -44,7 +37,7 @@ def test_search_movie(client_users):
     assert b'Add Movie' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_add_movie(client_users):
     ''' Test add movie successfully'''
     login_employee(client_users)
@@ -82,7 +75,7 @@ def test_add_movie(client_users):
     assert f"{movie_a['title']}</td>".encode('utf-8') in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_fetch_movie(client_movie):
     ''' Test adding a movie that already exists. 
     This should fetch new data and update movie. '''
@@ -128,55 +121,7 @@ def test_fetch_movie(client_movie):
     assert f"{movie_a['title']}</td>".encode('utf-8') in response.data
 
 
-@pytest.mark.skip
-def test_delete_movie(client_movie):
-    ''' Test delete movie successfully. Deleted Movie should not be displayed in inactive and active. (All-movies and coming-soon tested elsewhere.)'''
-    login_employee(client_movie)
-    current_id =  current_user.id
-
-    # Test delete movie feature
-    response = client_movie.post(url_for('employees.movies.delete_movie', 
-                                        movie_id = 1, 
-                                        follow_redirects=True))
-    assert response.status_code == 302
-    assert '/employee/movies/all-movies' in response.headers['Location']
-    
-    with client_movie.application.app_context():
-        movie = Movie.query.first()
-        assert movie.id == 1
-        assert movie.tmdb_id == movie_a['tmdb_id']
-        assert movie.deleted
-
-        change = Change.query
-        change_total, change = change.count(), change.first()
-        change_total == 1
-        assert change.employee_id == current_id
-        assert change.action == 'deleted'
-        assert change.table_name == 'movie'
-        assert change.data_id == movie.id
-
-    # Test employee's change displayed in home page
-    response = client_movie.get(url_for('employees.home'))
-    assert response.status_code == 200
-    assert b'Movie</td>' in response.data
-    assert b'deleted</td>' in response.data
-    assert f"{movie_a['title']}</td>".encode('utf-8') in response.data
-
-    # Should not display deleted movie in active-movies and inactive-movies pages
-    route = movie_a['route']
-    response = client_movie.get(url_for('employees.movies.active'))
-    assert response.status_code == 200
-    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
-    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # inactivate movie select option
-
-    response = client_movie.get(url_for('employees.movies.inactive'))
-    assert response.status_code == 200
-
-    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
-    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # activate movie select option
-
-
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_add_deleted_movie(client_users):
     ''' Test adding a movie that was deleted. 
     This should also fetch new data and update movie. '''
@@ -223,7 +168,7 @@ def test_add_deleted_movie(client_users):
         assert genres != 0
 
 
-@pytest.mark.skip   
+#@pytest.mark.skip   
 def test_search_add_movie_failure(client_users):
     ''' Test searching/adding movie with invalid data '''
     login_employee(client_users)
@@ -260,7 +205,58 @@ def test_search_add_movie_failure(client_users):
     assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data
 
 
-@pytest.mark.skip 
+
+
+
+''' DELETE MOVIE '''
+#@pytest.mark.skip
+def test_delete_movie(client_movie):
+    ''' Test delete movie successfully. Deleted Movie should not be displayed in inactive and active. (All-movies and coming-soon tested elsewhere.)'''
+    login_employee(client_movie)
+    current_id =  current_user.id
+
+    # Test delete movie feature
+    response = client_movie.post(url_for('employees.movies.delete_movie', 
+                                        movie_id = 1),
+                                        follow_redirects=True)
+    assert response.status_code == 200
+    
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        assert movie.id == 1
+        assert movie.tmdb_id == movie_a['tmdb_id']
+        assert movie.deleted
+
+        change = Change.query
+        change_total, change = change.count(), change.first()
+        change_total == 1
+        assert change.employee_id == current_id
+        assert change.action == 'deleted'
+        assert change.table_name == 'movie'
+        assert change.data_id == movie.id
+
+    # Test employee's change displayed in home page
+    response = client_movie.get(url_for('employees.home'))
+    assert response.status_code == 200
+    assert b'Movie</td>' in response.data
+    assert b'deleted</td>' in response.data
+    assert f"{movie_a['title']}</td>".encode('utf-8') in response.data
+
+    # Should not display deleted movie in active-movies and inactive-movies pages
+    route = movie_a['route']
+    response = client_movie.get(url_for('employees.movies.active'))
+    assert response.status_code == 200
+    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
+    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # inactivate movie select option
+
+    response = client_movie.get(url_for('employees.movies.inactive'))
+    assert response.status_code == 200
+
+    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
+    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # activate movie select option
+
+
+#@pytest.mark.skip 
 def test_delete_movie_failure(client_users):
     ''' Test delete movie given invalid data '''   
     login_employee(client_users)
@@ -270,18 +266,106 @@ def test_delete_movie_failure(client_users):
     assert response.status_code == 404
 
     
-# TODO: Test deleting a movie that can't be deleted (has showtimes)
-@pytest.mark.skip
-def test_delete_movie_showtimes_failure(client_users):
-    ''' Test delete movie with showtimes '''
-    login_employee(client_users)
-    pass
+#@pytest.mark.skip
+def test_delete_movie_with_showtime(client_movie):
+    ''' Test deleting a movie with past showtimes '''
+    login_employee(client_movie)
+    current_id =  current_user.id
+
+    # Test delete movie feature
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        movie.active = True
+
+        # Upcoming showtime
+        start_dt = yesterday.replace(hour=10, minute=0, second=0, microsecond=0)
+        end_dt = start_dt + timedelta(minutes=(movie.runtime)+20)
+        screening = Screening(
+                    start_datetime = start_dt,
+                    end_datetime = end_dt,
+                    adult_price = showtime_data['adult_price'],
+                    child_price = showtime_data['child_price'],
+                    senior_price = showtime_data['senior_price'],
+                    auditorium_id = showtime_data['a_id'],
+                    movie_id = showtime_data['m_id']
+                )  
+        db.session.add(screening)
+        db.session.commit()
+
+    response = client_movie.post(url_for('employees.movies.delete_movie', 
+                                        movie_id = 1), 
+                                        follow_redirects=True)
+    assert response.status_code == 200
+    
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        assert movie.id == 1
+        assert movie.tmdb_id == movie_a['tmdb_id']
+        assert movie.deleted
+
+        change = Change.query
+        change_total, change = change.count(), change.first()
+        change_total == 1
+        assert change.employee_id == current_id
+        assert change.action == 'deleted'
+        assert change.table_name == 'movie'
+        assert change.data_id == movie.id
+
+    # Test employee's change displayed in home page
+    response = client_movie.get(url_for('employees.home'))
+    assert response.status_code == 200
+    assert b'Movie</td>' in response.data
+    assert b'deleted</td>' in response.data
+    assert f"{movie_a['title']}</td>".encode('utf-8') in response.data
+
+    # Should not display deleted movie in active-movies and inactive-movies pages
+    route = movie_a['route']
+    response = client_movie.get(url_for('employees.movies.active'))
+    assert response.status_code == 200
+    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
+    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # inactivate movie select option
+
+    response = client_movie.get(url_for('employees.movies.inactive'))
+    assert response.status_code == 200
+
+    assert f'href="/employee/movies/{route}"'.encode('utf-8') not in response.data # movie card
+    assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # activate movie select option
+
+    
+#@pytest.mark.skip
+def test_delete_movie_with_showtime_failure(client_movie):
+    ''' Test deleting a movie that can't be deleted (has UPCOMING showtimes) '''
+    login_employee(client_movie)
+
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        movie.active = True
+
+        # Upcoming showtime
+        start_dt = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
+        end_dt = start_dt + timedelta(minutes=(movie.runtime)+20)
+        screening = Screening(
+                    start_datetime = start_dt,
+                    end_datetime = end_dt,
+                    adult_price = showtime_data['adult_price'],
+                    child_price = showtime_data['child_price'],
+                    senior_price = showtime_data['senior_price'],
+                    auditorium_id = showtime_data['a_id'],
+                    movie_id = showtime_data['m_id']
+                )  
+        db.session.add(screening)
+        db.session.commit()
+
+    response = client_movie.post(url_for('employees.movies.delete_movie', movie_id = 1), 
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'cannot be deleted! It has upcoming showtimes.' in response.data
 
 
 
 
 ''' ACTIVATE AND INACTIVATE MOVIE'''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_active(client_movie):
     ''' Display active movie. Coming-soon tested elsewhere. '''
     login_employee(client_movie)
@@ -312,7 +396,7 @@ def test_display_active(client_movie):
     assert f'href="/employee/movies/{route}"'.encode('utf-8') in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_inactive(client_movie):
     ''' Display inactive movie. Coming-soon tested elsewhere. '''
     login_employee(client_movie)
@@ -348,7 +432,7 @@ def test_display_inactive(client_movie):
     assert f'href="/employee/movies/{route}"'.encode('utf-8') in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 @pytest.mark.parametrize('poster_path_param, backdrop_path_param, trailer_path_param, release_date_param, runtime_param', 
     [(None, movie_a['backdrop_path'], movie_a['trailer_path'], movie_a['release_date'], movie_a['runtime']),
      ('', movie_a['backdrop_path'], movie_a['trailer_path'], movie_a['release_date'], movie_a['runtime']), 
@@ -388,7 +472,7 @@ def test_display_inactive_2(client_users, poster_path_param, backdrop_path_param
     assert f"{movie_a['title']}</option>".encode('utf-8') not in response.data # activate movie select option
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_activate_movie(client_movie):
     ''' Test activate movie sucessfully '''
     login_employee(client_movie)
@@ -419,7 +503,7 @@ def test_activate_movie(client_movie):
         assert change.data_id == movie.id
     
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_inactivate_movie(client_movie):
     ''' Test inactivate movie sucessfully '''
     login_employee(client_movie)
@@ -447,22 +531,9 @@ def test_inactivate_movie(client_movie):
         assert change.data_id == movie.id
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_activate_movie_failure(client_users):
     ''' Test activate movie with invalid data. (Movie is not listed in inactivated movies to activate) '''
-    login_employee(client_users)
-
-    response = client_users.post(url_for('employees.movies.active'),
-                                    data={'m_id': 1}, 
-                                    follow_redirects=True)
-    # Nothing happens
-    assert response.status_code == 200
-    assert response.request.path == '/employee/movies/active' 
-
-    
-@pytest.mark.skip
-def test_inactivate_movie_failure(client_users):
-    ''' Test inactivate movie with invalid data. (Movie is not listed in activated movies to inactivate) '''
     login_employee(client_users)
 
     response = client_users.post(url_for('employees.movies.inactive'),
@@ -470,13 +541,100 @@ def test_inactivate_movie_failure(client_users):
                                     follow_redirects=True)
     # Nothing happens
     assert response.status_code == 200
+    assert response.request.path == '/employee/movies/inactive' 
+
+    
+#@pytest.mark.skip
+def test_inactivate_movie_failure(client_users):
+    ''' Test inactivate movie with invalid data. (Movie is not listed in activated movies to inactivate) '''
+    login_employee(client_users)
+
+    response = client_users.post(url_for('employees.movies.active'),
+                                    data={'m_id': 1}, 
+                                    follow_redirects=True)
+    # Nothing happens
+    assert response.status_code == 200
+    assert response.request.path == '/employee/movies/active'
+
+
+#@pytest.mark.skip
+def test_inactivate_movie_with_showtime(client_movie):
+    ''' Test deleting a movie that can't be deleted (has UPCOMING showtimes) '''
+    login_employee(client_movie)
+    current_id =  current_user.id
+
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        movie.active = True
+
+        # Upcoming showtime
+        start_dt = yesterday.replace(hour=10, minute=0, second=0, microsecond=0)
+        end_dt = start_dt + timedelta(minutes=(movie.runtime)+20)
+        screening = Screening(
+                    start_datetime = start_dt,
+                    end_datetime = end_dt,
+                    adult_price = showtime_data['adult_price'],
+                    child_price = showtime_data['child_price'],
+                    senior_price = showtime_data['senior_price'],
+                    auditorium_id = showtime_data['a_id'],
+                    movie_id = showtime_data['m_id']
+                )  
+        db.session.add(screening)
+        db.session.commit()
+
+    response = client_movie.post(url_for('employees.movies.active'),
+                                    data={'m_id':'1'}, 
+                                    follow_redirects=True)
+    assert response.status_code == 200
     assert response.request.path == '/employee/movies/inactive'
+    
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        assert not movie.active
+    
+        change = Change.query.first()
+        assert change.employee_id == current_id
+        assert change.action == 'inactivated'
+        assert change.table_name == 'movie'
+        assert change.data_id == movie.id
+
+
+#@pytest.mark.skip
+def test_inactivate_movie_with_showtime_failure(client_movie):
+    ''' Test deleting a movie that can't be deleted (has UPCOMING showtimes) '''
+    login_employee(client_movie)
+
+    with client_movie.application.app_context():
+        movie = Movie.query.first()
+        movie.active = True
+
+        # Upcoming showtime
+        start_dt = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
+        end_dt = start_dt + timedelta(minutes=(movie.runtime)+20)
+        screening = Screening(
+                    start_datetime = start_dt,
+                    end_datetime = end_dt,
+                    adult_price = showtime_data['adult_price'],
+                    child_price = showtime_data['child_price'],
+                    senior_price = showtime_data['senior_price'],
+                    auditorium_id = showtime_data['a_id'],
+                    movie_id = showtime_data['m_id']
+                )  
+        db.session.add(screening)
+        db.session.commit()
+
+    response = client_movie.post(url_for('employees.movies.active'), 
+                                    data={'m_id': 1}, 
+                                    follow_redirects=True)
+    # Nothing happens
+    assert response.status_code == 200
+    assert response.request.path == '/employee/movies/active'
 
 
 
 
 ''' DISPLAY MOVIES AND MOVIE INFO PAGE'''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movies(client_users):
     '''  Movies are correctly displayed in all-movies and coming-soon '''
     login_employee(client_users)
@@ -534,7 +692,7 @@ def test_display_movies(client_users):
     assert b'href="/employee/movies/deleted"' not in response.data 
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movie(client_movie):
     ''' Display movie info page '''
     login_employee(client_movie)
@@ -573,7 +731,7 @@ def test_display_movie(client_movie):
 
 
 ''' UPDATE MOVIE '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_update_movie(client_movie):
     ''' Test update poster, backdrop, and trailer path '''
     login_employee(client_movie)
@@ -612,7 +770,7 @@ def test_update_movie(client_movie):
         assert change.data_id == movie.id
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_update_movie_poster(client_movie):
     ''' Test update poster only '''
     login_employee(client_movie)
@@ -641,7 +799,7 @@ def test_update_movie_poster(client_movie):
         assert change.data_id == movie.id
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_update_movie_failure(client_movie):
     ''' Test update poster, backdrop, and trailer path with invalid data '''
     login_employee(client_movie)

@@ -9,11 +9,10 @@ from theatert.models import Card, Cards, Seat, Ticket, Purchase, Purchased_Ticke
 
 import calendar
 import pytest
-import os
 
 
 ''' MAP '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_map_display(client_movies):
     ''' Ticket seat map is displayed '''
     login_member(client_movies)
@@ -47,7 +46,7 @@ def test_map_display(client_movies):
             assert ('data-seat-id="' +  str(ticket.seat_id)  + '"').encode('utf-8') in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_post_map(client_movies):
     ''' Test proceeding to checkout '''
     showtime_tomorrow(client_movies)
@@ -69,7 +68,7 @@ def test_post_map(client_movies):
 
 
 ''' CHECKOUT '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_login(client_movies):
     ''' Test sign in before checkout '''
     showtime_tomorrow(client_movies)
@@ -92,7 +91,7 @@ def test_checkout_login(client_movies):
     assert response.request.path == url_for('users.member_login')
 
     
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_no_default_payment(client_movies):
     ''' Test checkout, receipt, and purchases (no default payment method) '''
     showtime_tomorrow(client_movies)
@@ -107,7 +106,6 @@ def test_checkout_no_default_payment(client_movies):
         senior_tickets = 1,
         form1 = 'ignore'
     )
-
     data.update(visa)
 
     response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
@@ -157,11 +155,25 @@ def test_checkout_no_default_payment(client_movies):
     assert url_for('users.receipt', confirmation = confirmation).encode('utf-8') in response.data
  
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_no_default_payment_failure(client_movies):
     ''' Test checkout and purchases (no default payment method) with invalid data '''
     showtime_tomorrow(client_movies)
     login_member(client_movies)
+
+    with client_movies.application.app_context():
+        day = str(calendar.monthrange(visa['exp_year'], visa['exp_month'])[1])
+        exp_date = datetime.strptime(str(visa['exp_month']) + '/' + day + '/' + str(visa['exp_year']), '%m/%d/%Y').date()
+
+        card = Card(
+                    card_num = visa['card_number'],
+                    exp_date = exp_date,
+                    card_type = visa['card_type'],
+                    billing_zip = visa['zip_code'],
+                    sec_code = bcrypt.generate_password_hash(visa['sec_code']).decode('utf-8'),
+                    )
+        db.session.add(card)
+        db.session.commit()
 
     # CHECKOUT
     data = dict(
@@ -169,12 +181,15 @@ def test_checkout_no_default_payment_failure(client_movies):
         seats_selected = '1, 2, 3',
         adult_tickets = 1,
         child_tickets = 1,
-        senior_tickets = 1 
+        senior_tickets = 1 ,
+        form1 = 'ignore'
     )
-
     data.update(visa)
+    data['sec_code'] = '000' # incorrect
+
     response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
-    assert response.status_code == 404
+    assert response.status_code == 200
+    assert b'Invalid card.' in response.data
 
     # PURCHASES
     with client_movies.application.app_context():
@@ -182,7 +197,7 @@ def test_checkout_no_default_payment_failure(client_movies):
         assert not purchase
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_save_default_payment(client_movies):
     ''' Test checkout, receipt, and purchases (save payment method) ''' 
     showtime_tomorrow(client_movies)
@@ -250,7 +265,7 @@ def test_checkout_save_default_payment(client_movies):
     assert url_for('users.receipt', confirmation = confirmation).encode('utf-8') in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_default_payment(client_movies):
     ''' Test checkout and receipt, and purchases (default payment method) '''
     showtime_tomorrow(client_movies)
@@ -331,7 +346,7 @@ def test_checkout_default_payment(client_movies):
     assert url_for('users.receipt', confirmation = confirmation).encode('utf-8') in response.data
     
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_checkout_default_payment_failure(client_movies):
     ''' Test checkout and purchases (default payment method) with invalid data '''
 
@@ -374,4 +389,80 @@ def test_checkout_default_payment_failure(client_movies):
     with client_movies.application.app_context():
         purchase = Purchase.query.first()
         assert not purchase
+
+
+#@pytest.mark.skip
+def test_checkout_purchased_ticket_no_default(client_movies):
+    ''' Test checkout a purchased ticket without a default payment method '''
+    showtime_tomorrow(client_movies)
+    login_member(client_movies)
+
+    # CHECKOUT
+    data = dict(
+        screening_id = 1,
+        seats_selected = '1, 2, 3',
+        adult_tickets = 1,
+        child_tickets = 1,
+        senior_tickets = 1,
+        form1 = 'ignore'
+    )
+    data.update(visa)
+
+    response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+
+    # Purchase a ticket already bought
+    response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'is unavailable.' in response.data
+
+    with client_movies.application.app_context():
+        assert Purchase.query.count() == 1
+
+
+#@pytest.mark.skip
+def test_checkout_purchased_ticket_default(client_movies):
+    ''' Test checkout a purchased ticket with default payment method '''
+    showtime_tomorrow(client_movies)
+    login_member(client_movies)
+    current_id = current_user.id
+
+    with client_movies.application.app_context():
+        day = str(calendar.monthrange(visa['exp_year'], visa['exp_month'])[1])
+        exp_date = datetime.strptime(str(visa['exp_month']) + '/' + day + '/' + str(visa['exp_year']), '%m/%d/%Y').date()
+
+        card = Card(
+                    card_num = visa['card_number'],
+                    exp_date = exp_date,
+                    card_type = visa['card_type'],
+                    billing_zip = visa['zip_code'],
+                    sec_code = bcrypt.generate_password_hash(visa['sec_code']).decode('utf-8'),
+                    )
+        db.session.add(card)
+        db.session.commit()
+
+        cards = Cards( member_id = current_id, card_id = card.id )
+        db.session.add(cards)
+        db.session.commit()
+
+    # CHECKOUT
+    data = dict(
+        screening_id = 1,
+        seats_selected = '1, 2, 3',
+        adult_tickets = 1,
+        child_tickets = 1,
+        senior_tickets = 1,
+        sec_code = visa['sec_code']
+    )
+
+    response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+
+    # Purchase a ticket already bought
+    response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'is unavailable.' in response.data
+
+    with client_movies.application.app_context():
+        assert Purchase.query.count() == 1
 

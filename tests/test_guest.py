@@ -5,14 +5,9 @@ from tests.utils import showtime_tomorrow
 from theatert.config_test import movie_a, movie_b, tomorrow
 
 import pytest
-import os
 
 
-if os.environ.get('SKIP_TEST_GUEST', 'false').lower() == 'true':
-    pytestmark = pytest.mark.skip("Skipping tests in test_register_login.py")
-
-
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_home(client_movies):
     ''' Movies and their showtimes are displayed'''
     # added one showtime so showtime id is 1
@@ -42,7 +37,7 @@ def test_home(client_movies):
     assert b'/ticket-seat-map/1' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movie(client_movies):
     ''' Movie info page is displayed '''
     showtime_tomorrow(client_movies) 
@@ -67,7 +62,7 @@ def test_display_movie(client_movies):
     assert b'/ticket-seat-map/1' in response.data
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_movies(client_movies):
     ''' Now playing and coming soon are correctly displayed '''
 

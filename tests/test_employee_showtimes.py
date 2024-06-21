@@ -3,17 +3,16 @@
 from datetime import datetime, timedelta
 from flask import url_for
 from flask_login import current_user
-from tests.utils import login_employee
+from tests.utils import login_employee, login_member, logout
 from theatert import db, max_price, min_price
-from theatert.models import Movie, Change, Screening, Seat, Ticket
-from theatert.config_test import movie_a, showtime_data, tomorrow, yesterday
+from theatert.models import Movie, Change, Purchase, Screening, Seat, Ticket
+from theatert.config_test import movie_a, showtime_data, tomorrow, visa, yesterday
 
 import pytest
-import os
 
 
 ''' DISPLAY SHOWTIMES '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_display_showtimes(client_movie):
     ''' Showtimes are correctly displayed in all, past, and upcoming
         Showtimes are correctly displayin in movie's showtimes. Auditorium and date filter work. '''
@@ -124,7 +123,7 @@ def test_display_showtimes(client_movie):
 
 
 ''' ADD SHOWTIMES '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_add_showtime_(client_movie):
     ''' Test add showtime
         Users can add a showtime to a movie if it exists, is not deleted, active, 
@@ -177,6 +176,9 @@ def test_add_showtime_(client_movie):
         assert change.table_name == 'screening'
         assert change.data_id == screening.id
 
+        response = client_movie.get(url_for('employees.tickets', s_id=screening.id), data=showtime_data, follow_redirects=True)
+        assert response.status_code == 200
+
     # UNRELEASED MOVIE
     data = dict(
         m_id = 2, 
@@ -211,8 +213,11 @@ def test_add_showtime_(client_movie):
         assert change.table_name == 'screening'
         assert change.data_id == screening.id
 
+        response = client_movie.get(url_for('employees.tickets', s_id=screening.id), data=showtime_data, follow_redirects=True)
+        assert response.status_code == 200
 
-@pytest.mark.skip
+
+#@pytest.mark.skip
 def test_add_showtime_failure(client_users):
     ''' Test add showtime with incorrect data
         Users can add a showtime to a movie if it exists, is not deleted, active, 
@@ -237,7 +242,7 @@ def test_add_showtime_failure(client_users):
         db.session.add(deleted)
 
         inactive = Movie (
-            tmdb_id = 128, # Princess Mononoke's tmdb id
+            tmdb_id = 129, # Spirited Away tmdb id
             title = 'Inactive',
             route = 'inactive', 
             release_date = datetime.now())
@@ -360,7 +365,7 @@ def test_add_showtime_failure(client_users):
         assert Change.query.count() == 0
 
 
-@pytest.mark.skip
+#@pytest.mark.skip
 @pytest.mark.parametrize('hour, minute', [(10, 0), (11, 00), (12, 25)])
 def test_add_showtime_failure_2(client_movie, hour, minute):
     ''' Test screening two movies in the same auditorium at overlapping times. '''
@@ -408,4 +413,65 @@ def test_add_showtime_failure_2(client_movie, hour, minute):
         assert Screening.query.count() == 1
         assert Ticket.query.count() == 0
         assert Change.query.count() == 0
+
+
+
+
+''' TICKETS '''
+#@pytest.mark.skip 
+def test_display_tickets(client_movies):
+    ''' Tickets are displayed. Purchasaed tickets link to their purchase info page. '''
+    # NOTE: This test is dependent on test_add_showtime, test_checkout, and test_checkout_no_default_payment. 
+    # If those tests fail, this test will also fail.
+
+    login_employee(client_movies)
+    response = client_movies.post(url_for('employees.showtimes.add_showtime'), data=showtime_data, follow_redirects=True)
+    assert response.status_code == 200
+
+    # Purchase by guest
+    logout(client_movies)
+    data = dict(
+        screening_id = 1,
+        seats_selected = '1, 2, 3',
+        adult_tickets = 1,
+        child_tickets = 1,
+        senior_tickets = 1,
+        email = 'test@guest.com'
+    )
+    data.update(visa)
+
+    # Checkout as a guest
+    response = client_movies.post(url_for('users.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+
+    # Checkout as a member
+    del data['email']
+    data['seats_selected'] = '4, 5, 6'
+    data['form1'] = 'ignore'
+    login_member(client_movies)
+    response = client_movies.post(url_for('members.checkout_validate'), data=data, follow_redirects=True)
+    assert response.status_code == 200
+    logout(client_movies)
+
+    # Tickets
+    login_employee(client_movies)
+    response = client_movies.get(url_for('employees.tickets', s_id=1))
+    assert response.status_code == 200
+
+    with client_movies.application.app_context():
+        assert Purchase.query.count() == 2
+        for purchase in Purchase.query.all():
+            assert url_for('employees.purchase_info', confirmation=purchase.confirmation).encode('utf-8') in response.data
+
+            # Purchase Info
+            response2 = client_movies.get(url_for('employees.purchase_info', confirmation=purchase.confirmation))
+            if purchase.member:
+                pass
+                assert f'{purchase.member.fname}'.encode('utf-8') in response2.data
+                assert f'{purchase.member.lname}'.encode('utf-8') in response2.data
+                assert f'{purchase.member.phone}'.encode('utf-8') in response2.data
+            else:
+                assert b'Purchased by a guest.' in response2.data
+
+            assert f'{purchase.email}'.encode('utf-8') in response2.data
 

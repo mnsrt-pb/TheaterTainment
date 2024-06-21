@@ -145,3 +145,14 @@ def populate_db():
 
     db.session.add_all(seats)
     db.session.commit()
+
+
+def clear_session():
+    if session.get('form_data'):
+        session.pop('form_data')
+        
+    if session.get('form2_data'):
+        session.pop('form2_data')
+
+    if session.get('form_data_login'):
+        session.pop('form_data_login')

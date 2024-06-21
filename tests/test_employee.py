@@ -6,11 +6,10 @@ from theatert import db
 from theatert.models import Auditorium, Seat 
 
 import pytest
-import os
 
 
 ''' AUDITORIUMS '''
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_auditoriums(client_users):
     ''' Test if the registration pages load correctly. '''
     # NOTE: This tests the auditoriums inserted from populate_db()
@@ -36,7 +35,7 @@ def test_auditoriums(client_users):
 
 ''' HOME '''
 # NOTE: Home page will also be tested inside tests where employee makes changes. 
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_home(client_users):
     login_employee(client_users)
 

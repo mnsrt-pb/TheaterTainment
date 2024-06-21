@@ -1,6 +1,5 @@
 from theatert import create_app, db
 from theatert.users.utils import populate_db
-
 from theatert import bcrypt, db
 from theatert.models import Employee, Member, Movie
 from theatert.config_test import movie_a, movie_b

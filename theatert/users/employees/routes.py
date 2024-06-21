@@ -135,7 +135,7 @@ def register():
         return render_template('employee/register.html', form=form)
 
 
-@employees.route('/tickets/<int:s_id>', methods=['GET', 'POST'])
+@employees.route('/tickets/<int:s_id>')
 @login_required(role='EMPLOYEE')
 def tickets(s_id):
     '''
