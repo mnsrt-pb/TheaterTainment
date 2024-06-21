@@ -34,6 +34,7 @@ movie_b = dict(
     trailer_path = 'GAp2_0JJskk'
 )
 
+# NOTE: card number was taken from Paypal's card testing data 
 visa = dict(
     card_type = 'Visa',
     card_number = '4032033067980677',

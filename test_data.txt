@@ -1,0 +1,30 @@
+testuser
+Valid*123
+
+test@user.com
+valid*123
+
+------------------
+NOTE: Card numbers were taken from Paypal's card testing data.
+      Expiration dates and ccv can be anything.
+
+Visa
+4032033067980677
+05/2025
+335
+
+
+MasterCard
+5110922681585734
+05/2026
+816
+
+Amex
+372410074700767
+05/2029
+6589
+
+Discover
+6011287354412626
+12/2027
+948
