@@ -1,21 +1,15 @@
-PIP INSTALLS:
-    email_validator
-    Flask
-    flask-wtf
-    flask-bcrypt
-    flask-login
-    flask-sqlalchemy
-    phonenumbers
-    pytest
-    pytest-flask
-    python-dotenv
-    pytz
-    requests
-    schwifty
-    tmdbsimple
-    flask-qrcode
-
-NPM INSTALLS:
-    popperjs
-    bootstrap
-    card-validator
+email_validator
+Flask
+flask-wtf
+flask-bcrypt
+flask-login
+flask-sqlalchemy
+phonenumbers
+pytest
+pytest-flask
+python-dotenv
+pytz
+requests
+schwifty
+tmdbsimple
+flask-qrcode
