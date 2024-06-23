@@ -54,7 +54,16 @@ This project is a web-based application called TheaterTainment, designed to emul
     ```
     
 4. Install dependencies:
-    
+
+   Must have node and pip installed.
+    ```
+    pip install -r requirements.txt
+    ```
+    or 
+    ```
+    pip install -r requirements-alt.txt
+    ```
+    or
     ```
     pip install email_validator
     pip install Flask
@@ -71,13 +80,8 @@ This project is a web-based application called TheaterTainment, designed to emul
     pip install schwifty
     pip install tmdbsimple
     pip install flask-qrcode
-    
-    npm install popperjs
-    npm install bootstrap
-    npm install card-validator
     ```
-    
-5. Run the project:
+6. Run the project:
     
     ```
     flask --app app run
