@@ -218,7 +218,7 @@ def test_change_password(client_users):
     data = dict(
         current_password = 'valid*123',
         new_password = 'als0valid!',
-        confirmation = 'als0valid!'
+        confirm = 'als0valid!'
     )
 
     response = client_users.post(url_for('members.profile'), data=data, follow_redirects=True)

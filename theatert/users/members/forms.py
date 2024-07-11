@@ -159,7 +159,7 @@ class PasswordForm(FlaskForm):
         
     current_password = PasswordField('Current Password', validators=[DataRequired()])
     new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=8)])
-    confirmation = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('new_password', message='The new password and confirmation password do not match.')])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('new_password', message='The new password and confirmation password do not match.')])
     submit = SubmitField('Save')
  
 

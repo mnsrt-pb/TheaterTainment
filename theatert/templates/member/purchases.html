@@ -26,7 +26,7 @@
                             </div>
                             <div class="mt-2">
                                 <h3 class="movie-title">{{ purchases.upcoming.screenings[i].movie.title }}</h3>
-                                <p class="mb-4">{{ purchases.upcoming.screenings[i].start_datetime.strftime("%A, %B %d") }} at {{ purchases.upcoming.screenings[0].start_datetime.strftime(" %I:%M %p") }}</p>
+                                <p class="mb-4">{{ purchases.upcoming.screenings[i].start_datetime.strftime("%A, %B %d") }} at {{ purchases.upcoming.screenings[i].start_datetime.strftime(" %I:%M %p") }}</p>
                                 <p>
                                     <span class="fs-6 fw-bolder">Tickets ({{ purchases.upcoming.totals[i] }})</span>
                                     <br>
@@ -62,7 +62,7 @@
         </div>
         
         <div class="mb-5">
-            <h5 class="fw-bold mb-4">Past Tickets & Orders</h5><hr>
+            <h4 class="mb-4">Past Tickets & Orders</h4><hr>
             {% if (purchases.past.screenings | length) == 0  %}
                 <p>No past purchases found for this account.</p>
             {% else %}
