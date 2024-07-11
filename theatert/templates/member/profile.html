@@ -228,10 +228,10 @@
                     {% endif %}
                 </div>
                 <div class="left-align mb-3">
-                    {{ password_form.confirmation.label(class="font-bold form-label font-sm mx-auto w-auto") }}
-                    {% if password_form.confirmation.errors %}
+                    {{ password_form.confirm.label(class="font-bold form-label font-sm mx-auto w-auto") }}
+                    {% if password_form.confirm.errors %}
                         <div class="d-flex justify-content-between">
-                            {{ password_form.confirmation(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
+                            {{ password_form.confirm(autocomplete="off", autofocus=true, class="form-control is-invalid") }}
                             <div class="ms-3 d-flex align-items-center">
                                 <span class="toggle-visibility-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
@@ -243,12 +243,12 @@
                             </div>
                         </div>
                         <div class="my-small2 text-danger mt-1">
-                            <span>{{ password_form.confirmation.errors[0] }}</span>
+                            <span>{{ password_form.confirm.errors[0] }}</span>
                         </div>
 
                     {% else %}
                         <div class="d-flex justify-content-between">
-                            {{ password_form.confirmation(autocomplete="off", autofocus=true, class="form-control") }} 
+                            {{ password_form.confirm(autocomplete="off", autofocus=true, class="form-control") }} 
                             <div class="ms-3 d-flex align-items-center">
                                 <span class="toggle-visibility-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
